@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.wallet.controller;
 
+import dev.nishanta.wallet.constant.ApiConstants;
 import dev.nishanta.wallet.transaction.service.DepositService;
 import dev.nishanta.wallet.wallet.dto.BalanceResponse;
 import dev.nishanta.wallet.wallet.dto.DepositRequest;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/wallets")
+@RequestMapping(ApiConstants.Wallet.BASE)
 public class WalletController {
 
     private final WalletService walletService;

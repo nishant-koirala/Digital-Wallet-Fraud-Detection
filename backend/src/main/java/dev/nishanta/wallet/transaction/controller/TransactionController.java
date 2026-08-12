@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.transaction.controller;
 
+import dev.nishanta.wallet.constant.ApiConstants;
 import dev.nishanta.wallet.transaction.dto.TransferRequest;
 import dev.nishanta.wallet.transaction.dto.TransferResponse;
 import dev.nishanta.wallet.transaction.service.TransferService;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/transactions")
+@RequestMapping(ApiConstants.Transaction.BASE)
 public class TransactionController {
 
     private final TransferService transferService;
@@ -18,7 +19,7 @@ public class TransactionController {
         this.transferService = transferService;
     }
 
-    @PostMapping("/transfer")
+    @PostMapping(ApiConstants.Transaction.TRANSFER)
     public TransferResponse transfer(@RequestBody TransferRequest request) {
         return transferService.transfer(request);
     }

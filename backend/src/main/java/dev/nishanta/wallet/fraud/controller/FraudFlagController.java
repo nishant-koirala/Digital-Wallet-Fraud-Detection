@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.fraud.controller;
 
+import dev.nishanta.wallet.constant.ApiConstants;
 import dev.nishanta.wallet.fraud.dto.FraudFlagResponse;
 import dev.nishanta.wallet.fraud.dto.ReviewRequest;
 import dev.nishanta.wallet.fraud.dto.ReviewResponse;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/fraud-flags")
+@RequestMapping(ApiConstants.FraudFlag.BASE)
 public class FraudFlagController {
 
     private final FraudReviewService fraudReviewService;
@@ -24,17 +25,17 @@ public class FraudFlagController {
         this.fraudReviewService = fraudReviewService;
     }
 
-    @GetMapping("/pending")
+    @GetMapping(ApiConstants.FraudFlag.PENDING)
     public List<FraudFlagResponse> listPending() {
         return fraudReviewService.listPending();
     }
 
-    @PostMapping("/{transactionId}/approve")
+    @PostMapping("/{transactionId}" + ApiConstants.FraudFlag.APPROVE)
     public ReviewResponse approve(@PathVariable UUID transactionId, @RequestBody ReviewRequest request) {
         return fraudReviewService.approve(transactionId, request.adminUserId());
     }
 
-    @PostMapping("/{transactionId}/reject")
+    @PostMapping("/{transactionId}" + ApiConstants.FraudFlag.REJECT)
     public ReviewResponse reject(@PathVariable UUID transactionId, @RequestBody ReviewRequest request) {
         return fraudReviewService.reject(transactionId, request.adminUserId());
     }

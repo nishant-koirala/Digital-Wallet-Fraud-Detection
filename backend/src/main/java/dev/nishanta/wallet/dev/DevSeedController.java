@@ -1,11 +1,12 @@
 package dev.nishanta.wallet.dev;
 
+import dev.nishanta.wallet.constant.ApiConstants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/dev")
+@RequestMapping(ApiConstants.Dev.BASE)
 public class DevSeedController {
 
     private final SeedService seedService;
@@ -14,7 +15,7 @@ public class DevSeedController {
         this.seedService = seedService;
     }
 
-    @PostMapping("/seed")
+    @PostMapping(ApiConstants.Dev.SEED)
     public SeedResponse seed() {
         return seedService.seed();
     }
