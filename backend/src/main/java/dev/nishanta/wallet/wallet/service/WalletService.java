@@ -1,7 +1,7 @@
 package dev.nishanta.wallet.wallet.service;
 
 import dev.nishanta.wallet.common.exception.NotFoundException;
-import dev.nishanta.wallet.transaction.ledger.WalletBalanceCalculator;
+import dev.nishanta.wallet.transaction.ledger.BalanceCalculator;
 import dev.nishanta.wallet.wallet.domain.Wallet;
 import dev.nishanta.wallet.wallet.dto.BalanceResponse;
 import dev.nishanta.wallet.wallet.repository.WalletRepository;
@@ -13,9 +13,9 @@ import java.util.UUID;
 public class WalletService {
 
     private final WalletRepository walletRepository;
-    private final WalletBalanceCalculator balanceCalculator;
+    private final BalanceCalculator balanceCalculator;
 
-    public WalletService(WalletRepository walletRepository, WalletBalanceCalculator balanceCalculator) {
+    public WalletService(WalletRepository walletRepository, BalanceCalculator balanceCalculator) {
         this.walletRepository = walletRepository;
         this.balanceCalculator = balanceCalculator;
     }

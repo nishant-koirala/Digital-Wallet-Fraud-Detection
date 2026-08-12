@@ -11,7 +11,7 @@ import java.util.UUID;
 // ledger entry for that wallet (debits are negative, credits are
 // positive, so a plain sum gives the correct running balance).
 @Component
-public class WalletBalanceCalculator {
+public class WalletBalanceCalculator implements BalanceCalculator {
 
     private final LedgerEntryRepository ledgerEntryRepository;
 
@@ -20,9 +20,8 @@ public class WalletBalanceCalculator {
         this.ledgerEntryRepository = ledgerEntryRepository;
     }
 
+    @Override
     public BigDecimal calculateBalance(UUID walletId) {
-        return ledgerEntryRepository.findByWalletId(walletId).stream()
-                .map(entry -> entry.getAmount())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ledgerEntryRepository.sumAmountByWalletId(walletId);
     }
 }
