@@ -1,0 +1,85 @@
+<div class="dashboard-header">
+  <div class="text-slate">Available Balance</div>
+  <div class="balance-figure">Rs. {{ displayBalance() | number:'1.2-2' }}</div>
+  
+  <div class="sparkline">
+    <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+      <path d="M0 30 Q 20 20, 40 25 T 80 15 T 120 20 T 160 5 T 200 10 L 200 40 L 0 40 Z" fill="#F6F5F4" />
+      <path d="M0 30 Q 20 20, 40 25 T 80 15 T 120 20 T 160 5 T 200 10" fill="none" stroke="#0A0D12" stroke-width="1.5" />
+    </svg>
+  </div>
+  
+  <div class="actions">
+    <button class="btn btn-primary">Send</button>
+    <button class="btn">Deposit</button>
+    <a href="/qr" class="btn">Pay via QR</a>
+  </div>
+</div>
+
+<div class="recent-transactions">
+  <div class="list-header">
+    <h2 class="text-medium">Recent</h2>
+    
+    <div class="filters">
+      <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+      
+      <div class="chips">
+        <button class="chip" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">All</button>
+        <button class="chip" [class.active]="filter() === 'RECEIVED'" (click)="filter.set('RECEIVED')">Received</button>
+        <button class="chip" [class.active]="filter() === 'SENT'" (click)="filter.set('SENT')">Sent</button>
+      </div>
+    </div>
+  </div>
+
+  <ul class="plain-list">
+    @for (t of filteredTransactions(); track t.id) {
+      <li class="transaction-row" (click)="openTransaction(t)">
+        <div class="details">
+          <span class="name text-medium">{{ t.name }}</span>
+          <span class="meta text-slate">{{ t.meta }}</span>
+        </div>
+        <div class="amount-status">
+          <span class="amount" [class.positive]="t.amount > 0">
+            {{ t.amount > 0 ? '+' : '' }} Rs. {{ (t.amount > 0 ? t.amount : -t.amount) | number:'1.2-2' }}
+          </span>
+          <span class="status text-slate">{{ t.time }}</span>
+        </div>
+      </li>
+    }
+    @empty {
+      <li class="empty-state text-slate">No transactions found.</li>
+    }
+  </ul>
+</div>
+
+@if (selectedTransaction()) {
+  <div class="drawer-backdrop" (click)="closeTransaction()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3 class="text-medium">Transaction Details</h3>
+      <button class="close-btn" (click)="closeTransaction()">×</button>
+    </div>
+    <div class="drawer-content">
+      <div class="drawer-amount" [class.positive]="selectedTransaction()!.amount > 0">
+        {{ selectedTransaction()!.amount > 0 ? '+' : '' }} Rs. {{ (selectedTransaction()!.amount > 0 ? selectedTransaction()!.amount : -selectedTransaction()!.amount) | number:'1.2-2' }}
+      </div>
+      
+      <div class="detail-row">
+        <span class="text-slate">Party</span>
+        <span class="text-medium">{{ selectedTransaction()!.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="text-slate">Identifier</span>
+        <span>{{ selectedTransaction()!.meta }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="text-slate">Time</span>
+        <span>{{ selectedTransaction()!.time }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="text-slate">Txn ID</span>
+        <span class="monospace">{{ selectedTransaction()!.id }}</span>
+      </div>
+    </div>
+  </div>
+}

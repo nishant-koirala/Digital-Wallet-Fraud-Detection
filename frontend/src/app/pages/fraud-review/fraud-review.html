@@ -1,0 +1,50 @@
+<div class="review-container">
+  <div class="header">
+    <h2>Admin: Fraud Review</h2>
+    <a href="/" class="back-link text-slate">Back to Dashboard</a>
+  </div>
+  
+  <div class="filter-bar">
+    <span class="text-slate text-medium">Filter by Rule:</span>
+    <select [ngModel]="filterRule()" (ngModelChange)="filterRule.set($event)" class="rule-select">
+      <option value="ALL">All Rules</option>
+      <option value="Velocity (High)">Velocity (High)</option>
+      <option value="Amount Threshold">Amount Threshold</option>
+    </select>
+  </div>
+  
+  <table class="review-table">
+    <thead>
+      <tr>
+        <th class="text-slate">User</th>
+        <th class="text-slate">Rule Flagged</th>
+        <th class="text-slate amount-col">Amount</th>
+        <th class="text-slate action-col">Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of filteredItems(); track item.id) {
+        <tr>
+          <td>{{ item.user }}<br><span class="meta text-slate">{{ item.userId }}</span></td>
+          <td>{{ item.rule }}</td>
+          <td class="amount-col">Rs. {{ item.amount | number:'1.2-2' }}</td>
+          <td class="action-col">
+            <button class="btn btn-success" (click)="approve(item)">Approve</button>
+            <button class="btn" (click)="reject(item)">Reject</button>
+          </td>
+        </tr>
+      }
+      @empty {
+        <tr>
+          <td colspan="4" class="empty-state text-slate">No pending reviews.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (toastMessage()) {
+  <div class="toast">
+    {{ toastMessage() }}
+  </div>
+}
