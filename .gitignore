@@ -22,3 +22,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Claude Code (project settings / memory — not source code)
+.claude/
