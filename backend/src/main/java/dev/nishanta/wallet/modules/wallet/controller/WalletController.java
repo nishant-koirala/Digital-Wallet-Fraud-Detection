@@ -39,7 +39,7 @@ public class WalletController {
         return depositService.deposit(walletId, request);
     }
 
-    @GetMapping("/api/v1/wallets/{walletId}/transactions")
+    @GetMapping("/{walletId}/transactions")
     public List<Transaction> getTransactions(@PathVariable UUID walletId) {
         return walletService.getTransactions(walletId);
     }
