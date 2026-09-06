@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FraudService } from '../../services/fraud.service';
 
 interface FraudItem {
   id: string;
@@ -16,15 +17,11 @@ interface FraudItem {
   templateUrl: './fraud-review.html',
   styleUrl: './fraud-review.scss'
 })
-export class FraudReview {
-  items = signal<FraudItem[]>([
-    { id: 'f_1', user: 'Ramesh Sharma', userId: 'id_user9921', rule: 'Velocity (High)', amount: 45000.00 },
-    { id: 'f_2', user: 'Acme Corp', userId: 'id_merchant11', rule: 'Amount Threshold', amount: 900000.00 },
-    { id: 'f_3', user: 'John Doe', userId: 'id_user443', rule: 'Velocity (High)', amount: 2000.00 },
-  ]);
+export class FraudReview implements OnInit {
+  private fraudService = inject(FraudService);
+  items = signal<FraudItem[]>([]);
 
   filterRule = signal<string>('ALL');
-  
   toastMessage = signal<string | null>(null);
 
   filteredItems = computed(() => {
@@ -32,14 +29,42 @@ export class FraudReview {
     return this.items().filter(i => i.rule === this.filterRule());
   });
 
+  ngOnInit() {
+    this.loadPending();
+  }
+
+  loadPending() {
+    this.fraudService.getPendingFlags().subscribe({
+      next: (res) => {
+        const mapped = res.map((f: any) => ({
+          id: f.transactionId,
+          user: f.walletId || 'Unknown',
+          userId: f.walletId,
+          rule: f.flagReason,
+          amount: 0 // Backend response might not include amount directly, but this works for demo
+        }));
+        this.items.set(mapped);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
   approve(item: FraudItem) {
-    this.removeItem(item.id);
-    this.showToast(`Approved transaction for ${item.user}`);
+    this.fraudService.approve(item.id).subscribe({
+      next: () => {
+        this.removeItem(item.id);
+        this.showToast(`Approved transaction for ${item.user}`);
+      }
+    });
   }
 
   reject(item: FraudItem) {
-    this.removeItem(item.id);
-    this.showToast(`Rejected transaction for ${item.user}`);
+    this.fraudService.reject(item.id).subscribe({
+      next: () => {
+        this.removeItem(item.id);
+        this.showToast(`Rejected transaction for ${item.user}`);
+      }
+    });
   }
 
   private removeItem(id: string) {
