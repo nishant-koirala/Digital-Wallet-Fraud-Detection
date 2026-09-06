@@ -41,13 +41,8 @@ export class Dashboard implements OnInit {
   });
 
   ngOnInit() {
-    this.walletService.seedAndInitialize().subscribe({
-      next: () => {
-        this.fetchBalance();
-        this.fetchTransactions();
-      },
-      error: err => console.error("Error connecting to backend:", err)
-    });
+    this.fetchBalance();
+    this.fetchTransactions();
   }
 
   fetchBalance() {

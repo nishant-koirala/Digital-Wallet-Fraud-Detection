@@ -1,7 +1,21 @@
 <header class="top-bar">
   <div class="logo">Wallet App</div>
-  <div class="user-profile">
-    <div class="avatar">NK</div>
-    <span class="name text-medium">Nishant Koirala</span>
+  <nav class="nav-links">
+    <ng-container *ngIf="authService.currentUser$ | async as user; else unauthLinks">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
+      <a routerLink="/qr" routerLinkActive="active">Send / Pay</a>
+      <a routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'ADMIN'">Admin</a>
+    </ng-container>
+    <ng-template #unauthLinks>
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+    </ng-template>
+  </nav>
+
+  <div class="user-profile" *ngIf="authService.currentUser$ | async as user">
+    <div class="avatar">
+      {{ user.name.charAt(0) }}
+    </div>
+    <span class="user-name">{{ user.name }}</span>
+    <button class="logout-btn" (click)="logout()">Logout</button>
   </div>
 </header>
