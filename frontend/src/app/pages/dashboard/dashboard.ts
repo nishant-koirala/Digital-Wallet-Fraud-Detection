@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../services/wallet.service';
+import { TransactionService } from '../../services/transaction.service';
 
 interface Transaction {
   id: string;
@@ -19,8 +20,16 @@ interface Transaction {
 })
 export class Dashboard implements OnInit {
   private walletService = inject(WalletService);
+  private transactionService = inject(TransactionService);
   displayBalance = signal(0);
   targetBalance = 0;
+  
+  showDepositModal = signal(false);
+  depositAmount = signal<number | null>(null);
+
+  showTransferModal = signal(false);
+  transferToWalletId = signal('');
+  transferAmount = signal<number | null>(null);
   
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
@@ -93,5 +102,59 @@ export class Dashboard implements OnInit {
   
   closeTransaction() {
     this.selectedTransaction.set(null);
+  }
+
+  openDepositModal() {
+    this.showDepositModal.set(true);
+    this.depositAmount.set(null);
+  }
+
+  closeDepositModal() {
+    this.showDepositModal.set(false);
+  }
+
+  submitDeposit() {
+    const amount = this.depositAmount();
+    if (!amount || amount <= 0) return;
+    
+    this.walletService.deposit(amount).subscribe({
+      next: () => {
+        this.closeDepositModal();
+        this.fetchBalance();
+        this.fetchTransactions();
+      },
+      error: (err) => {
+        console.error('Deposit failed', err);
+        alert('Deposit failed. Please try again.');
+      }
+    });
+  }
+
+  openTransferModal() {
+    this.showTransferModal.set(true);
+    this.transferToWalletId.set('');
+    this.transferAmount.set(null);
+  }
+
+  closeTransferModal() {
+    this.showTransferModal.set(false);
+  }
+
+  submitTransfer() {
+    const amount = this.transferAmount();
+    const toWalletId = this.transferToWalletId();
+    if (!amount || amount <= 0 || !toWalletId) return;
+
+    this.transactionService.transfer(toWalletId, amount).subscribe({
+      next: () => {
+        this.closeTransferModal();
+        this.fetchBalance();
+        this.fetchTransactions();
+      },
+      error: (err) => {
+        console.error('Transfer failed', err);
+        alert('Transfer failed. Please check the wallet ID and your balance.');
+      }
+    });
   }
 }

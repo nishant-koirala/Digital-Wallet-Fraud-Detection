@@ -19,4 +19,13 @@ export class WalletService {
     const walletId = this.authService.walletId;
     return this.http.get<any[]>(`${this.baseUrl}/${walletId}/transactions`);
   }
+
+  deposit(amount: number) {
+    const walletId = this.authService.walletId;
+    const idempotencyKey = crypto.randomUUID();
+    return this.http.post<any>(`${this.baseUrl}/${walletId}/deposit`, {
+      idempotencyKey,
+      amount
+    });
+  }
 }

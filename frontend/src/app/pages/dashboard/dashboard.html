@@ -10,8 +10,8 @@
   </div>
   
   <div class="actions">
-    <button class="btn btn-primary">Send</button>
-    <button class="btn">Deposit</button>
+    <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
+    <button class="btn" (click)="openDepositModal()">Deposit</button>
     <a href="/qr" class="btn">Pay via QR</a>
   </div>
 </div>
@@ -80,6 +80,44 @@
         <span class="text-slate">Txn ID</span>
         <span class="monospace">{{ selectedTransaction()!.id }}</span>
       </div>
+    </div>
+  </div>
+}
+
+@if (showDepositModal()) {
+  <div class="drawer-backdrop" (click)="closeDepositModal()"></div>
+  <div class="drawer" style="height: auto; min-height: 250px;">
+    <div class="drawer-header">
+      <h3 class="text-medium">Deposit Funds</h3>
+      <button class="close-btn" (click)="closeDepositModal()">×</button>
+    </div>
+    <div class="drawer-content" style="padding-top: 20px;">
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
+        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" (click)="submitDeposit()">Confirm Deposit</button>
+    </div>
+  </div>
+}
+
+@if (showTransferModal()) {
+  <div class="drawer-backdrop" (click)="closeTransferModal()"></div>
+  <div class="drawer" style="height: auto; min-height: 350px;">
+    <div class="drawer-header">
+      <h3 class="text-medium">Send Funds</h3>
+      <button class="close-btn" (click)="closeTransferModal()">×</button>
+    </div>
+    <div class="drawer-content" style="padding-top: 20px;">
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="text-slate" style="display: block; margin-bottom: 8px;">Destination Wallet ID</label>
+        <input type="text" class="search-input" style="width: 100%;" placeholder="e.g. 1234-abcd..." [ngModel]="transferToWalletId()" (ngModelChange)="transferToWalletId.set($event)">
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
+        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 500" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)">
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" (click)="submitTransfer()">Send Now</button>
     </div>
   </div>
 }
