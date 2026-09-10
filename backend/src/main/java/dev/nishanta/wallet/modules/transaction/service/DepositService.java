@@ -4,7 +4,7 @@ import dev.nishanta.wallet.common.exception.NotFoundException;
 import dev.nishanta.wallet.modules.transaction.domain.EntryType;
 import dev.nishanta.wallet.modules.transaction.domain.LedgerEntry;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
-import dev.nishanta.wallet.modules.transaction.ledger.WalletBalanceCalculator;
+import dev.nishanta.wallet.modules.transaction.ledger.BalanceCalculator;
 import dev.nishanta.wallet.modules.transaction.repository.LedgerEntryRepository;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
@@ -25,13 +25,13 @@ public class DepositService {
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
     private final LedgerEntryRepository ledgerEntryRepository;
-    private final WalletBalanceCalculator balanceCalculator;
+    private final BalanceCalculator balanceCalculator;
 
     public DepositService(MintWalletProvider mintWalletProvider,
                           WalletRepository walletRepository,
                           TransactionRepository transactionRepository,
                           LedgerEntryRepository ledgerEntryRepository,
-                          WalletBalanceCalculator balanceCalculator) {
+                          BalanceCalculator balanceCalculator) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;

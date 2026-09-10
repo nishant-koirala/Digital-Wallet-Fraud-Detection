@@ -8,16 +8,15 @@ import dev.nishanta.wallet.modules.fraud.domain.ReviewDecision;
 import dev.nishanta.wallet.modules.fraud.dto.FraudFlagResponse;
 import dev.nishanta.wallet.modules.fraud.dto.ReviewResponse;
 import dev.nishanta.wallet.modules.fraud.repository.FraudFlagRepository;
-import dev.nishanta.wallet.modules.transaction.domain.EntryType;
-import dev.nishanta.wallet.modules.transaction.domain.LedgerEntry;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
-import dev.nishanta.wallet.modules.transaction.ledger.WalletBalanceCalculator;
-import dev.nishanta.wallet.modules.transaction.repository.LedgerEntryRepository;
+import dev.nishanta.wallet.modules.transaction.ledger.BalanceCalculator;
+import dev.nishanta.wallet.modules.transaction.ledger.LedgerPostingService;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import dev.nishanta.wallet.modules.user.domain.User;
 import dev.nishanta.wallet.modules.user.repository.UserRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
-import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
+import dev.nishanta.wallet.modules.wallet.service.WalletLockingService;
+import dev.nishanta.wallet.modules.wallet.service.WalletLockingService.WalletPair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,27 +25,30 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// Single responsibility: make admin review decisions on flagged
+// transactions. Wallet locking, balance re-verification and ledger
+// posting are delegated to their own services.
 @Service
 public class FraudReviewService {
 
     private final FraudFlagRepository fraudFlagRepository;
     private final TransactionRepository transactionRepository;
-    private final WalletRepository walletRepository;
-    private final LedgerEntryRepository ledgerEntryRepository;
     private final UserRepository userRepository;
-    private final WalletBalanceCalculator balanceCalculator;
+    private final WalletLockingService walletLockingService;
+    private final LedgerPostingService ledgerPostingService;
+    private final BalanceCalculator balanceCalculator;
 
     public FraudReviewService(FraudFlagRepository fraudFlagRepository,
                               TransactionRepository transactionRepository,
-                              WalletRepository walletRepository,
-                              LedgerEntryRepository ledgerEntryRepository,
                               UserRepository userRepository,
-                              WalletBalanceCalculator balanceCalculator) {
+                              WalletLockingService walletLockingService,
+                              LedgerPostingService ledgerPostingService,
+                              BalanceCalculator balanceCalculator) {
         this.fraudFlagRepository = fraudFlagRepository;
         this.transactionRepository = transactionRepository;
-        this.walletRepository = walletRepository;
-        this.ledgerEntryRepository = ledgerEntryRepository;
         this.userRepository = userRepository;
+        this.walletLockingService = walletLockingService;
+        this.ledgerPostingService = ledgerPostingService;
         this.balanceCalculator = balanceCalculator;
     }
 
@@ -70,22 +72,13 @@ public class FraudReviewService {
 
         Transaction transaction = flag.getTransaction();
 
-        // Lock both wallets, same ordered pattern as TransferService —
-        // time has passed since this was flagged, so we re-verify the
+        // Time has passed since this was flagged, so we re-verify the
         // sender still has sufficient balance NOW, not just at the
         // original moment of the transfer attempt.
-        UUID fromId = transaction.getFromWallet().getId();
-        UUID toId = transaction.getToWallet().getId();
-        UUID firstLockId = fromId.compareTo(toId) < 0 ? fromId : toId;
-        UUID secondLockId = fromId.compareTo(toId) < 0 ? toId : fromId;
-
-        Wallet firstLocked = walletRepository.findByIdForUpdate(firstLockId)
-                .orElseThrow(() -> new NotFoundException("Wallet not found: " + firstLockId));
-        Wallet secondLocked = walletRepository.findByIdForUpdate(secondLockId)
-                .orElseThrow(() -> new NotFoundException("Wallet not found: " + secondLockId));
-
-        Wallet fromWallet = firstLockId.equals(fromId) ? firstLocked : secondLocked;
-        Wallet toWallet = firstLockId.equals(fromId) ? secondLocked : firstLocked;
+        WalletPair wallets = walletLockingService.lockForTransfer(
+                transaction.getFromWallet().getId(), transaction.getToWallet().getId());
+        Wallet fromWallet = wallets.fromWallet();
+        Wallet toWallet = wallets.toWallet();
 
         BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWallet.getId());
         if (senderBalance.compareTo(transaction.getAmount()) < 0) {
@@ -93,15 +86,7 @@ public class FraudReviewService {
                     "Sender's balance is no longer sufficient to approve this transaction");
         }
 
-        LedgerEntry debit = new LedgerEntry(
-                transaction, fromWallet, transaction.getAmount().negate(), EntryType.DEBIT, fromWallet.getCurrency());
-        LedgerEntry credit = new LedgerEntry(
-                transaction, toWallet, transaction.getAmount(), EntryType.CREDIT, toWallet.getCurrency());
-        ledgerEntryRepository.save(debit);
-        ledgerEntryRepository.save(credit);
-
-        transaction.markCompleted();
-        transactionRepository.save(transaction);
+        ledgerPostingService.postAndComplete(transaction, fromWallet, toWallet);
 
         flag.review(admin, ReviewDecision.APPROVED);
         fraudFlagRepository.save(flag);

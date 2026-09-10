@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.startup;
 
+import dev.nishanta.wallet.constant.ApiConstants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
