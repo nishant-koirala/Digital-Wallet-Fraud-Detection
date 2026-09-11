@@ -4,6 +4,7 @@
     <ng-container *ngIf="authService.currentUser$ | async as user; else unauthLinks">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
       <a routerLink="/qr" routerLinkActive="active">Send / Pay</a>
+      <a routerLink="/merchant/onboard" routerLinkActive="active" *ngIf="user.role === 'USER'">Become a Merchant</a>
       <a routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'ADMIN'">Admin</a>
     </ng-container>
     <ng-template #unauthLinks>
@@ -15,7 +16,10 @@
     <div class="avatar">
       {{ user.name.charAt(0) }}
     </div>
-    <span class="user-name">{{ user.name }}</span>
+    <span class="user-name">
+      {{ user.name }}
+      <span class="merchant-badge" *ngIf="user.role === 'MERCHANT'" title="Verified Merchant">✓</span>
+    </span>
     <button class="logout-btn" (click)="logout()">Logout</button>
   </div>
 </header>

@@ -1,0 +1,85 @@
+.onboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 64px);
+  background-color: #f5f7fa;
+  padding: 2rem;
+
+  .onboard-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 480px;
+
+    h2 {
+      margin: 0 0 0.5rem;
+      color: #1a1f36;
+    }
+
+    p {
+      color: #697386;
+      margin-bottom: 2rem;
+    }
+
+    .error-message {
+      background-color: #fee2e2;
+      color: #dc2626;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #3c4257;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 1rem;
+        color: #1a1f36;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+      }
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover:not(:disabled) {
+        background-color: #4f46e5;
+      }
+
+      &:disabled {
+        background-color: #a5b4fc;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

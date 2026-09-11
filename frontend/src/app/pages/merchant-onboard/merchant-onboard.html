@@ -1,0 +1,54 @@
+<div class="onboard-container">
+  <div class="onboard-card">
+    <h2>Become a Merchant</h2>
+    <p>Upgrade your account to start accepting business payments.</p>
+
+    <div class="error-message" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #onboardForm="ngForm">
+      <div class="form-group">
+        <label for="businessName">Business Name</label>
+        <input 
+          type="text" 
+          id="businessName" 
+          name="businessName" 
+          [(ngModel)]="request.businessName" 
+          required 
+          placeholder="e.g. Acme Corp">
+      </div>
+
+      <div class="form-group">
+        <label for="category">Business Category</label>
+        <select 
+          id="category" 
+          name="category" 
+          [(ngModel)]="request.category" 
+          required>
+          <option value="" disabled>Select a category</option>
+          <option value="RETAIL">Retail</option>
+          <option value="FOOD_AND_BEVERAGE">Food & Beverage</option>
+          <option value="SERVICES">Services</option>
+          <option value="ONLINE">Online Store</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="settlementAccount">Settlement Bank Account</label>
+        <input 
+          type="text" 
+          id="settlementAccount" 
+          name="settlementAccount" 
+          [(ngModel)]="request.settlementAccount" 
+          required 
+          placeholder="Account Number">
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="onboardForm.invalid || loading">
+        {{ loading ? 'Processing...' : 'Complete Onboarding' }}
+      </button>
+    </form>
+  </div>
+</div>

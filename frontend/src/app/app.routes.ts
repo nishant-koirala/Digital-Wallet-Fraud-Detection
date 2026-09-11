@@ -4,6 +4,7 @@ import { QrScreen } from './pages/qr-screen/qr-screen';
 import { FraudReview } from './pages/fraud-review/fraud-review';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
+import { MerchantOnboard } from './pages/merchant-onboard/merchant-onboard';
 import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: '', component: Dashboard, canActivate: [authGuard] },
   { path: 'qr', component: QrScreen, canActivate: [authGuard] },
   { path: 'admin', component: FraudReview, canActivate: [authGuard] },
+  { path: 'merchant/onboard', component: MerchantOnboard, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
