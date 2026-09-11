@@ -62,4 +62,8 @@ public class User {
     public void setPin(String pinHash) {
         this.pinHash = pinHash;
     }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
