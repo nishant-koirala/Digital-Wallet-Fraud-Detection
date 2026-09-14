@@ -34,4 +34,17 @@ export class TransactionService {
       longitude
     });
   }
+
+  payBill(billerId: string, customerId: string, amount: number): Observable<TransferResponse> {
+    const idempotencyKey = crypto.randomUUID();
+    const fromWalletId = this.authService.walletId;
+
+    return this.http.post<TransferResponse>(`${this.baseUrl}/pay-bill`, {
+      idempotencyKey,
+      fromWalletId,
+      billerId,
+      customerId,
+      amount
+    });
+  }
 }
