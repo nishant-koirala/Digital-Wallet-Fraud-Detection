@@ -5,6 +5,7 @@ import dev.nishanta.wallet.modules.merchant.domain.MerchantProfile;
 import dev.nishanta.wallet.modules.merchant.dto.MerchantCreateRequest;
 import dev.nishanta.wallet.modules.merchant.dto.MerchantResponse;
 import dev.nishanta.wallet.modules.merchant.repository.MerchantRepository;
+import dev.nishanta.wallet.modules.merchant.domain.MerchantStatus;
 import dev.nishanta.wallet.modules.user.domain.Role;
 import dev.nishanta.wallet.modules.user.domain.User;
 import dev.nishanta.wallet.modules.user.repository.UserRepository;
@@ -69,6 +70,30 @@ public class MerchantService {
         MerchantProfile profile = merchantRepository.findByWallet_User_Id(userId)
                 .orElseThrow(() -> new NotFoundException("Merchant profile not found for user"));
         return mapToResponse(profile);
+    }
+
+    public java.util.List<MerchantResponse> getPendingMerchants() {
+        return merchantRepository.findAllByStatus(MerchantStatus.PENDING).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Transactional
+    public void approveMerchant(UUID merchantId, String adminEmail) {
+        MerchantProfile profile = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new NotFoundException("Merchant not found"));
+        profile.approve();
+        merchantRepository.save(profile);
+        auditService.logAction("MERCHANT_PROFILE", profile.getId(), "APPROVE", adminEmail, null, null);
+    }
+
+    @Transactional
+    public void rejectMerchant(UUID merchantId, String adminEmail) {
+        MerchantProfile profile = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new NotFoundException("Merchant not found"));
+        profile.reject();
+        merchantRepository.save(profile);
+        auditService.logAction("MERCHANT_PROFILE", profile.getId(), "REJECT", adminEmail, null, null);
     }
 
     private MerchantResponse mapToResponse(MerchantProfile profile) {

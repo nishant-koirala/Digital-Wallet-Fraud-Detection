@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../services/wallet.service';
+import { AuthService } from '../../services/auth.service';
 import { TransactionService } from '../../services/transaction.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -20,6 +21,7 @@ interface Transaction {
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
+  private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
   private route = inject(ActivatedRoute);
@@ -28,6 +30,9 @@ export class Dashboard implements OnInit {
   
   showDepositModal = signal(false);
   depositAmount = signal<number | null>(null);
+
+  showWithdrawModal = signal(false);
+  withdrawAmount = signal<number | null>(null);
 
   showTransferModal = signal(false);
   transferToWalletId = signal('');
@@ -60,6 +65,10 @@ export class Dashboard implements OnInit {
         this.transferToWalletId.set(params['transferTo']);
       }
     });
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
   }
 
   fetchBalance() {
@@ -134,6 +143,32 @@ export class Dashboard implements OnInit {
       error: (err) => {
         console.error('Deposit failed', err);
         alert('Deposit failed. Please try again.');
+      }
+    });
+  }
+
+  openWithdrawModal() {
+    this.showWithdrawModal.set(true);
+    this.withdrawAmount.set(null);
+  }
+
+  closeWithdrawModal() {
+    this.showWithdrawModal.set(false);
+  }
+
+  submitWithdraw() {
+    const amount = this.withdrawAmount();
+    if (!amount || amount <= 0) return;
+    
+    this.walletService.withdraw(amount).subscribe({
+      next: () => {
+        this.closeWithdrawModal();
+        this.fetchBalance();
+        this.fetchTransactions();
+      },
+      error: (err) => {
+        console.error('Withdraw failed', err);
+        alert('Withdraw failed. Please check your balance and try again.');
       }
     });
   }

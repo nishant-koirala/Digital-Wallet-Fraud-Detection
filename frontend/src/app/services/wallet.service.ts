@@ -28,4 +28,13 @@ export class WalletService {
       amount
     });
   }
+
+  withdraw(amount: number) {
+    const walletId = this.authService.walletId;
+    const idempotencyKey = crypto.randomUUID();
+    return this.http.post<any>(`${this.baseUrl}/${walletId}/withdraw`, {
+      idempotencyKey,
+      amount
+    });
+  }
 }

@@ -1,8 +1,10 @@
 package dev.nishanta.wallet.modules.wallet.controller;
 
 import dev.nishanta.wallet.modules.transaction.service.DepositService;
+import dev.nishanta.wallet.modules.transaction.service.WithdrawService;
 import dev.nishanta.wallet.modules.wallet.dto.BalanceResponse;
 import dev.nishanta.wallet.modules.wallet.dto.DepositRequest;
+import dev.nishanta.wallet.modules.wallet.dto.WithdrawRequest;
 import dev.nishanta.wallet.modules.wallet.service.WalletService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +25,12 @@ public class WalletController {
 
     private final WalletService walletService;
     private final DepositService depositService;
+    private final WithdrawService withdrawService;
 
-    public WalletController(WalletService walletService, DepositService depositService) {
+    public WalletController(WalletService walletService, DepositService depositService, WithdrawService withdrawService) {
         this.walletService = walletService;
         this.depositService = depositService;
+        this.withdrawService = withdrawService;
     }
 
     @GetMapping(ApiRoutes.WALLET_BALANCE)
@@ -37,6 +41,11 @@ public class WalletController {
     @PostMapping(ApiRoutes.WALLET_DEPOSIT)
     public BalanceResponse deposit(@PathVariable UUID walletId, @RequestBody DepositRequest request) {
         return depositService.deposit(walletId, request);
+    }
+
+    @PostMapping(ApiRoutes.WALLET_WITHDRAW)
+    public BalanceResponse withdraw(@PathVariable UUID walletId, @RequestBody WithdrawRequest request) {
+        return withdrawService.withdraw(walletId, request);
     }
 
     @GetMapping("/{walletId}/transactions")

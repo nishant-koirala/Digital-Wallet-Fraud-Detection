@@ -36,6 +36,10 @@ export class AuthService {
     return this.currentUserSubject.value?.walletId || null;
   }
 
+  get isAdmin(): boolean {
+    return this.currentUserSubject.value?.role === 'ADMIN';
+  }
+
   login(credentials: any) {
     return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials).pipe(
       tap(res => this.setSession(res))
