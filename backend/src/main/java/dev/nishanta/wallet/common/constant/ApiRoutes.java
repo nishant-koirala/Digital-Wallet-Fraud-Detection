@@ -29,4 +29,7 @@ public final class ApiRoutes {
     public static final String MERCHANT_BASE = BASE_API + "/merchants";
     public static final String MERCHANT_ONBOARD = "/onboard";
     public static final String MERCHANT_PROFILE = "/profile";
+
+    // Audit Routes
+    public static final String AUDIT_BASE = BASE_API + "/audit-logs";
 }

@@ -11,6 +11,7 @@ import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService.WalletPair;
+import dev.nishanta.wallet.modules.audit.service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +29,20 @@ public class TransferService {
     private final FraudDetectionService fraudDetectionService;
     private final LedgerPostingService ledgerPostingService;
     private final BalanceCalculator balanceCalculator;
+    private final AuditService auditService;
 
     public TransferService(TransactionRepository transactionRepository,
                            WalletLockingService walletLockingService,
                            FraudDetectionService fraudDetectionService,
                            LedgerPostingService ledgerPostingService,
-                           BalanceCalculator balanceCalculator) {
+                           BalanceCalculator balanceCalculator,
+                           AuditService auditService) {
         this.transactionRepository = transactionRepository;
         this.walletLockingService = walletLockingService;
         this.fraudDetectionService = fraudDetectionService;
         this.ledgerPostingService = ledgerPostingService;
         this.balanceCalculator = balanceCalculator;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -82,6 +86,8 @@ public class TransferService {
         // Only a genuinely clean transaction reaches this point, where
         // the double-entry ledger pair actually gets written.
         ledgerPostingService.postAndComplete(transaction, fromWallet, toWallet);
+
+        auditService.logAction("TRANSACTION", transaction.getId(), "TRANSFER", fromWallet.getUser().getEmail(), null, request);
 
         return toResponse(transaction);
     }

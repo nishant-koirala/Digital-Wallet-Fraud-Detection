@@ -2,6 +2,7 @@ package dev.nishanta.wallet.modules.auth.service;
 
 import dev.nishanta.wallet.modules.auth.dto.AuthRequest;
 import dev.nishanta.wallet.modules.auth.dto.AuthResponse;
+import dev.nishanta.wallet.modules.audit.service.AuditService;
 import dev.nishanta.wallet.modules.user.domain.Role;
 import dev.nishanta.wallet.modules.user.domain.User;
 import dev.nishanta.wallet.modules.user.repository.UserRepository;
@@ -24,16 +25,19 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final AuditService auditService;
 
     public AuthService(UserRepository userRepository, WalletRepository walletRepository,
                        PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager, EmailService emailService) {
+                       AuthenticationManager authenticationManager, EmailService emailService,
+                       AuditService auditService) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -53,6 +57,8 @@ public class AuthService {
         } catch (Exception e) {
             System.err.println("Failed to send welcome email: " + e.getMessage());
         }
+
+        auditService.logAction("USER", user.getId(), "REGISTER", user.getEmail(), null, request);
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
         return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());

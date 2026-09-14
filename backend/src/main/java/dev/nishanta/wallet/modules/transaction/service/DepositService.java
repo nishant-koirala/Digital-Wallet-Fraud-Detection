@@ -12,6 +12,7 @@ import dev.nishanta.wallet.modules.wallet.dto.BalanceResponse;
 import dev.nishanta.wallet.modules.wallet.dto.DepositRequest;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 import dev.nishanta.wallet.modules.wallet.service.MintWalletProvider;
+import dev.nishanta.wallet.modules.audit.service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +27,20 @@ public class DepositService {
     private final TransactionRepository transactionRepository;
     private final LedgerEntryRepository ledgerEntryRepository;
     private final BalanceCalculator balanceCalculator;
+    private final AuditService auditService;
 
     public DepositService(MintWalletProvider mintWalletProvider,
                           WalletRepository walletRepository,
                           TransactionRepository transactionRepository,
                           LedgerEntryRepository ledgerEntryRepository,
-                          BalanceCalculator balanceCalculator) {
+                          BalanceCalculator balanceCalculator,
+                          AuditService auditService) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.balanceCalculator = balanceCalculator;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -76,6 +80,8 @@ public class DepositService {
 
         transaction.markCompleted();
         transactionRepository.save(transaction);
+
+        auditService.logAction("TRANSACTION", transaction.getId(), "DEPOSIT", "SYSTEM", null, request);
 
         return toResponse(targetWalletId, targetWallet.getCurrency());
     }

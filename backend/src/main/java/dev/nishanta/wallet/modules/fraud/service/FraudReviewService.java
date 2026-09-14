@@ -17,6 +17,7 @@ import dev.nishanta.wallet.modules.user.repository.UserRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService.WalletPair;
+import dev.nishanta.wallet.modules.audit.service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,19 +38,22 @@ public class FraudReviewService {
     private final WalletLockingService walletLockingService;
     private final LedgerPostingService ledgerPostingService;
     private final BalanceCalculator balanceCalculator;
+    private final AuditService auditService;
 
     public FraudReviewService(FraudFlagRepository fraudFlagRepository,
                               TransactionRepository transactionRepository,
                               UserRepository userRepository,
                               WalletLockingService walletLockingService,
                               LedgerPostingService ledgerPostingService,
-                              BalanceCalculator balanceCalculator) {
+                              BalanceCalculator balanceCalculator,
+                              AuditService auditService) {
         this.fraudFlagRepository = fraudFlagRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.walletLockingService = walletLockingService;
         this.ledgerPostingService = ledgerPostingService;
         this.balanceCalculator = balanceCalculator;
+        this.auditService = auditService;
     }
 
     public List<FraudFlagResponse> listPending() {
@@ -91,6 +95,8 @@ public class FraudReviewService {
         flag.review(admin, ReviewDecision.APPROVED);
         fraudFlagRepository.save(flag);
 
+        auditService.logAction("TRANSACTION", transaction.getId(), "APPROVE_FRAUD", admin.getEmail(), "PENDING", "COMPLETED");
+
         return toReviewResponse(transaction, "APPROVED");
     }
 
@@ -112,6 +118,8 @@ public class FraudReviewService {
 
         flag.review(admin, ReviewDecision.REJECTED);
         fraudFlagRepository.save(flag);
+
+        auditService.logAction("TRANSACTION", transaction.getId(), "REJECT_FRAUD", admin.getEmail(), "PENDING", "FAILED");
 
         // No ledger entries ever get created — the money never moves.
         return toReviewResponse(transaction, "REJECTED");
