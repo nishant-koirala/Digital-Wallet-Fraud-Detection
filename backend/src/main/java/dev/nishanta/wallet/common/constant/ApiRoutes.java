@@ -14,6 +14,7 @@ public final class ApiRoutes {
     public static final String WALLET_BASE = BASE_API + "/wallets";
     public static final String WALLET_BALANCE = "/{walletId}/balance";
     public static final String WALLET_DEPOSIT = "/{walletId}/deposit";
+    public static final String WALLET_WITHDRAW = "/{walletId}/withdraw";
 
     // Transaction Routes
     public static final String TRANSACTION_BASE = BASE_API + "/transactions";
@@ -26,9 +27,14 @@ public final class ApiRoutes {
     public static final String FRAUD_FLAG_REJECT = "/{transactionId}/reject";
 
     // Merchant Routes
-    public static final String MERCHANT_BASE = BASE_API + "/merchants";
+    public static final String MERCHANT_BASE = "/api/v1/merchants";
     public static final String MERCHANT_ONBOARD = "/onboard";
     public static final String MERCHANT_PROFILE = "/profile";
+
+    public static final String ADMIN_MERCHANTS_BASE = "/api/v1/admin/merchants";
+    public static final String ADMIN_MERCHANTS_PENDING = "/pending";
+    public static final String ADMIN_MERCHANTS_APPROVE = "/{merchantId}/approve";
+    public static final String ADMIN_MERCHANTS_REJECT = "/{merchantId}/reject";
 
     // Audit Routes
     public static final String AUDIT_BASE = BASE_API + "/audit-logs";

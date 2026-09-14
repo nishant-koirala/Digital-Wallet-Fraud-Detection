@@ -1,0 +1,46 @@
+<div class="header">
+  <h2>Merchant Applications</h2>
+  <a href="/" class="back-link text-slate">Back to Dashboard</a>
+</div>
+
+<div class="card">
+  <div class="list-header" style="margin-bottom: 20px;">
+    <h3 class="text-medium">Pending Review</h3>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-slate" style="text-align: center; padding: 40px 0;">Loading pending merchants...</div>
+  } @else if (pendingMerchants().length === 0) {
+    <div class="text-slate" style="text-align: center; padding: 40px 0;">No pending merchant applications.</div>
+  } @else {
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Business Name</th>
+            <th>Category</th>
+            <th>Settlement Account</th>
+            <th>Applied At</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (merchant of pendingMerchants(); track merchant.id) {
+            <tr>
+              <td><span class="text-medium">{{ merchant.businessName }}</span></td>
+              <td><span class="chip">{{ merchant.category }}</span></td>
+              <td class="monospace">{{ merchant.settlementAccount }}</td>
+              <td class="text-slate">{{ merchant.createdAt | date:'short' }}</td>
+              <td class="text-right">
+                <div class="action-buttons">
+                  <button class="btn btn-primary" (click)="approve(merchant.id)">Approve</button>
+                  <button class="btn btn-outline" (click)="reject(merchant.id)" style="color: #ef4444; border-color: #ef4444;">Reject</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

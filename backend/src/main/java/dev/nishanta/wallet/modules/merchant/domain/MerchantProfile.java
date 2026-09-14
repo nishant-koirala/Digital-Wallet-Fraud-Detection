@@ -41,7 +41,7 @@ public class MerchantProfile {
         this.businessName = businessName;
         this.category = category;
         this.settlementAccount = settlementAccount;
-        this.status = MerchantStatus.ACTIVE;
+        this.status = MerchantStatus.PENDING;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -62,6 +62,16 @@ public class MerchantProfile {
 
     public void reactivate() {
         this.status = MerchantStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void approve() {
+        this.status = MerchantStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void reject() {
+        this.status = MerchantStatus.REJECTED;
         this.updatedAt = LocalDateTime.now();
     }
 }

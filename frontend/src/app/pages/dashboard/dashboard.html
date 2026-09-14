@@ -10,8 +10,13 @@
   </div>
   
   <div class="actions">
+    @if (isAdmin) {
+      <a href="/admin/fraud-review" class="btn">Fraud Review</a>
+      <a href="/merchant-review" class="btn">Merchants</a>
+    }
     <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
     <button class="btn" (click)="openDepositModal()">Deposit</button>
+    <button class="btn" (click)="openWithdrawModal()">Withdraw</button>
     <a href="/qr" class="btn">Pay via QR</a>
   </div>
 </div>
@@ -97,6 +102,23 @@
         <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
       </div>
       <button class="btn btn-primary" style="width: 100%;" (click)="submitDeposit()">Confirm Deposit</button>
+    </div>
+  </div>
+}
+
+@if (showWithdrawModal()) {
+  <div class="drawer-backdrop" (click)="closeWithdrawModal()"></div>
+  <div class="drawer" style="height: auto; min-height: 250px;">
+    <div class="drawer-header">
+      <h3 class="text-medium">Withdraw Funds</h3>
+      <button class="close-btn" (click)="closeWithdrawModal()">×</button>
+    </div>
+    <div class="drawer-content" style="padding-top: 20px;">
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
+        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" (click)="submitWithdraw()">Confirm Withdraw</button>
     </div>
   </div>
 }
