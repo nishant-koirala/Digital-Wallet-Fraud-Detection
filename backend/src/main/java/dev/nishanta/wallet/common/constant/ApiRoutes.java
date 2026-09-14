@@ -33,6 +33,7 @@ public final class ApiRoutes {
 
     public static final String ADMIN_MERCHANTS_BASE = "/api/v1/admin/merchants";
     public static final String ADMIN_MERCHANTS_PENDING = "/pending";
+    public static final String ADMIN_ANALYTICS = BASE_API + "/admin/analytics";
     public static final String ADMIN_MERCHANTS_APPROVE = "/{merchantId}/approve";
     public static final String ADMIN_MERCHANTS_REJECT = "/{merchantId}/reject";
 
