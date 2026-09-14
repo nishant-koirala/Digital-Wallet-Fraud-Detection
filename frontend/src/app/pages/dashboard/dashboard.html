@@ -139,6 +139,10 @@
         <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
         <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 500" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)">
       </div>
+      <div class="form-group" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" id="foreignLocation" [ngModel]="simulateForeignLocation()" (ngModelChange)="simulateForeignLocation.set($event)">
+        <label for="foreignLocation" class="text-slate">Simulate transfer from foreign location (NY)</label>
+      </div>
       <button class="btn btn-primary" style="width: 100%;" (click)="submitTransfer()">Send Now</button>
     </div>
   </div>

@@ -37,6 +37,7 @@ export class Dashboard implements OnInit {
   showTransferModal = signal(false);
   transferToWalletId = signal('');
   transferAmount = signal<number | null>(null);
+  simulateForeignLocation = signal(false);
   
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
@@ -188,13 +189,22 @@ export class Dashboard implements OnInit {
     const toWalletId = this.transferToWalletId();
     if (!amount || amount <= 0 || !toWalletId) return;
 
-    this.transactionService.transfer(toWalletId, amount).subscribe({
+    // Simulate location (either real or mocked anomaly)
+    let latitude = 27.7172; // Default Kathmandu
+    let longitude = 85.3240;
+
+    if (this.simulateForeignLocation()) {
+       latitude = 40.7128; // New York
+       longitude = -74.0060;
+    }
+
+    this.transactionService.transfer(toWalletId, amount, latitude, longitude).subscribe({
       next: () => {
         this.closeTransferModal();
         this.fetchBalance();
         this.fetchTransactions();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Transfer failed', err);
         alert('Transfer failed. Please check the wallet ID and your balance.');
       }
