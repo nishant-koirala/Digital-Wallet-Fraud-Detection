@@ -1,0 +1,39 @@
+<div class="header">
+  <h2>Platform Analytics</h2>
+  <a href="/" class="back-link text-slate">Back to Dashboard</a>
+</div>
+
+@if (isLoading()) {
+  <div class="text-slate" style="text-align: center; padding: 40px 0;">Loading analytics...</div>
+} @else if (stats()) {
+  <div class="stats-grid">
+    <div class="card stat-card">
+      <div class="text-slate text-medium">Total Processed Volume</div>
+      <div class="stat-value">Rs. {{ stats()!.totalVolume | number:'1.2-2' }}</div>
+    </div>
+    
+    <div class="card stat-card">
+      <div class="text-slate text-medium">Total Registered Users</div>
+      <div class="stat-value">{{ stats()!.totalUsers }}</div>
+    </div>
+    
+    <div class="card stat-card">
+      <div class="text-slate text-medium">Safe Transactions</div>
+      <div class="stat-value" style="color: #10b981;">{{ stats()!.safeCount }}</div>
+    </div>
+    
+    <div class="card stat-card">
+      <div class="text-slate text-medium">Flagged Transactions</div>
+      <div class="stat-value" style="color: #ef4444;">{{ stats()!.flaggedCount }}</div>
+    </div>
+  </div>
+
+  <div class="charts-container">
+    <div class="card chart-card">
+      <canvas #volumeChart></canvas>
+    </div>
+    <div class="card chart-card">
+      <canvas #fraudChart></canvas>
+    </div>
+  </div>
+}
