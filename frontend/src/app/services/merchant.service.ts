@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+
 
 export interface MerchantCreateRequest {
   businessName: string;
@@ -23,7 +23,7 @@ export interface MerchantResponse {
   providedIn: 'root'
 })
 export class MerchantService {
-  // Assuming a generic API URL if environment is not set up
+  private baseUrl = 'http://localhost:8080/api/v1/merchants';
   private apiUrl = 'http://localhost:8080/api/v1/merchants';
 
   constructor(private http: HttpClient) {}

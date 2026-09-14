@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../services/wallet.service';
 import { TransactionService } from '../../services/transaction.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface Transaction {
   id: string;
@@ -21,6 +22,7 @@ interface Transaction {
 export class Dashboard implements OnInit {
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
+  private route = inject(ActivatedRoute);
   displayBalance = signal(0);
   targetBalance = 0;
   
@@ -52,6 +54,12 @@ export class Dashboard implements OnInit {
   ngOnInit() {
     this.fetchBalance();
     this.fetchTransactions();
+    this.route.queryParams.subscribe(params => {
+      if (params['transferTo']) {
+        this.openTransferModal();
+        this.transferToWalletId.set(params['transferTo']);
+      }
+    });
   }
 
   fetchBalance() {
