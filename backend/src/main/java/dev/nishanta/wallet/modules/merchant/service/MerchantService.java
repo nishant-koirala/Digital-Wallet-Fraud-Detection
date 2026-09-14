@@ -13,6 +13,8 @@ import dev.nishanta.wallet.modules.wallet.domain.Wallet;
 import dev.nishanta.wallet.modules.wallet.domain.WalletType;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
+import dev.nishanta.wallet.common.exception.BusinessRuleException;
+import dev.nishanta.wallet.common.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +41,7 @@ public class MerchantService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (merchantRepository.findByWallet_User_Id(userId).isPresent()) {
-            throw new IllegalStateException("User already has a merchant profile");
+            throw new BusinessRuleException("User already has a merchant profile");
         }
 
         // Provision a second wallet for merchant activities

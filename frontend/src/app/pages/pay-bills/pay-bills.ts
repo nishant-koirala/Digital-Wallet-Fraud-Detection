@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TransactionService } from '../../services/transaction.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-pay-bills',
@@ -13,6 +14,7 @@ import { Router } from '@angular/router';
 export class PayBills {
   private transactionService = inject(TransactionService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   billerId = signal<string>('electricity');
   customerId = signal<string>('');
@@ -28,13 +30,13 @@ export class PayBills {
     this.transactionService.payBill(this.billerId(), this.customerId(), this.amount()!).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        alert('Bill paid successfully!');
+        this.toastService.show('Bill paid successfully!', 'success');
         this.router.navigate(['/']);
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
         console.error('Bill payment failed', err);
-        alert('Bill payment failed. Please try again.');
+        this.toastService.show('Bill payment failed. Please try again.', 'error');
       }
     });
   }

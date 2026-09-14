@@ -35,8 +35,10 @@ export class Dashboard implements OnInit {
   withdrawAmount = signal<number | null>(null);
 
   showTransferModal = signal(false);
-  transferToWalletId = signal('');
+  transferToPhone = signal('');
   transferAmount = signal<number | null>(null);
+  transferOtp = signal('');
+  showOtpField = signal(false);
   simulateForeignLocation = signal(false);
   
   searchQuery = signal('');
@@ -63,7 +65,7 @@ export class Dashboard implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['transferTo']) {
         this.openTransferModal();
-        this.transferToWalletId.set(params['transferTo']);
+        this.transferToPhone.set(params['transferTo']);
       }
     });
   }
@@ -84,13 +86,18 @@ export class Dashboard implements OnInit {
   fetchTransactions() {
     this.walletService.getTransactions().subscribe({
       next: (res) => {
-        const mapped = res.map((t: any) => ({
-          id: t.id,
-          name: t.toWallet?.id ? 'Transfer' : 'Deposit/System',
-          meta: t.status,
-          amount: t.amount,
-          time: new Date(t.createdAt).toLocaleDateString()
-        }));
+        const mapped = res.map((t: any) => {
+          const isOutgoing = t.fromWallet?.id === this.authService.walletId;
+          const displayAmount = isOutgoing ? -t.amount : t.amount;
+          
+          return {
+            id: t.id,
+            name: t.toWallet?.id ? 'Transfer' : 'Deposit/System',
+            meta: t.status,
+            amount: displayAmount,
+            time: new Date(t.createdAt).toLocaleDateString()
+          };
+        });
         this.transactions.set(mapped);
       }
     });
@@ -140,10 +147,6 @@ export class Dashboard implements OnInit {
         this.closeDepositModal();
         this.fetchBalance();
         this.fetchTransactions();
-      },
-      error: (err) => {
-        console.error('Deposit failed', err);
-        alert('Deposit failed. Please try again.');
       }
     });
   }
@@ -166,28 +169,27 @@ export class Dashboard implements OnInit {
         this.closeWithdrawModal();
         this.fetchBalance();
         this.fetchTransactions();
-      },
-      error: (err) => {
-        console.error('Withdraw failed', err);
-        alert('Withdraw failed. Please check your balance and try again.');
       }
     });
   }
 
   openTransferModal() {
     this.showTransferModal.set(true);
-    this.transferToWalletId.set('');
+    this.transferToPhone.set('');
     this.transferAmount.set(null);
+    this.transferOtp.set('');
+    this.showOtpField.set(false);
   }
 
   closeTransferModal() {
     this.showTransferModal.set(false);
+    this.showOtpField.set(false);
   }
 
   submitTransfer() {
     const amount = this.transferAmount();
-    const toWalletId = this.transferToWalletId();
-    if (!amount || amount <= 0 || !toWalletId) return;
+    const toPhone = this.transferToPhone();
+    if (!amount || amount <= 0 || !toPhone) return;
 
     // Simulate location (either real or mocked anomaly)
     let latitude = 27.7172; // Default Kathmandu
@@ -198,16 +200,38 @@ export class Dashboard implements OnInit {
        longitude = -74.0060;
     }
 
-    this.transactionService.transfer(toWalletId, amount, latitude, longitude).subscribe({
+    const otp = this.transferOtp();
+
+    this.transactionService.transfer(toPhone, amount, latitude, longitude, otp).subscribe({
       next: () => {
         this.closeTransferModal();
         this.fetchBalance();
         this.fetchTransactions();
       },
-      error: (err: any) => {
-        console.error('Transfer failed', err);
-        alert('Transfer failed. Please check the wallet ID and your balance.');
+      error: (err) => {
+        if (err.status === 428) {
+          // Precondition Required (OTP required)
+          this.showOtpField.set(true);
+        }
       }
+    });
+  }
+
+  downloadStatement(format: 'pdf' | 'csv') {
+    const request = format === 'pdf' 
+      ? this.walletService.downloadStatementPdf()
+      : this.walletService.downloadStatementCsv();
+
+    request.subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `statement.${format}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Failed to download statement', err)
     });
   }
 }

@@ -12,6 +12,8 @@ import dev.nishanta.wallet.modules.wallet.dto.BalanceResponse;
 import dev.nishanta.wallet.modules.wallet.dto.WithdrawRequest;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 import dev.nishanta.wallet.modules.wallet.service.MintWalletProvider;
+import dev.nishanta.wallet.common.exception.BusinessRuleException;
+import dev.nishanta.wallet.common.exception.NotFoundException;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +71,7 @@ public class WithdrawService {
 
         BigDecimal currentBalance = balanceCalculator.calculateBalance(targetWallet.getId());
         if (currentBalance.compareTo(amount) < 0) {
-            throw new IllegalStateException("Insufficient funds for withdrawal");
+            throw new BusinessRuleException("Insufficient funds for withdrawal");
         }
 
         Transaction transaction = new Transaction(

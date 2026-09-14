@@ -37,4 +37,18 @@ export class WalletService {
       amount
     });
   }
+
+  downloadStatementPdf() {
+    const walletId = this.authService.walletId;
+    return this.http.get(`http://localhost:8080/api/v1/statements/${walletId}/pdf`, {
+      responseType: 'blob'
+    });
+  }
+
+  downloadStatementCsv() {
+    const walletId = this.authService.walletId;
+    return this.http.get(`http://localhost:8080/api/v1/statements/${walletId}/csv`, {
+      responseType: 'blob'
+    });
+  }
 }

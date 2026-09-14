@@ -11,6 +11,23 @@
     font-size: 1.125rem;
   }
   
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+
+    a {
+      text-decoration: none;
+      color: #64748b; /* slate */
+      font-weight: 500;
+      transition: color 0.2s;
+
+      &.active, &:hover {
+        color: #e31837; /* primary red */
+      }
+    }
+  }
+  
   .user-profile {
     display: flex;
     align-items: center;
@@ -43,6 +60,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #e2e8f0;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      margin-left: 0.5rem;
+      
+      &:hover {
+        background: #f1f5f9;
       }
     }
   }

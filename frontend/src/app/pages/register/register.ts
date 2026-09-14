@@ -17,14 +17,12 @@ export class Register {
   phone = '';
   password = '';
   loading = false;
-  errorMessage = '';
 
   private authService = inject(AuthService);
   private router = inject(Router);
 
   onSubmit() {
     this.loading = true;
-    this.errorMessage = '';
     
     this.authService.register({
       name: this.name,
@@ -37,7 +35,6 @@ export class Register {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
       }
     });
   }
