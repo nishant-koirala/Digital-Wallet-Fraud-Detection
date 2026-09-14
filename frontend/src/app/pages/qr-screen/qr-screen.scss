@@ -48,12 +48,21 @@
 .upload-zone {
   border: 1px dashed var(--color-slate);
   border-radius: var(--border-radius);
-  padding: 3rem 1rem;
   text-align: center;
   color: var(--color-slate);
-  cursor: pointer;
+  position: relative;
   
   &:hover {
     background-color: rgba(92, 101, 112, 0.05);
+  }
+
+  .upload-label {
+    display: block;
+    padding: 3rem 1rem;
+    cursor: pointer;
+  }
+  
+  .file-input {
+    display: none;
   }
 }

@@ -5,11 +5,23 @@
   </div>
   
   <div class="card qr-card">
-    <div class="qr-placeholder"></div>
-    <div class="wallet-id monospace">id_94a2f8b1c00e</div>
+    <div class="qr-placeholder" *ngIf="!myWalletId()">Loading...</div>
+    
+    <div class="qr-code-wrapper" *ngIf="myWalletId()" style="margin-bottom: 1.5rem;">
+      <qrcode [qrdata]="myWalletId()" [width]="200" [errorCorrectionLevel]="'M'"></qrcode>
+    </div>
+    
+    <div class="wallet-id monospace" *ngIf="myWalletId()">{{ myWalletId() }}</div>
   </div>
   
   <div class="upload-zone">
-    <span class="text-medium">Scan or upload QR code to decode</span>
+    <label for="qr-upload" class="upload-label text-medium">
+      Scan or upload QR code to decode
+    </label>
+    <input type="file" id="qr-upload" accept="image/*" capture="environment" (change)="onFileSelected($event)" class="file-input">
+    
+    <div *ngIf="errorMsg()" class="error-msg" style="color: #ef4444; margin-top: 10px;">
+      {{ errorMsg() }}
+    </div>
   </div>
 </div>

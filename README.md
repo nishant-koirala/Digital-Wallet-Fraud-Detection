@@ -4,7 +4,7 @@
 - MySQL (local instance, no Docker per project constraints)
 - Flyway for schema migrations
 - Spring Data JPA / Hibernate
-- Spring Security (JWT auth planned)
+- Spring Security (JWT auth)
 
 ## Core Features
 
@@ -13,6 +13,9 @@
 - **Deadlock-safe concurrency** — pessimistic row locking with a consistent lock ordering across wallets
 - **Fraud detection** — rule-based checks (amount threshold relative to wallet history, transaction velocity), with flagged transactions held for admin review rather than auto-completed
 - **Admin review flow** — approve/reject flagged transactions; money only moves on approval
+- **Merchant profiles** — merchant onboarding and profile management
+- **Audit logging** — audit logging for critical actions
+- **QR code payments** — QR code payments integration
 
 ## Running locally
 
