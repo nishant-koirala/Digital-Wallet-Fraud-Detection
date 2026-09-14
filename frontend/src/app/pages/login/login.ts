@@ -15,14 +15,12 @@ export class Login {
   email = '';
   password = '';
   loading = false;
-  errorMessage = '';
 
   private authService = inject(AuthService);
   private router = inject(Router);
 
   onSubmit() {
     this.loading = true;
-    this.errorMessage = '';
     
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
@@ -30,7 +28,6 @@ export class Login {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'Login failed. Please check your credentials.';
       }
     });
   }

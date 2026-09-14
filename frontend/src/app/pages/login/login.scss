@@ -1,35 +1,80 @@
 @import '../../../styles.scss';
 
+$fonepay-red: #e31837;
+$fonepay-red-hover: #c91530;
+$fonepay-bg: #f8f9fa;
+$text-dark: #1f2937;
+$text-light: #6b7280;
+$input-bg: #f3f4f6;
+$input-border: #e5e7eb;
+
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--color-bg);
+  background-color: $fonepay-bg;
+  background-image: radial-gradient(circle at top right, rgba(227, 24, 55, 0.05), transparent 40%),
+                    radial-gradient(circle at bottom left, rgba(227, 24, 55, 0.05), transparent 40%);
+  padding: 20px;
 }
 
 .auth-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 48px 40px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+
+  .logo {
+    width: 60px;
+    height: 60px;
+    background: $fonepay-red;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
+    transform: rotate(-10deg);
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: rotate(0deg) scale(1.05);
+    }
+  }
 }
 
 .auth-header {
+  text-align: center;
   margin-bottom: 32px;
   
   h2 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 26px;
+    font-weight: 700;
     margin-bottom: 8px;
-    color: var(--color-text-primary);
+    color: $text-dark;
+    letter-spacing: -0.5px;
   }
   
   p {
-    color: var(--color-text-secondary);
-    font-size: 14px;
+    color: $text-light;
+    font-size: 15px;
   }
 }
 
@@ -46,68 +91,110 @@
   
   label {
     font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-primary);
+    font-weight: 600;
+    color: $text-dark;
+    margin-left: 4px;
   }
   
   input {
-    padding: 12px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-button);
+    padding: 14px 16px;
+    border: 2px solid transparent;
+    border-radius: 12px;
     font-family: inherit;
-    font-size: 14px;
-    background: transparent;
-    color: var(--color-text-primary);
+    font-size: 15px;
+    background: $input-bg;
+    color: $text-dark;
+    transition: all 0.2s ease;
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+    
+    &:hover {
+      background: #e5e7eb;
+    }
     
     &:focus {
       outline: none;
-      border-color: var(--color-text-primary);
+      background: #ffffff;
+      border-color: $fonepay-red;
+      box-shadow: 0 0 0 4px rgba(227, 24, 55, 0.1);
     }
   }
 }
 
 .btn-primary {
-  margin-top: 8px;
-  padding: 12px;
-  background: var(--color-text-primary);
-  color: var(--color-surface);
+  margin-top: 12px;
+  padding: 16px;
+  background: $fonepay-red;
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-button);
-  font-weight: 500;
-  font-size: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(227, 24, 55, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   
   &:hover:not(:disabled) {
-    opacity: 0.9;
+    background: $fonepay-red-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(227, 24, 55, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    box-shadow: none;
   }
 }
 
 .error-msg {
-  color: var(--color-danger);
+  color: $fonepay-red;
   font-size: 14px;
-  background: rgba(206, 32, 39, 0.1);
-  padding: 8px 12px;
-  border-radius: 4px;
+  background: rgba(227, 24, 55, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: "!";
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    background: $fonepay-red;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+  }
 }
 
 .auth-footer {
-  margin-top: 24px;
+  margin-top: 32px;
   text-align: center;
   font-size: 14px;
-  color: var(--color-text-secondary);
+  color: $text-light;
   
   a {
-    color: var(--color-text-primary);
+    color: $fonepay-red;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    transition: color 0.2s ease;
     
     &:hover {
+      color: $fonepay-red-hover;
       text-decoration: underline;
     }
   }

@@ -28,6 +28,10 @@
     <h2 class="text-medium">Recent</h2>
     
     <div class="filters">
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="downloadStatement('pdf')">↓ PDF</button>
+        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="downloadStatement('csv')">↓ CSV</button>
+      </div>
       <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
       
       <div class="chips">
@@ -134,13 +138,21 @@
     </div>
     <div class="drawer-content" style="padding-top: 20px;">
       <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px;">Destination Wallet ID</label>
-        <input type="text" class="search-input" style="width: 100%;" placeholder="e.g. 1234-abcd..." [ngModel]="transferToWalletId()" (ngModelChange)="transferToWalletId.set($event)">
+        <label class="text-slate" style="display: block; margin-bottom: 8px;">Destination Phone Number</label>
+        <input type="text" class="search-input" style="width: 100%;" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
       </div>
       <div class="form-group" style="margin-bottom: 20px;">
         <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
-        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 500" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)">
+        <input type="number" class="search-input" style="width: 100%;" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
       </div>
+      
+      @if (showOtpField()) {
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="text-slate" style="display: block; margin-bottom: 8px; color: #e31837; font-weight: bold;">Enter OTP (Check Email/Console)</label>
+        <input type="text" class="search-input" style="width: 100%;" placeholder="6-digit code" [ngModel]="transferOtp()" (ngModelChange)="transferOtp.set($event)">
+      </div>
+      }
+
       <div class="form-group" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
         <input type="checkbox" id="foreignLocation" [ngModel]="simulateForeignLocation()" (ngModelChange)="simulateForeignLocation.set($event)">
         <label for="foreignLocation" class="text-slate">Simulate transfer from foreign location (NY)</label>

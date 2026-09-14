@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.auth.service;
-
+import dev.nishanta.wallet.common.exception.BusinessRuleException;
+import dev.nishanta.wallet.common.exception.NotFoundException;
 import dev.nishanta.wallet.modules.auth.dto.AuthRequest;
 import dev.nishanta.wallet.modules.auth.dto.AuthResponse;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
@@ -43,7 +44,7 @@ public class AuthService {
     @Transactional
     public AuthResponse register(AuthRequest request) {
         if (userRepository.findAll().stream().anyMatch(u -> u.getEmail().equals(request.email()))) {
-            throw new RuntimeException("Email already exists");
+            throw new BusinessRuleException("Email already exists");
         }
 
         User user = new User(request.name(), request.email(), passwordEncoder.encode(request.password()), Role.USER, request.phone());
@@ -70,12 +71,12 @@ public class AuthService {
         User user = userRepository.findAll().stream()
                 .filter(u -> u.getEmail().equals(request.email()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Wallet wallet = walletRepository.findAll().stream()
                 .filter(w -> w.getUser().getId().equals(user.getId()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+                .orElseThrow(() -> new NotFoundException("Wallet not found"));
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
         return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MerchantService, MerchantCreateRequest } from '../../services/merchant.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-merchant-onboard',
@@ -25,7 +26,8 @@ export class MerchantOnboard {
   constructor(
     private merchantService: MerchantService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   onSubmit() {
@@ -34,11 +36,9 @@ export class MerchantOnboard {
     
     this.merchantService.onboardMerchant(this.request).subscribe({
       next: () => {
-        // We need to refresh the user profile to get the new role and wallet
-        // But since we don't have a profile endpoint, we can just logout and ask them to login again
-        // Or we could just navigate to dashboard and show a success message
-        alert('Merchant account created successfully! Please log in again to access merchant features.');
-        this.authService.logout();
+        this.loading = false;
+        this.toastService.show('Merchant account created successfully! Please log in again to access merchant features.', 'success');
+        this.router.navigate(['/']);
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to onboard as merchant';

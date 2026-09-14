@@ -21,17 +21,18 @@ export class TransactionService {
   private authService = inject(AuthService);
   private baseUrl = 'http://localhost:8080/api/v1/transactions';
 
-  transfer(toWalletId: string, amount: number, latitude?: number, longitude?: number): Observable<TransferResponse> {
+  transfer(toPhoneNumber: string, amount: number, latitude?: number, longitude?: number, otp?: string): Observable<TransferResponse> {
     const idempotencyKey = crypto.randomUUID();
     const fromWalletId = this.authService.walletId;
 
     return this.http.post<TransferResponse>(`${this.baseUrl}/transfer`, {
       idempotencyKey,
       fromWalletId,
-      toWalletId,
+      toPhoneNumber,
       amount,
       latitude,
-      longitude
+      longitude,
+      otp
     });
   }
 

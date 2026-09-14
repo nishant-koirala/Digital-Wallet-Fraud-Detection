@@ -1,8 +1,11 @@
 <div class="auth-container">
   <div class="auth-card">
+    <div class="logo-container">
+      <div class="logo">F</div>
+    </div>
     <div class="auth-header">
       <h2>Create an Account</h2>
-      <p>Join Digital Wallet today</p>
+      <p>Join the Fonepay network today</p>
     </div>
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
@@ -20,8 +23,6 @@
       <div class="form-group">
         <label>Password</label>
         <input type="password" [(ngModel)]="password" name="password" required>
-      </div>
-      <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
       <button type="submit" class="btn-primary" [disabled]="loading">
         {{ loading ? 'Registering...' : 'Register' }}
       </button>

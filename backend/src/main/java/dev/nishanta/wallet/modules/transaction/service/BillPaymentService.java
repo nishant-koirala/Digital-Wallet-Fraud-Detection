@@ -31,7 +31,10 @@ public class BillPaymentService {
                 request.idempotencyKey(),
                 request.fromWalletId(),
                 systemWallet.getId(),
+                null,
                 request.amount(),
+                null,
+                null,
                 null,
                 null
         );
