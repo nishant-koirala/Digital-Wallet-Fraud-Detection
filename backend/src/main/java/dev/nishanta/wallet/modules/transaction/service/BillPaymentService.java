@@ -24,7 +24,7 @@ public class BillPaymentService {
     }
 
     public TransferResponse payBill(BillPaymentRequest request) {
-        Wallet systemWallet = mintWalletProvider.getMintWallet();
+        Wallet systemWallet = mintWalletProvider.findOrCreateMintWallet();
         
         // We route the money to the system wallet for demo purposes.
         TransferRequest internalRequest = new TransferRequest(

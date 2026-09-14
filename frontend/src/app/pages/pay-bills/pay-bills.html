@@ -1,0 +1,30 @@
+<div class="header">
+  <h2>Pay Utility Bills</h2>
+  <a href="/" class="back-link text-slate">Back to Dashboard</a>
+</div>
+
+<div class="card form-card">
+  <div class="form-group" style="margin-bottom: 20px;">
+    <label class="text-slate" style="display: block; margin-bottom: 8px;">Select Biller</label>
+    <select class="search-input" style="width: 100%;" [ngModel]="billerId()" (ngModelChange)="billerId.set($event)">
+      <option value="electricity">Electricity (NEA)</option>
+      <option value="water">Khanepani</option>
+      <option value="isp">Internet (WorldLink, Vianet)</option>
+      <option value="airlines">Airlines</option>
+    </select>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 20px;">
+    <label class="text-slate" style="display: block; margin-bottom: 8px;">Customer ID / Account Number</label>
+    <input type="text" class="search-input" style="width: 100%;" placeholder="e.g. 123456789" [ngModel]="customerId()" (ngModelChange)="customerId.set($event)">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 30px;">
+    <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
+    <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1500" [ngModel]="amount()" (ngModelChange)="amount.set($event)">
+  </div>
+
+  <button class="btn btn-primary" style="width: 100%;" [disabled]="isSubmitting() || !customerId() || !amount()" (click)="submitPayment()">
+    {{ isSubmitting() ? 'Processing...' : 'Pay Bill' }}
+  </button>
+</div>
