@@ -11,6 +11,7 @@ import dev.nishanta.wallet.modules.user.repository.UserRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
 import dev.nishanta.wallet.modules.wallet.domain.WalletType;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
+import dev.nishanta.wallet.modules.audit.service.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +23,13 @@ public class MerchantService {
     private final MerchantRepository merchantRepository;
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
+    private final AuditService auditService;
 
-    public MerchantService(MerchantRepository merchantRepository, UserRepository userRepository, WalletRepository walletRepository) {
+    public MerchantService(MerchantRepository merchantRepository, UserRepository userRepository, WalletRepository walletRepository, AuditService auditService) {
         this.merchantRepository = merchantRepository;
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -56,6 +59,8 @@ public class MerchantService {
                 request.settlementAccount()
         );
         merchantRepository.save(profile);
+
+        auditService.logAction("MERCHANT_PROFILE", profile.getId(), "ONBOARD", user.getEmail(), null, request);
 
         return mapToResponse(profile);
     }
