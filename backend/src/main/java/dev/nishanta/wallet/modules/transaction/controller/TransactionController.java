@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.transaction.controller;
 
+import dev.nishanta.wallet.modules.transaction.dto.BillPaymentRequest;
 import dev.nishanta.wallet.modules.transaction.dto.TransferRequest;
 import dev.nishanta.wallet.modules.transaction.dto.TransferResponse;
 import dev.nishanta.wallet.modules.transaction.service.TransferService;
@@ -23,5 +24,10 @@ public class TransactionController {
     @PostMapping(ApiRoutes.TRANSACTION_TRANSFER)
     public TransferResponse transfer(@RequestBody TransferRequest request) {
         return transferService.transfer(request);
+    }
+
+    @PostMapping(ApiRoutes.TRANSACTION_PAY_BILL)
+    public TransferResponse payBill(@RequestBody BillPaymentRequest request) {
+        return transferService.payBill(request);
     }
 }

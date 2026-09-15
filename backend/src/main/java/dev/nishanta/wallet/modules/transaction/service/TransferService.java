@@ -3,6 +3,7 @@ package dev.nishanta.wallet.modules.transaction.service;
 import dev.nishanta.wallet.common.exception.InsufficientBalanceException;
 import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
+import dev.nishanta.wallet.modules.transaction.dto.BillPaymentRequest;
 import dev.nishanta.wallet.modules.transaction.dto.TransferRequest;
 import dev.nishanta.wallet.modules.transaction.dto.TransferResponse;
 import dev.nishanta.wallet.modules.transaction.ledger.BalanceCalculator;
@@ -120,6 +121,49 @@ public class TransferService {
         ledgerPostingService.postAndComplete(transaction, fromWallet, toWallet);
 
         auditService.logAction("TRANSACTION", transaction.getId(), "TRANSFER", fromWallet.getUser().getEmail(), null, request);
+
+        return toResponse(transaction);
+    }
+
+    @Transactional
+    public TransferResponse payBill(BillPaymentRequest request) {
+        String idempotencyKey = request.idempotencyKey();
+        UUID fromWalletId = request.fromWalletId();
+        
+        // For utility bills, we transfer the money to the central SYSTEM wallet
+        Wallet systemWallet = walletRepository.findFirstByType(WalletType.SYSTEM)
+                .orElseThrow(() -> new BusinessRuleException("System wallet not found for bill payment"));
+        
+        BigDecimal amount = request.amount();
+
+        var existing = transactionRepository.findByIdempotencyKey(idempotencyKey);
+        if (existing.isPresent()) {
+            return toResponse(existing.get());
+        }
+
+        WalletPair wallets = walletLockingService.lockForTransfer(fromWalletId, systemWallet.getId());
+        Wallet fromWallet = wallets.fromWallet();
+        Wallet toWallet = wallets.toWallet();
+
+        BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWallet.getId());
+        if (senderBalance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance in wallet " + fromWallet.getId());
+        }
+
+        Transaction transaction = new Transaction(
+                idempotencyKey, fromWallet, toWallet, amount, fromWallet.getCurrency(),
+                null, null); // No location for bill pay
+        
+        // Add bill payment metadata to transaction metadata field (let's assume we can't so we just leave it)
+        transactionRepository.save(transaction);
+
+        if (fraudDetectionService.flagIfSuspicious(transaction)) {
+            return toResponse(transaction);
+        }
+
+        ledgerPostingService.postAndComplete(transaction, fromWallet, toWallet);
+
+        auditService.logAction("TRANSACTION", transaction.getId(), "PAY_BILL", fromWallet.getUser().getEmail(), null, request);
 
         return toResponse(transaction);
     }

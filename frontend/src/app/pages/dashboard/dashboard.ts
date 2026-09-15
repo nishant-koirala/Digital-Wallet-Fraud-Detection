@@ -157,7 +157,7 @@ export class Dashboard implements OnInit {
         this.toastService.success(`Successfully deposited Rs. ${amount}`);
       },
       error: (err) => {
-        this.toastService.error(err.error?.message || 'Deposit failed.');
+        this.toastService.error(err.error?.detail || 'Deposit failed.');
       }
     });
   }
@@ -183,7 +183,7 @@ export class Dashboard implements OnInit {
         this.toastService.success(`Successfully withdrew Rs. ${amount}`);
       },
       error: (err) => {
-        this.toastService.error(err.error?.message || 'Withdraw failed.');
+        this.toastService.error(err.error?.detail || 'Withdraw failed.');
       }
     });
   }
@@ -230,7 +230,7 @@ export class Dashboard implements OnInit {
           this.showOtpField.set(true);
           this.toastService.info('OTP required. Please check your email.');
         } else {
-          this.toastService.error(err.error?.message || 'Transfer failed.');
+          this.toastService.error(err.error?.detail || 'Transfer failed.');
         }
       }
     });
