@@ -18,7 +18,7 @@ public class FraudConfig {
     private BigDecimal averageMultiplier;
     private double maxGeoDistanceKm;
 
-    protected FraudConfig() {}
+    public FraudConfig() {}
 
     public FraudConfig(BigDecimal coldStartThreshold, int minHistoryForBaseline, BigDecimal averageMultiplier, double maxGeoDistanceKm) {
         this.coldStartThreshold = coldStartThreshold;
