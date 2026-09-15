@@ -8,6 +8,8 @@ import { PayBills } from './pages/pay-bills/pay-bills';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { MerchantOnboard } from './pages/merchant-onboard/merchant-onboard';
+import { AuditLogs } from './pages/audit-logs/audit-logs';
+import { Profile } from './pages/profile/profile';
 import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
@@ -20,5 +22,7 @@ export const routes: Routes = [
   { path: 'admin/analytics', component: AdminAnalytics, canActivate: [authGuard] },
   { path: 'merchant-review', component: MerchantReview, canActivate: [authGuard] },
   { path: 'merchant/onboard', component: MerchantOnboard, canActivate: [authGuard] },
+  { path: 'admin/audit-logs', component: AuditLogs, canActivate: [authGuard] },
+  { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
