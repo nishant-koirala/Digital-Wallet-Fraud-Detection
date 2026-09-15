@@ -35,4 +35,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("SELECT t FROM Transaction t WHERE t.fromWallet.id = :walletId OR t.toWallet.id = :walletId ORDER BY t.createdAt DESC")
     List<Transaction> findRecentByWalletId(@Param("walletId") UUID walletId);
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.status = 'COMPLETED'")
+    Optional<BigDecimal> findTotalVolume();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = 'COMPLETED'")
+    long countSafeTransactions();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status IN ('FLAGGED', 'REJECTED')")
+    long countFlaggedTransactions();
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.status = 'COMPLETED' AND t.createdAt >= :startDate AND t.createdAt < :endDate")
+    Optional<BigDecimal> findVolumeBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
