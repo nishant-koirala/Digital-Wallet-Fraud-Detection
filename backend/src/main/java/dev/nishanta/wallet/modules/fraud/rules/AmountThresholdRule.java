@@ -16,17 +16,13 @@ import java.util.UUID;
 @Component
 public class AmountThresholdRule implements FraudRule {
 
-    // Safety net ONLY for brand-new wallets with no transaction history
-    // yet — there's no "normal" to compare against, so fall back to a
-    // flat threshold until enough history exists.
-    private static final BigDecimal COLD_START_THRESHOLD = new BigDecimal("50000.0000");
-    private static final int MIN_HISTORY_FOR_BASELINE = 5;
-    private static final BigDecimal MULTIPLIER = new BigDecimal("5");
-
     private final TransactionRepository transactionRepository;
+    private final dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository;
 
-    public AmountThresholdRule(TransactionRepository transactionRepository) {
+    public AmountThresholdRule(TransactionRepository transactionRepository,
+                               dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository) {
         this.transactionRepository = transactionRepository;
+        this.fraudConfigRepository = fraudConfigRepository;
     }
 
     @Override
@@ -35,14 +31,16 @@ public class AmountThresholdRule implements FraudRule {
         long historyCount = transactionRepository.countByFromWalletIdAndStatus(
                 walletId, TransactionStatus.COMPLETED);
 
-        if (historyCount < MIN_HISTORY_FOR_BASELINE) {
-            return transaction.getAmount().compareTo(COLD_START_THRESHOLD) > 0;
+        dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).get();
+
+        if (historyCount < config.getMinHistoryForBaseline()) {
+            return transaction.getAmount().compareTo(config.getColdStartThreshold()) > 0;
         }
 
         BigDecimal average = transactionRepository.findAverageAmountByFromWalletId(walletId)
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal relativeThreshold = average.multiply(MULTIPLIER);
+        BigDecimal relativeThreshold = average.multiply(config.getAverageMultiplier());
         return transaction.getAmount().compareTo(relativeThreshold) > 0;
     }
 

@@ -18,6 +18,7 @@ import dev.nishanta.wallet.modules.wallet.domain.Wallet;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService;
 import dev.nishanta.wallet.modules.wallet.service.WalletLockingService.WalletPair;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class FraudReviewService {
     private final LedgerPostingService ledgerPostingService;
     private final BalanceCalculator balanceCalculator;
     private final AuditService auditService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public FraudReviewService(FraudFlagRepository fraudFlagRepository,
                               TransactionRepository transactionRepository,
@@ -46,7 +48,8 @@ public class FraudReviewService {
                               WalletLockingService walletLockingService,
                               LedgerPostingService ledgerPostingService,
                               BalanceCalculator balanceCalculator,
-                              AuditService auditService) {
+                              AuditService auditService,
+                              SimpMessagingTemplate messagingTemplate) {
         this.fraudFlagRepository = fraudFlagRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
@@ -54,6 +57,7 @@ public class FraudReviewService {
         this.ledgerPostingService = ledgerPostingService;
         this.balanceCalculator = balanceCalculator;
         this.auditService = auditService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public List<FraudFlagResponse> listPending() {
@@ -97,6 +101,9 @@ public class FraudReviewService {
 
         auditService.logAction("TRANSACTION", transaction.getId(), "APPROVE_FRAUD", admin.getEmail(), "PENDING", "COMPLETED");
 
+        messagingTemplate.convertAndSend("/topic/notifications/" + fromWallet.getId(), 
+                "Your pending transfer of Rs. " + transaction.getAmount() + " was APPROVED.");
+
         return toReviewResponse(transaction, "APPROVED");
     }
 
@@ -120,6 +127,9 @@ public class FraudReviewService {
         fraudFlagRepository.save(flag);
 
         auditService.logAction("TRANSACTION", transaction.getId(), "REJECT_FRAUD", admin.getEmail(), "PENDING", "FAILED");
+
+        messagingTemplate.convertAndSend("/topic/notifications/" + transaction.getFromWallet().getId(), 
+                "Your pending transfer of Rs. " + transaction.getAmount() + " was REJECTED by admin.");
 
         // No ledger entries ever get created — the money never moves.
         return toReviewResponse(transaction, "REJECTED");

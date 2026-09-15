@@ -1,0 +1,49 @@
+<div class="card max-w-md mx-auto mt-4">
+  <h2>KYC Verification</h2>
+  <p class="text-secondary mb-4">Complete your identity verification to lift transfer limits.</p>
+
+  <div *ngIf="isLoading">Loading status...</div>
+
+  <div *ngIf="!isLoading">
+    
+    <div *ngIf="status === 'APPROVED'" class="alert alert-success">
+      ✅ Your KYC is approved. You have full access to all features.
+    </div>
+    
+    <div *ngIf="status === 'PENDING'" class="alert alert-warning">
+      ⏳ Your KYC is currently under review by an administrator.
+    </div>
+    
+    <div *ngIf="status === 'REJECTED'" class="alert alert-danger mb-4">
+      ❌ Your previous KYC submission was rejected. Please submit again with clearer documents.
+    </div>
+
+    <div *ngIf="status === 'NOT_SUBMITTED' || status === 'REJECTED'">
+      <div class="form-group mb-3">
+        <label>Document Type</label>
+        <select class="form-control" [(ngModel)]="formData.documentType">
+          <option value="PASSPORT">Passport</option>
+          <option value="CITIZENSHIP">Citizenship ID</option>
+          <option value="DRIVERS_LICENSE">Driver's License</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Document Number</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.documentNumber" placeholder="Enter document number">
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Front Image URL (Mock)</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.frontImageUrl">
+      </div>
+
+      <div class="form-group mb-4">
+        <label>Back Image URL (Mock)</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.backImageUrl">
+      </div>
+
+      <button class="btn btn-primary w-100" (click)="submitKyc()" [disabled]="!formData.documentNumber">Submit Document</button>
+    </div>
+  </div>
+</div>

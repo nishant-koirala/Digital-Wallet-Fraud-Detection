@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { WsNotificationService } from './ws-notification.service';
 
 export interface AuthResponse {
   token: string;
@@ -16,6 +17,7 @@ export interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private wsNotificationService = inject(WsNotificationService);
   private baseUrl = 'http://localhost:8080/api/v1/auth';
 
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(null);
@@ -24,7 +26,9 @@ export class AuthService {
   constructor() {
     const saved = localStorage.getItem('auth_user');
     if (saved) {
-      this.currentUserSubject.next(JSON.parse(saved));
+      const auth = JSON.parse(saved);
+      this.currentUserSubject.next(auth);
+      this.wsNotificationService.connect(auth.token, auth.walletId);
     }
   }
 
@@ -55,11 +59,13 @@ export class AuthService {
   logout() {
     localStorage.removeItem('auth_user');
     this.currentUserSubject.next(null);
+    this.wsNotificationService.disconnect();
     this.router.navigate(['/login']);
   }
 
   private setSession(authResult: AuthResponse) {
     localStorage.setItem('auth_user', JSON.stringify(authResult));
     this.currentUserSubject.next(authResult);
+    this.wsNotificationService.connect(authResult.token, authResult.walletId);
   }
 }
