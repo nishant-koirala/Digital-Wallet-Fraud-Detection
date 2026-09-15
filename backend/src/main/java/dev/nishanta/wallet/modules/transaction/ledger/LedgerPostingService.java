@@ -6,7 +6,11 @@ import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.LedgerEntryRepository;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import dev.nishanta.wallet.modules.wallet.domain.Wallet;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // Single responsibility: write the linked debit/credit pair for a
 // completed transfer and mark the transaction COMPLETED. The caller owns
@@ -16,11 +20,14 @@ public class LedgerPostingService {
 
     private final LedgerEntryRepository ledgerEntryRepository;
     private final TransactionRepository transactionRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public LedgerPostingService(LedgerEntryRepository ledgerEntryRepository,
-                                TransactionRepository transactionRepository) {
+                                TransactionRepository transactionRepository,
+                                SimpMessagingTemplate messagingTemplate) {
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.transactionRepository = transactionRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public void postAndComplete(Transaction transaction, Wallet fromWallet, Wallet toWallet) {
@@ -33,5 +40,13 @@ public class LedgerPostingService {
 
         transaction.markCompleted();
         transactionRepository.save(transaction);
+
+        // Send real-time notification to the receiver's wallet ID
+        Map<String, String> notification = new HashMap<>();
+        notification.put("message", "You received Rs. " + transaction.getAmount() + "!");
+        notification.put("transactionId", transaction.getId().toString());
+        notification.put("amount", transaction.getAmount().toString());
+        
+        messagingTemplate.convertAndSend("/topic/notifications/" + toWallet.getId(), notification);
     }
 }

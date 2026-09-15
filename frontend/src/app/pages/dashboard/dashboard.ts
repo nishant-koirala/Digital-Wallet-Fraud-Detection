@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../services/wallet.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { TransactionService } from '../../services/transaction.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Transaction {
   id: string;
@@ -24,6 +25,8 @@ export class Dashboard implements OnInit {
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
+  private notificationService = inject(NotificationService);
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   displayBalance = signal(0);
   targetBalance = 0;
@@ -40,6 +43,8 @@ export class Dashboard implements OnInit {
   transferOtp = signal('');
   showOtpField = signal(false);
   simulateForeignLocation = signal(false);
+  
+  toastMessage = signal<string | null>(null);
   
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
