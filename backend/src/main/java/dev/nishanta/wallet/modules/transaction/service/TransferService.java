@@ -63,7 +63,7 @@ public class TransferService {
         
         UUID toWalletId = request.toWalletId();
         if (toWalletId == null && request.toPhoneNumber() != null) {
-            Wallet toWallet = walletRepository.findByUser_PhoneAndType(request.toPhoneNumber(), WalletType.PERSONAL)
+            Wallet toWallet = walletRepository.findByUser_PhoneNumberAndType(request.toPhoneNumber(), WalletType.PERSONAL)
                  .orElseThrow(() -> new BusinessRuleException("No wallet found for phone number " + request.toPhoneNumber()));
             toWalletId = toWallet.getId();
         } else if (toWalletId == null) {

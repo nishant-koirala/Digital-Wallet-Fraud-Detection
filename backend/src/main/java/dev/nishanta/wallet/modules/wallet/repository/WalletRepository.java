@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface WalletRepository extends JpaRepository<Wallet, UUID> {
 
-    Optional<Wallet> findByUser_PhoneAndType(String phone, WalletType type);
+    Optional<Wallet> findByUser_PhoneNumberAndType(String phoneNumber, WalletType type);
 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
