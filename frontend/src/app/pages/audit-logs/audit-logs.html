@@ -1,0 +1,52 @@
+<div class="header">
+  <h2>Audit Logs</h2>
+  <a href="/" class="back-link text-slate">Back to Dashboard</a>
+</div>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()" placeholder="Search by Action or User ID...">
+      <button class="btn btn-primary" (click)="onSearch()">Search</button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">Loading audit trail...</div>
+  } @else if (logs().length === 0) {
+    <div class="empty-state">No audit logs found.</div>
+  } @else {
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Entity Type</th>
+            <th>Entity ID</th>
+            <th>Performed By</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of logs(); track log.id) {
+            <tr>
+              <td class="text-slate monospace">{{ log.createdAt | date:'short' }}</td>
+              <td><span class="chip" [class]="log.action.toLowerCase()">{{ log.action }}</span></td>
+              <td class="text-slate">{{ log.entityType }}</td>
+              <td class="monospace" title="{{ log.entityId }}">{{ log.entityId | slice:0:8 }}...</td>
+              <td class="text-medium">{{ log.performedBy }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="text-slate">Page {{ currentPage() + 1 }} of {{ totalPages() }} ({{ totalElements() }} total items)</span>
+      <div class="page-controls">
+        <button class="btn btn-outline" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
+        <button class="btn btn-outline" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,77 @@
+<div class="header">
+  <h2>Profile & Settings</h2>
+  <a href="/" class="back-link text-slate">Back to Dashboard</a>
+</div>
+
+@if (isLoading()) {
+  <div class="loading-state">Loading profile...</div>
+} @else if (profile()) {
+  <div class="settings-grid">
+    
+    <!-- Profile Information Section -->
+    <div class="card settings-section">
+      <h3>Personal Information</h3>
+      <p class="text-slate mb-4">Update your contact details here.</p>
+      
+      <div class="info-group">
+        <label>Full Name</label>
+        <input type="text" [value]="profile()?.name" disabled class="disabled-input">
+        <small class="text-slate">Name changes require contacting support.</small>
+      </div>
+      
+      <div class="info-group">
+        <label>Email Address</label>
+        <input type="text" [value]="profile()?.email" disabled class="disabled-input">
+      </div>
+      
+      <div class="info-group">
+        <label>Phone Number</label>
+        <input type="tel" [ngModel]="editPhone()" (ngModelChange)="editPhone.set($event)" placeholder="Enter phone number">
+      </div>
+      
+      <button class="btn btn-primary mt-4" (click)="updateProfile()" [disabled]="isUpdatingProfile()">
+        {{ isUpdatingProfile() ? 'Saving...' : 'Save Profile' }}
+      </button>
+    </div>
+
+    <!-- Security Section -->
+    <div class="card settings-section">
+      <h3>Security</h3>
+      <p class="text-slate mb-4">Change your account password.</p>
+      
+      <div class="info-group">
+        <label>Current Password</label>
+        <input type="password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)" placeholder="Enter current password">
+      </div>
+      
+      <div class="info-group">
+        <label>New Password</label>
+        <input type="password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" placeholder="Enter new password (min 6 chars)">
+      </div>
+      
+      <div class="info-group">
+        <label>Confirm New Password</label>
+        <input type="password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" placeholder="Confirm new password">
+      </div>
+      
+      <button class="btn btn-primary mt-4" (click)="changePassword()" [disabled]="isUpdatingPassword() || !currentPassword() || !newPassword()">
+        {{ isUpdatingPassword() ? 'Updating...' : 'Update Password' }}
+      </button>
+    </div>
+
+    <!-- Danger Zone Section -->
+    <div class="card settings-section danger-zone">
+      <h3 class="text-danger">Danger Zone</h3>
+      <p class="text-slate mb-4">Permanently delete your account and anonymize your data.</p>
+      
+      <div class="danger-warning">
+        <strong>Warning:</strong> Deleting your account is irreversible. Your transaction history will be preserved anonymously for compliance, but your account will be permanently deactivated.
+      </div>
+      
+      <button class="btn btn-danger mt-4" (click)="deleteAccount()" [disabled]="isDeletingAccount()">
+        {{ isDeletingAccount() ? 'Deleting...' : 'Delete Account' }}
+      </button>
+    </div>
+
+  </div>
+}
