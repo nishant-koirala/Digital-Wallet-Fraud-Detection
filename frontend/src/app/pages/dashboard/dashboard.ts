@@ -5,6 +5,7 @@ import { WalletService } from '../../services/wallet.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { TransactionService } from '../../services/transaction.service';
+import { ToastService } from '../../services/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 interface Transaction {
@@ -26,6 +27,7 @@ export class Dashboard implements OnInit {
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
   private notificationService = inject(NotificationService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   displayBalance = signal(0);
@@ -44,7 +46,7 @@ export class Dashboard implements OnInit {
   showOtpField = signal(false);
   simulateForeignLocation = signal(false);
   
-  toastMessage = signal<string | null>(null);
+  simulateForeignLocation = signal(false);
   
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
@@ -152,6 +154,10 @@ export class Dashboard implements OnInit {
         this.closeDepositModal();
         this.fetchBalance();
         this.fetchTransactions();
+        this.toastService.success(`Successfully deposited Rs. ${amount}`);
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.message || 'Deposit failed.');
       }
     });
   }
@@ -174,6 +180,10 @@ export class Dashboard implements OnInit {
         this.closeWithdrawModal();
         this.fetchBalance();
         this.fetchTransactions();
+        this.toastService.success(`Successfully withdrew Rs. ${amount}`);
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.message || 'Withdraw failed.');
       }
     });
   }
@@ -212,11 +222,15 @@ export class Dashboard implements OnInit {
         this.closeTransferModal();
         this.fetchBalance();
         this.fetchTransactions();
+        this.toastService.success('Transfer Successful!');
       },
       error: (err) => {
         if (err.status === 428) {
           // Precondition Required (OTP required)
           this.showOtpField.set(true);
+          this.toastService.info('OTP required. Please check your email.');
+        } else {
+          this.toastService.error(err.error?.message || 'Transfer failed.');
         }
       }
     });
