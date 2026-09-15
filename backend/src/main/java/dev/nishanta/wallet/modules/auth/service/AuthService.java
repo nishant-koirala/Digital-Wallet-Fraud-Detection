@@ -1,6 +1,7 @@
 package dev.nishanta.wallet.modules.auth.service;
 import dev.nishanta.wallet.common.exception.BusinessRuleException;
 import dev.nishanta.wallet.common.exception.NotFoundException;
+import dev.nishanta.wallet.common.exception.OtpRequiredException;
 import dev.nishanta.wallet.modules.auth.dto.AuthRequest;
 import dev.nishanta.wallet.modules.auth.dto.AuthResponse;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
@@ -27,11 +28,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final AuditService auditService;
+    private final OtpService otpService;
 
     public AuthService(UserRepository userRepository, WalletRepository walletRepository,
                        PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager, EmailService emailService,
-                       AuditService auditService) {
+                       AuditService auditService, OtpService otpService) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.passwordEncoder = passwordEncoder;
@@ -39,12 +41,20 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
         this.auditService = auditService;
+        this.otpService = otpService;
     }
 
     @Transactional
     public AuthResponse register(AuthRequest request) {
         if (userRepository.findAll().stream().anyMatch(u -> u.getEmail().equals(request.email()))) {
             throw new BusinessRuleException("Email already exists");
+        }
+
+        if (request.otp() == null || request.otp().isEmpty()) {
+            otpService.generateAndSendOtp(request.email());
+            throw new OtpRequiredException("OTP sent to " + request.email());
+        } else {
+            otpService.validateOtp(request.email(), request.otp());
         }
 
         User user = new User(request.name(), request.email(), passwordEncoder.encode(request.password()), Role.USER, request.phone());
@@ -67,6 +77,13 @@ public class AuthService {
 
     public AuthResponse login(AuthRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+        if (request.otp() == null || request.otp().isEmpty()) {
+            otpService.generateAndSendOtp(request.email());
+            throw new OtpRequiredException("OTP sent to " + request.email());
+        } else {
+            otpService.validateOtp(request.email(), request.otp());
+        }
 
         User user = userRepository.findAll().stream()
                 .filter(u -> u.getEmail().equals(request.email()))

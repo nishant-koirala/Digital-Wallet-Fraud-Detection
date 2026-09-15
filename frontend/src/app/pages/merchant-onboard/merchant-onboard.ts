@@ -41,7 +41,7 @@ export class MerchantOnboard {
         this.router.navigate(['/']);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Failed to onboard as merchant';
+        this.error = err.error?.detail || 'Failed to onboard as merchant';
         this.loading = false;
       }
     });

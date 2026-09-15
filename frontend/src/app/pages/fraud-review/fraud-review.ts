@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FraudService } from '../../services/fraud.service';
+import { ToastService } from '../../services/toast.service';
 
 interface FraudItem {
   id: string;
@@ -19,10 +20,10 @@ interface FraudItem {
 })
 export class FraudReview implements OnInit {
   private fraudService = inject(FraudService);
+  private toastService = inject(ToastService);
   items = signal<FraudItem[]>([]);
 
   filterRule = signal<string>('ALL');
-  toastMessage = signal<string | null>(null);
 
   filteredItems = computed(() => {
     if (this.filterRule() === 'ALL') return this.items();
@@ -53,7 +54,10 @@ export class FraudReview implements OnInit {
     this.fraudService.approve(item.id).subscribe({
       next: () => {
         this.removeItem(item.id);
-        this.showToast(`Approved transaction for ${item.user}`);
+        this.toastService.success(`Approved transaction for ${item.user}`);
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.detail || 'Failed to approve transaction');
       }
     });
   }
@@ -62,19 +66,15 @@ export class FraudReview implements OnInit {
     this.fraudService.reject(item.id).subscribe({
       next: () => {
         this.removeItem(item.id);
-        this.showToast(`Rejected transaction for ${item.user}`);
+        this.toastService.info(`Rejected transaction for ${item.user}`);
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.detail || 'Failed to reject transaction');
       }
     });
   }
 
   private removeItem(id: string) {
     this.items.update(curr => curr.filter(i => i.id !== id));
-  }
-
-  private showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MerchantAdminService } from '../../services/merchant-admin.service';
 import { MerchantResponse } from '../../services/merchant.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-merchant-review',
@@ -11,6 +12,7 @@ import { MerchantResponse } from '../../services/merchant.service';
 })
 export class MerchantReview implements OnInit {
   private merchantAdminService = inject(MerchantAdminService);
+  private toastService = inject(ToastService);
   
   pendingMerchants = signal<MerchantResponse[]>([]);
   isLoading = signal(true);
@@ -27,7 +29,7 @@ export class MerchantReview implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Failed to fetch pending merchants', err);
+        this.toastService.error('Failed to fetch pending merchants');
         this.isLoading.set(false);
       }
     });
@@ -36,10 +38,11 @@ export class MerchantReview implements OnInit {
   approve(merchantId: string) {
     this.merchantAdminService.approveMerchant(merchantId).subscribe({
       next: () => {
+        this.toastService.success('Merchant approved successfully');
         this.fetchPendingMerchants();
       },
       error: (err) => {
-        console.error('Approve failed', err);
+        this.toastService.error(err.error?.detail || 'Approve failed');
       }
     });
   }
@@ -49,10 +52,11 @@ export class MerchantReview implements OnInit {
     
     this.merchantAdminService.rejectMerchant(merchantId).subscribe({
       next: () => {
+        this.toastService.info('Merchant rejected');
         this.fetchPendingMerchants();
       },
       error: (err) => {
-        console.error('Reject failed', err);
+        this.toastService.error(err.error?.detail || 'Reject failed');
       }
     });
   }
