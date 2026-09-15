@@ -19,6 +19,7 @@ public final class ApiRoutes {
     // Transaction Routes
     public static final String TRANSACTION_BASE = BASE_API + "/transactions";
     public static final String TRANSACTION_TRANSFER = "/transfer";
+    public static final String TRANSACTION_PAY_BILL = "/pay-bill";
 
     // Fraud Flag Routes
     public static final String FRAUD_FLAG_BASE = BASE_API + "/fraud-flags";

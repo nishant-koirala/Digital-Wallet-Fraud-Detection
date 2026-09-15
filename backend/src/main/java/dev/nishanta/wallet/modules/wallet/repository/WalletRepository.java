@@ -14,6 +14,8 @@ import java.util.UUID;
 public interface WalletRepository extends JpaRepository<Wallet, UUID> {
 
     Optional<Wallet> findByUser_PhoneNumberAndType(String phoneNumber, WalletType type);
+    
+    Optional<Wallet> findFirstByType(WalletType type);
 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

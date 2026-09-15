@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 import jsQR from 'jsqr';
 
@@ -14,9 +15,9 @@ import jsQR from 'jsqr';
 export class QrScreen implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   myWalletId = signal<string>('');
-  errorMsg = signal<string>('');
 
   ngOnInit() {
     this.authService.currentUser$.subscribe({
@@ -46,11 +47,10 @@ export class QrScreen implements OnInit {
             const code = (jsQR as any)(imageData.data, imageData.width, imageData.height);
             
             if (code && code.data) {
-              this.errorMsg.set('');
               // Success! Navigate to dashboard with transferTo parameter
               this.router.navigate(['/'], { queryParams: { transferTo: code.data } });
             } else {
-              this.errorMsg.set('No QR code found in the image. Please try again.');
+              this.toastService.error('No QR code found in the image. Please try again.');
             }
           }
         };

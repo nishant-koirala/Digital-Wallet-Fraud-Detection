@@ -36,7 +36,7 @@ export class PayBills {
       error: (err: any) => {
         this.isSubmitting.set(false);
         console.error('Bill payment failed', err);
-        this.toastService.show('Bill payment failed. Please try again.', 'error');
+        this.toastService.error(err.error?.detail || 'Bill payment failed. Please try again.');
       }
     });
   }
