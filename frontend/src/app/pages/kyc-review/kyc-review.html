@@ -1,0 +1,35 @@
+<div class="card">
+  <h2>KYC Review Queue</h2>
+  <p class="text-secondary">Review and approve user submitted identity documents.</p>
+
+  <div *ngIf="documents.length === 0" class="mt-4">
+    <p>No pending KYC applications found.</p>
+  </div>
+
+  <div class="kyc-grid mt-4">
+    <div *ngFor="let doc of documents" class="kyc-card">
+      <div class="doc-details">
+        <strong>User ID:</strong> <span class="mono">{{ doc.userId }}</span><br>
+        <strong>Type:</strong> {{ doc.documentType }}<br>
+        <strong>Number:</strong> {{ doc.documentNumber }}<br>
+        <strong>Submitted:</strong> {{ doc.createdAt | date:'short' }}
+      </div>
+
+      <div class="doc-images">
+        <div class="img-container">
+          <small>Front</small>
+          <img [src]="doc.frontImageUrl" alt="Front" class="mock-img">
+        </div>
+        <div class="img-container">
+          <small>Back</small>
+          <img [src]="doc.backImageUrl" alt="Back" class="mock-img">
+        </div>
+      </div>
+
+      <div class="doc-actions mt-3">
+        <button class="btn btn-primary" (click)="approve(doc.id)">Approve</button>
+        <button class="btn btn-outline" (click)="reject(doc.id)">Reject</button>
+      </div>
+    </div>
+  </div>
+</div>

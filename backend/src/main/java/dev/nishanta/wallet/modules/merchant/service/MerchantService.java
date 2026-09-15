@@ -14,6 +14,7 @@ import dev.nishanta.wallet.modules.wallet.domain.WalletType;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
 import dev.nishanta.wallet.common.exception.BusinessRuleException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import dev.nishanta.wallet.common.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +28,14 @@ public class MerchantService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final AuditService auditService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public MerchantService(MerchantRepository merchantRepository, UserRepository userRepository, WalletRepository walletRepository, AuditService auditService) {
+    public MerchantService(MerchantRepository merchantRepository, UserRepository userRepository, WalletRepository walletRepository, AuditService auditService, SimpMessagingTemplate messagingTemplate) {
         this.merchantRepository = merchantRepository;
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.auditService = auditService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional
@@ -87,6 +90,9 @@ public class MerchantService {
         profile.approve();
         merchantRepository.save(profile);
         auditService.logAction("MERCHANT_PROFILE", profile.getId(), "APPROVE", adminEmail, null, null);
+
+        messagingTemplate.convertAndSend("/topic/notifications/" + profile.getWallet().getId(), 
+                "Your merchant application for '" + profile.getBusinessName() + "' was APPROVED.");
     }
 
     @Transactional
@@ -96,6 +102,9 @@ public class MerchantService {
         profile.reject();
         merchantRepository.save(profile);
         auditService.logAction("MERCHANT_PROFILE", profile.getId(), "REJECT", adminEmail, null, null);
+
+        messagingTemplate.convertAndSend("/topic/notifications/" + profile.getWallet().getId(), 
+                "Your merchant application for '" + profile.getBusinessName() + "' was REJECTED.");
     }
 
     private MerchantResponse mapToResponse(MerchantProfile profile) {

@@ -11,9 +11,12 @@ import java.util.Optional;
 public class LocationAnomalyRule implements FraudRule {
 
     private final TransactionRepository transactionRepository;
+    private final dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository;
 
-    public LocationAnomalyRule(TransactionRepository transactionRepository) {
+    public LocationAnomalyRule(TransactionRepository transactionRepository,
+                               dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository) {
         this.transactionRepository = transactionRepository;
+        this.fraudConfigRepository = fraudConfigRepository;
     }
 
     @Override
@@ -37,8 +40,9 @@ public class LocationAnomalyRule implements FraudRule {
                 lastTx.getLatitude().doubleValue(), lastTx.getLongitude().doubleValue()
         );
 
-        // If distance is greater than 500km, flag as suspicious
-        return distance > 500;
+        dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).get();
+
+        return distance > config.getMaxGeoDistanceKm();
     }
 
     @Override

@@ -86,6 +86,13 @@ public class TransferService {
             throw new InsufficientBalanceException("Insufficient balance in wallet " + fromWallet.getId());
         }
 
+        // --- KYC LOGIC ---
+        if (amount.compareTo(new BigDecimal("5000")) >= 0) {
+            if (fromWallet.getUser().getKycStatus() != dev.nishanta.wallet.modules.kyc.domain.KycStatus.APPROVED) {
+                throw new BusinessRuleException("KYC Verification is required for transfers over Rs. 5000");
+            }
+        }
+
         // --- 2FA OTP LOGIC ---
         // Require OTP for transfers >= Rs 10,000 (we can use 1000 for easier demoing)
         if (amount.compareTo(new BigDecimal("1000")) >= 0) {

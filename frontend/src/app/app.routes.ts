@@ -10,6 +10,9 @@ import { Register } from './pages/register/register';
 import { MerchantOnboard } from './pages/merchant-onboard/merchant-onboard';
 import { AuditLogs } from './pages/audit-logs/audit-logs';
 import { Profile } from './pages/profile/profile';
+import { FraudSettings } from './pages/fraud-settings/fraud-settings';
+import { KycSubmitComponent } from './pages/kyc-submit/kyc-submit';
+import { KycReviewComponent } from './pages/kyc-review/kyc-review';
 import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
@@ -18,8 +21,11 @@ export const routes: Routes = [
   { path: '', component: Dashboard, canActivate: [authGuard] },
   { path: 'qr', component: QrScreen, canActivate: [authGuard] },
   { path: 'pay-bills', component: PayBills, canActivate: [authGuard] },
+  { path: 'kyc', component: KycSubmitComponent, canActivate: [authGuard] },
   { path: 'admin', component: FraudReview, canActivate: [authGuard] },
   { path: 'admin/analytics', component: AdminAnalytics, canActivate: [authGuard] },
+  { path: 'admin/fraud-settings', component: FraudSettings, canActivate: [authGuard] },
+  { path: 'admin/kyc-review', component: KycReviewComponent, canActivate: [authGuard] },
   { path: 'merchant-review', component: MerchantReview, canActivate: [authGuard] },
   { path: 'merchant/onboard', component: MerchantOnboard, canActivate: [authGuard] },
   { path: 'admin/audit-logs', component: AuditLogs, canActivate: [authGuard] },

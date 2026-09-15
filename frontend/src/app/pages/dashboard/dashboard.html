@@ -13,10 +13,13 @@
     @if (isAdmin) {
       <a href="/admin/analytics" class="btn">Analytics</a>
       <a href="/admin/fraud-review" class="btn">Fraud Review</a>
+      <a href="/admin/fraud-settings" class="btn">Fraud Settings</a>
+      <a href="/admin/kyc-review" class="btn">KYC Review</a>
       <a href="/merchant-review" class="btn">Merchants</a>
       <a href="/admin/audit-logs" class="btn">Audit Logs</a>
     }
     <a href="/profile" class="btn">Profile</a>
+    <a href="/kyc" class="btn">KYC Verification</a>
     <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
     <button class="btn" (click)="openDepositModal()">Deposit</button>
     <button class="btn" (click)="openWithdrawModal()">Withdraw</button>

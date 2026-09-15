@@ -3,6 +3,7 @@ package dev.nishanta.wallet.modules.user.domain;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import dev.nishanta.wallet.modules.kyc.domain.KycStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private KycStatus kycStatus = KycStatus.NOT_SUBMITTED;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -58,6 +62,9 @@ public class User {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public String getPhoneNumber() { return phoneNumber; }
     public String getPinHash() { return pinHash; }
+    public KycStatus getKycStatus() { return kycStatus; }
+
+    public void setKycStatus(KycStatus kycStatus) { this.kycStatus = kycStatus; }
 
     public void setPin(String pinHash) {
         this.pinHash = pinHash;

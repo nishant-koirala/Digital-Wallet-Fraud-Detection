@@ -1,0 +1,30 @@
+<div class="card">
+  <h2>Fraud Detection Settings</h2>
+  <p class="text-secondary">Dynamically adjust the thresholds that trigger automated fraud alerts.</p>
+  
+  <div class="form-group mt-3">
+    <label>Cold Start Threshold (Rs)</label>
+    <input type="number" class="form-control" [(ngModel)]="config.coldStartThreshold">
+    <small class="text-secondary">Amount threshold for new wallets with no history.</small>
+  </div>
+
+  <div class="form-group">
+    <label>Minimum History Baseline</label>
+    <input type="number" class="form-control" [(ngModel)]="config.minHistoryForBaseline">
+    <small class="text-secondary">Transactions required before dynamic multiplier applies.</small>
+  </div>
+
+  <div class="form-group">
+    <label>Average Multiplier</label>
+    <input type="number" class="form-control" [(ngModel)]="config.averageMultiplier">
+    <small class="text-secondary">Tx flagged if Amount > (Historical Avg * Multiplier).</small>
+  </div>
+
+  <div class="form-group">
+    <label>Max Geo Distance (km)</label>
+    <input type="number" class="form-control" [(ngModel)]="config.maxGeoDistanceKm">
+    <small class="text-secondary">Tx flagged if location is further than this distance from last Tx.</small>
+  </div>
+
+  <button class="btn btn-primary mt-2" (click)="saveConfig()">Save Configuration</button>
+</div>
