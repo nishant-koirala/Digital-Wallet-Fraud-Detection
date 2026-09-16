@@ -26,5 +26,31 @@
     <small class="text-secondary">Tx flagged if location is further than this distance from last Tx.</small>
   </div>
 
+  <h3 class="mt-4">Velocity Rules</h3>
+  
+  <div class="form-group mt-3">
+    <label>Velocity Window (minutes)</label>
+    <input type="number" class="form-control" [(ngModel)]="config.velocityWindowMinutes">
+    <small class="text-secondary">Duration of a single velocity window.</small>
+  </div>
+
+  <div class="form-group">
+    <label>Lookback Windows</label>
+    <input type="number" class="form-control" [(ngModel)]="config.velocityLookbackWindows">
+    <small class="text-secondary">Number of past windows to calculate the baseline average.</small>
+  </div>
+
+  <div class="form-group">
+    <label>Cold Start Max (transactions)</label>
+    <input type="number" class="form-control" [(ngModel)]="config.velocityColdStartMax">
+    <small class="text-secondary">Max transactions allowed per window if there's no historical baseline.</small>
+  </div>
+
+  <div class="form-group">
+    <label>Velocity Multiplier</label>
+    <input type="number" class="form-control" [(ngModel)]="config.velocityMultiplier">
+    <small class="text-secondary">Tx flagged if Window Count > (Historical Avg * Multiplier).</small>
+  </div>
+
   <button class="btn btn-primary mt-2" (click)="saveConfig()">Save Configuration</button>
 </div>

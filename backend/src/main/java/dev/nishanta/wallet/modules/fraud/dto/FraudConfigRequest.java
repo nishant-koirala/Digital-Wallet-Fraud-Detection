@@ -7,5 +7,9 @@ public record FraudConfigRequest(
         @NotNull BigDecimal coldStartThreshold,
         @NotNull Integer minHistoryForBaseline,
         @NotNull BigDecimal averageMultiplier,
-        @NotNull Double maxGeoDistanceKm
+        @NotNull Double maxGeoDistanceKm,
+        @NotNull Integer velocityWindowMinutes,
+        @NotNull Integer velocityLookbackWindows,
+        @NotNull Integer velocityColdStartMax,
+        @NotNull Double velocityMultiplier
 ) {}

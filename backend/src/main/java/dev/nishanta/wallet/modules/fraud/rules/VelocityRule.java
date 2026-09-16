@@ -4,6 +4,9 @@ import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import org.springframework.stereotype.Component;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
+import dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,36 +16,36 @@ import java.util.UUID;
 @Component
 public class VelocityRule implements FraudRule {
 
-    private static final int WINDOW_MINUTES = 10;
-    private static final int LOOKBACK_WINDOWS = 6; // last 6 windows = last hour, to build a baseline
-    private static final int COLD_START_MAX = 5;   // fallback for wallets with no history yet
-    private static final double MULTIPLIER = 3.0;
-
     private final TransactionRepository transactionRepository;
+    private final FraudConfigRepository fraudConfigRepository;
 
-    public VelocityRule(TransactionRepository transactionRepository) {
+    public VelocityRule(TransactionRepository transactionRepository, FraudConfigRepository fraudConfigRepository) {
         this.transactionRepository = transactionRepository;
+        this.fraudConfigRepository = fraudConfigRepository;
     }
 
     @Override
     public boolean isSuspicious(Transaction transaction) {
+        FraudConfig config = fraudConfigRepository.findById(1)
+                .orElseGet(() -> new FraudConfig(new java.math.BigDecimal("50000"), 5, new java.math.BigDecimal("5"), 500.0, 10, 6, 5, 3.0));
+
         UUID walletId = transaction.getFromWallet().getId();
         LocalDateTime now = LocalDateTime.now();
 
         long currentWindowCount = transactionRepository.countByFromWalletIdAndCreatedAtBetween(
-                walletId, now.minusMinutes(WINDOW_MINUTES), now);
+                walletId, now.minusMinutes(config.getVelocityWindowMinutes()), now);
 
         // Build a baseline: average transactions-per-window over the last hour.
         long historicalTotal = transactionRepository.countByFromWalletIdAndCreatedAtBetween(
-                walletId, now.minusMinutes((long) WINDOW_MINUTES * LOOKBACK_WINDOWS), now.minusMinutes(WINDOW_MINUTES));
+                walletId, now.minusMinutes((long) config.getVelocityWindowMinutes() * config.getVelocityLookbackWindows()), now.minusMinutes(config.getVelocityWindowMinutes()));
 
         if (historicalTotal == 0) {
             // No baseline yet for this wallet — fall back to a flat cap.
-            return currentWindowCount > COLD_START_MAX;
+            return currentWindowCount > config.getVelocityColdStartMax();
         }
 
-        double averagePerWindow = (double) historicalTotal / LOOKBACK_WINDOWS;
-        double relativeThreshold = averagePerWindow * MULTIPLIER;
+        double averagePerWindow = (double) historicalTotal / config.getVelocityLookbackWindows();
+        double relativeThreshold = averagePerWindow * config.getVelocityMultiplier();
 
         return currentWindowCount > relativeThreshold;
     }
