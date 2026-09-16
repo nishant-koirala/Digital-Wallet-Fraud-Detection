@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.fraud.rules;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 
 // The Open/Closed contract: TransferService will hold a List<FraudRule>
@@ -9,7 +10,7 @@ import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 // TransferService itself.
 public interface FraudRule {
 
-    boolean isSuspicious(Transaction transaction);
+    FraudSeverity evaluate(Transaction transaction);
 
     // Matches the values your schema comment listed for rule_triggered:
     // VELOCITY, AMOUNT_THRESHOLD, GEO_MISMATCH

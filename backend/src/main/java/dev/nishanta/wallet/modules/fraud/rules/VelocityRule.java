@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository;
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class VelocityRule implements FraudRule {
     }
 
     @Override
-    public boolean isSuspicious(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction) {
         FraudConfig config = fraudConfigRepository.findById(1)
                 .orElseGet(() -> new FraudConfig(new java.math.BigDecimal("50000"), 5, new java.math.BigDecimal("5"), 500.0, 10, 6, 5, 3.0));
 
@@ -41,13 +42,26 @@ public class VelocityRule implements FraudRule {
 
         if (historicalTotal == 0) {
             // No baseline yet for this wallet — fall back to a flat cap.
-            return currentWindowCount > config.getVelocityColdStartMax();
+            if (currentWindowCount > config.getVelocityColdStartMax() + 2) {
+                return FraudSeverity.MAJOR;
+            }
+            if (currentWindowCount > config.getVelocityColdStartMax()) {
+                return FraudSeverity.MINOR;
+            }
+            return FraudSeverity.NONE;
         }
 
         double averagePerWindow = (double) historicalTotal / config.getVelocityLookbackWindows();
-        double relativeThreshold = averagePerWindow * config.getVelocityMultiplier();
+        double minorThreshold = averagePerWindow * config.getVelocityMultiplier();
+        double majorThreshold = averagePerWindow * (config.getVelocityMultiplier() + 2.0);
 
-        return currentWindowCount > relativeThreshold;
+        if (currentWindowCount > majorThreshold) {
+            return FraudSeverity.MAJOR;
+        }
+        if (currentWindowCount > minorThreshold) {
+            return FraudSeverity.MINOR;
+        }
+        return FraudSeverity.NONE;
     }
 
     @Override
