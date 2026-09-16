@@ -1,6 +1,8 @@
 package dev.nishanta.wallet.modules.fraud.service;
 
 import dev.nishanta.wallet.modules.fraud.domain.FraudFlag;
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
+import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
 import dev.nishanta.wallet.modules.fraud.repository.FraudFlagRepository;
 import dev.nishanta.wallet.modules.fraud.rules.FraudRule;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
@@ -28,23 +30,32 @@ public class FraudDetectionService {
         this.fraudRules = fraudRules;
     }
 
-    public boolean flagIfSuspicious(Transaction transaction) {
-        List<FraudRule> firedRules = fraudRules.stream()
-                .filter(rule -> rule.isSuspicious(transaction))
-                .collect(Collectors.toList());
+    public FraudDetectionResult evaluateFraud(Transaction transaction) {
+        boolean isMajor = false;
+        boolean isMinor = false;
+        java.util.List<String> majorRules = new java.util.ArrayList<>();
+        java.util.List<String> minorRules = new java.util.ArrayList<>();
 
-        if (firedRules.isEmpty()) {
-            return false;
+        for (FraudRule rule : fraudRules) {
+            FraudSeverity severity = rule.evaluate(transaction);
+            if (severity == FraudSeverity.MAJOR) {
+                isMajor = true;
+                majorRules.add(rule.ruleName());
+            } else if (severity == FraudSeverity.MINOR) {
+                isMinor = true;
+                minorRules.add(rule.ruleName());
+            }
         }
 
-        String combinedRuleNames = firedRules.stream()
-                .map(FraudRule::ruleName)
-                .collect(Collectors.joining(","));
-
-        fraudFlagRepository.save(new FraudFlag(transaction, combinedRuleNames, firedRules.size() * 10));
-
-        transaction.markFlagged();
-        transactionRepository.save(transaction);
-        return true;
+        if (isMajor) {
+            fraudFlagRepository.save(new FraudFlag(transaction, String.join(",", majorRules), 100));
+            transaction.markFlagged();
+            transactionRepository.save(transaction);
+            return FraudDetectionResult.FLAGGED;
+        } else if (isMinor) {
+            return FraudDetectionResult.MINOR_FRAUD;
+        }
+        
+        return FraudDetectionResult.CLEAN;
     }
 }

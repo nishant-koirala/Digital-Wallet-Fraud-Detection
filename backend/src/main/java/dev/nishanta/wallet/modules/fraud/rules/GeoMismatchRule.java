@@ -2,6 +2,7 @@ package dev.nishanta.wallet.modules.fraud.rules;
 
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,12 +23,12 @@ public class GeoMismatchRule implements FraudRule {
     }
 
     @Override
-    public boolean isSuspicious(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction) {
         // No location on THIS transaction — nothing to check. Per the
         // earlier decision: skip silently, don't penalize missing
         // permission.
         if (transaction.getLatitude() == null || transaction.getLongitude() == null) {
-            return false;
+            return FraudSeverity.NONE;
         }
 
         var previous = transactionRepository.findFirstByFromWalletIdAndIdNotAndLatitudeIsNotNullOrderByCreatedAtDesc(
@@ -36,7 +37,7 @@ public class GeoMismatchRule implements FraudRule {
         // No prior located transaction for this wallet — nothing to
         // compare against yet (cold start).
         if (previous.isEmpty()) {
-            return false;
+            return FraudSeverity.NONE;
         }
 
         Transaction prev = previous.get();
@@ -51,12 +52,12 @@ public class GeoMismatchRule implements FraudRule {
         // essentially simultaneous) — treat as maximally suspicious if
         // there's real distance but ~no time elapsed.
         if (hoursElapsed <= 0.001) {
-            return distanceKm > 1.0;  // more than ~1km apart, essentially instantly
+            return (distanceKm > 1.0) ? FraudSeverity.MAJOR : FraudSeverity.NONE;
         }
 
         double impliedSpeedKmh = distanceKm / hoursElapsed;
 
-        return impliedSpeedKmh > MAX_PLAUSIBLE_SPEED_KMH;
+        return (impliedSpeedKmh > MAX_PLAUSIBLE_SPEED_KMH) ? FraudSeverity.MAJOR : FraudSeverity.NONE;
     }
 
     // Standard great-circle distance formula between two lat/long points.

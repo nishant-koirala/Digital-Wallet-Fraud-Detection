@@ -3,6 +3,7 @@ package dev.nishanta.wallet.modules.fraud.rules;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.domain.TransactionStatus;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,7 +27,7 @@ public class AmountThresholdRule implements FraudRule {
     }
 
     @Override
-    public boolean isSuspicious(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction) {
         UUID walletId = transaction.getFromWallet().getId();
         long historyCount = transactionRepository.countByFromWalletIdAndStatus(
                 walletId, TransactionStatus.COMPLETED);
@@ -34,14 +35,28 @@ public class AmountThresholdRule implements FraudRule {
         dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).get();
 
         if (historyCount < config.getMinHistoryForBaseline()) {
-            return transaction.getAmount().compareTo(config.getColdStartThreshold()) > 0;
+            if (transaction.getAmount().compareTo(config.getColdStartThreshold().multiply(new BigDecimal("2"))) > 0) {
+                return FraudSeverity.MAJOR;
+            }
+            if (transaction.getAmount().compareTo(config.getColdStartThreshold()) > 0) {
+                return FraudSeverity.MINOR;
+            }
+            return FraudSeverity.NONE;
         }
 
         BigDecimal average = transactionRepository.findAverageAmountByFromWalletId(walletId)
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal relativeThreshold = average.multiply(config.getAverageMultiplier());
-        return transaction.getAmount().compareTo(relativeThreshold) > 0;
+        BigDecimal minorThreshold = average.multiply(config.getAverageMultiplier());
+        BigDecimal majorThreshold = average.multiply(config.getAverageMultiplier().add(new BigDecimal("2")));
+
+        if (transaction.getAmount().compareTo(majorThreshold) > 0) {
+            return FraudSeverity.MAJOR;
+        }
+        if (transaction.getAmount().compareTo(minorThreshold) > 0) {
+            return FraudSeverity.MINOR;
+        }
+        return FraudSeverity.NONE;
     }
 
     @Override

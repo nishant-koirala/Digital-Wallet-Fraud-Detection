@@ -2,6 +2,7 @@ package dev.nishanta.wallet.modules.fraud.rules;
 
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
+import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -20,9 +21,9 @@ public class LocationAnomalyRule implements FraudRule {
     }
 
     @Override
-    public boolean isSuspicious(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction) {
         if (transaction.getLatitude() == null || transaction.getLongitude() == null) {
-            return false;
+            return FraudSeverity.NONE;
         }
 
         Optional<Transaction> lastTxOpt = transactionRepository
@@ -30,7 +31,7 @@ public class LocationAnomalyRule implements FraudRule {
                         transaction.getFromWallet().getId(), transaction.getId());
 
         if (lastTxOpt.isEmpty()) {
-            return false;
+            return FraudSeverity.NONE;
         }
 
         Transaction lastTx = lastTxOpt.get();
@@ -42,7 +43,13 @@ public class LocationAnomalyRule implements FraudRule {
 
         dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).get();
 
-        return distance > config.getMaxGeoDistanceKm();
+        if (distance > config.getMaxGeoDistanceKm() * 3) {
+            return FraudSeverity.MAJOR;
+        }
+        if (distance > config.getMaxGeoDistanceKm()) {
+            return FraudSeverity.MINOR;
+        }
+        return FraudSeverity.NONE;
     }
 
     @Override

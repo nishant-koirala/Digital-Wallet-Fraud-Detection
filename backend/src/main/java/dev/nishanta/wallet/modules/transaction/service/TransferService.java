@@ -2,6 +2,7 @@ package dev.nishanta.wallet.modules.transaction.service;
 
 import dev.nishanta.wallet.common.exception.InsufficientBalanceException;
 import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
+import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.dto.TransferRequest;
 import dev.nishanta.wallet.modules.transaction.dto.TransferResponse;
@@ -117,8 +118,18 @@ public class TransferService {
         // transaction must not have already changed either wallet's
         // balance, or "held for review" would be a lie. The detection
         // service writes no ledger entries when it flags.
-        if (fraudDetectionService.flagIfSuspicious(transaction)) {
+        FraudDetectionResult result = fraudDetectionService.evaluateFraud(transaction);
+        
+        if (result == FraudDetectionResult.FLAGGED) {
             return toResponse(transaction);
+        } else if (result == FraudDetectionResult.MINOR_FRAUD) {
+            String userEmail = fromWallet.getUser().getEmail();
+            if (request.otp() == null || request.otp().isEmpty()) {
+                otpService.generateAndSendOtp(userEmail);
+                throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
+            } else {
+                otpService.validateOtp(userEmail, request.otp());
+            }
         }
 
         // Only a genuinely clean transaction reaches this point, where
