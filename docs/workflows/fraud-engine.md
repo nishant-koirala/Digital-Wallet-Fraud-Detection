@@ -8,27 +8,24 @@ The Fraud Engine evaluates a given transaction payload against multiple rules (`
 flowchart TD
     Start[Transaction Payload Received] --> Loop[Iterate Registered FraudRules]
     
-    Loop --> RuleA[AmountThresholdRule]
-    Loop --> RuleB[VelocityRule]
-    Loop --> RuleC[LocationAnomalyRule]
-    Loop --> RuleD[GeoMismatchRule]
+    Loop --> RuleA[Evaluate AmountThresholdRule]
+    RuleA --> RuleB[Evaluate VelocityRule]
+    RuleB --> RuleC[Evaluate LocationAnomalyRule]
+    RuleC --> RuleD[Evaluate GeoMismatchRule]
     
-    RuleA --> |Evaluate| Eval[Collect Severities]
-    RuleB --> |Evaluate| Eval
-    RuleC --> |Evaluate| Eval
-    RuleD --> |Evaluate| Eval
+    RuleD --> Eval[Collect Severities]
     
     Eval --> CheckMajor{Any rule returned MAJOR?}
     
-    CheckMajor -- Yes --> Flag[Create FraudFlag]
+    CheckMajor -->|Yes| Flag[Create FraudFlag]
     Flag --> MarkTx[transaction.markFlagged()]
     MarkTx --> ReturnMajor[Return FraudDetectionResult.FLAGGED]
     
-    CheckMajor -- No --> CheckMinor{Any rule returned MINOR?}
+    CheckMajor -->|No| CheckMinor{Any rule returned MINOR?}
     
-    CheckMinor -- Yes --> ReturnMinor[Return FraudDetectionResult.MINOR_FRAUD]
+    CheckMinor -->|Yes| ReturnMinor[Return FraudDetectionResult.MINOR_FRAUD]
     
-    CheckMinor -- No --> ReturnClean[Return FraudDetectionResult.CLEAN]
+    CheckMinor -->|No| ReturnClean[Return FraudDetectionResult.CLEAN]
 ```
 
 ## Rule Severities
