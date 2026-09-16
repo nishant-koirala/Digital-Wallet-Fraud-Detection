@@ -23,6 +23,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.fromWallet.id = :walletId " +
+            "AND t.createdAt BETWEEN :start AND :end AND t.status = 'COMPLETED'")
+    BigDecimal sumAmountByFromWalletIdAndCreatedAtBetween(
+            @Param("walletId") UUID walletId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
     long countByFromWalletIdAndStatus(UUID fromWalletId, TransactionStatus status);
 
     @Query("SELECT AVG(t.amount) FROM Transaction t WHERE t.fromWallet.id = :walletId AND t.status = 'COMPLETED'")

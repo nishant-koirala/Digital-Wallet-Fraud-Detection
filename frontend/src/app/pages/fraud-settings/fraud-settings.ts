@@ -9,6 +9,10 @@ interface FraudConfig {
   minHistoryForBaseline: number;
   averageMultiplier: number;
   maxGeoDistanceKm: number;
+  velocityWindowMinutes: number;
+  velocityLookbackWindows: number;
+  velocityColdStartMax: number;
+  velocityMultiplier: number;
 }
 
 @Component({
@@ -26,7 +30,11 @@ export class FraudSettingsComponent implements OnInit {
     coldStartThreshold: 50000,
     minHistoryForBaseline: 5,
     averageMultiplier: 5,
-    maxGeoDistanceKm: 500
+    maxGeoDistanceKm: 500,
+    velocityWindowMinutes: 10,
+    velocityLookbackWindows: 6,
+    velocityColdStartMax: 5,
+    velocityMultiplier: 3.0
   };
 
   ngOnInit(): void {

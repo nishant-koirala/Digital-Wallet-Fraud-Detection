@@ -19,7 +19,7 @@ public class FraudConfigController {
     @GetMapping
     public FraudConfig getConfig() {
         return fraudConfigRepository.findById(1)
-                .orElseGet(() -> new FraudConfig(new java.math.BigDecimal("50000"), 5, new java.math.BigDecimal("5"), 500.0));
+                .orElseGet(() -> new FraudConfig(new java.math.BigDecimal("50000"), 5, new java.math.BigDecimal("5"), 500.0, 10, 6, 5, 3.0));
     }
 
     @PutMapping
@@ -29,6 +29,10 @@ public class FraudConfigController {
         config.setMinHistoryForBaseline(request.minHistoryForBaseline());
         config.setAverageMultiplier(request.averageMultiplier());
         config.setMaxGeoDistanceKm(request.maxGeoDistanceKm());
+        config.setVelocityWindowMinutes(request.velocityWindowMinutes());
+        config.setVelocityLookbackWindows(request.velocityLookbackWindows());
+        config.setVelocityColdStartMax(request.velocityColdStartMax());
+        config.setVelocityMultiplier(request.velocityMultiplier());
         return fraudConfigRepository.save(config);
     }
 }

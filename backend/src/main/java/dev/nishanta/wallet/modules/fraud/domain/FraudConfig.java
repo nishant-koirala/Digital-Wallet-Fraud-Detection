@@ -18,13 +18,23 @@ public class FraudConfig {
     private BigDecimal averageMultiplier;
     private double maxGeoDistanceKm;
 
+    private int velocityWindowMinutes;
+    private int velocityLookbackWindows;
+    private int velocityColdStartMax;
+    private double velocityMultiplier;
+
     public FraudConfig() {}
 
-    public FraudConfig(BigDecimal coldStartThreshold, int minHistoryForBaseline, BigDecimal averageMultiplier, double maxGeoDistanceKm) {
+    public FraudConfig(BigDecimal coldStartThreshold, int minHistoryForBaseline, BigDecimal averageMultiplier, double maxGeoDistanceKm,
+                       int velocityWindowMinutes, int velocityLookbackWindows, int velocityColdStartMax, double velocityMultiplier) {
         this.coldStartThreshold = coldStartThreshold;
         this.minHistoryForBaseline = minHistoryForBaseline;
         this.averageMultiplier = averageMultiplier;
         this.maxGeoDistanceKm = maxGeoDistanceKm;
+        this.velocityWindowMinutes = velocityWindowMinutes;
+        this.velocityLookbackWindows = velocityLookbackWindows;
+        this.velocityColdStartMax = velocityColdStartMax;
+        this.velocityMultiplier = velocityMultiplier;
     }
 
     public Integer getId() {
@@ -61,5 +71,37 @@ public class FraudConfig {
 
     public void setMaxGeoDistanceKm(double maxGeoDistanceKm) {
         this.maxGeoDistanceKm = maxGeoDistanceKm;
+    }
+
+    public int getVelocityWindowMinutes() {
+        return velocityWindowMinutes;
+    }
+
+    public void setVelocityWindowMinutes(int velocityWindowMinutes) {
+        this.velocityWindowMinutes = velocityWindowMinutes;
+    }
+
+    public int getVelocityLookbackWindows() {
+        return velocityLookbackWindows;
+    }
+
+    public void setVelocityLookbackWindows(int velocityLookbackWindows) {
+        this.velocityLookbackWindows = velocityLookbackWindows;
+    }
+
+    public int getVelocityColdStartMax() {
+        return velocityColdStartMax;
+    }
+
+    public void setVelocityColdStartMax(int velocityColdStartMax) {
+        this.velocityColdStartMax = velocityColdStartMax;
+    }
+
+    public double getVelocityMultiplier() {
+        return velocityMultiplier;
+    }
+
+    public void setVelocityMultiplier(double velocityMultiplier) {
+        this.velocityMultiplier = velocityMultiplier;
     }
 }
