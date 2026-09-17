@@ -1,18 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
-
-interface KycDocument {
-  id: string;
-  userId: string;
-  documentType: string;
-  documentNumber: string;
-  frontImageUrl: string;
-  backImageUrl: string;
-  status: string;
-  createdAt: string;
-}
+import { KycService, KycDocument } from '../../services/kyc.service';
 
 @Component({
   selector: 'app-kyc-review',
@@ -22,7 +11,7 @@ interface KycDocument {
   styleUrls: ['./kyc-review.scss']
 })
 export class KycReviewComponent implements OnInit {
-  private http = inject(HttpClient);
+  private kycService = inject(KycService);
   private toast = inject(ToastService);
 
   documents: KycDocument[] = [];
@@ -32,14 +21,14 @@ export class KycReviewComponent implements OnInit {
   }
 
   fetchPending() {
-    this.http.get<KycDocument[]>('http://localhost:8080/api/v1/admin/kyc/pending').subscribe({
+    this.kycService.getPending().subscribe({
       next: (res) => this.documents = res,
       error: () => this.toast.error('Failed to load pending KYC applications')
     });
   }
 
   approve(id: string) {
-    this.http.post(`http://localhost:8080/api/v1/admin/kyc/${id}/approve`, {}).subscribe({
+    this.kycService.approve(id).subscribe({
       next: () => {
         this.toast.success('KYC Approved');
         this.fetchPending();
@@ -49,7 +38,7 @@ export class KycReviewComponent implements OnInit {
   }
 
   reject(id: string) {
-    this.http.post(`http://localhost:8080/api/v1/admin/kyc/${id}/reject`, {}).subscribe({
+    this.kycService.reject(id).subscribe({
       next: () => {
         this.toast.success('KYC Rejected');
         this.fetchPending();

@@ -1,19 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 
-interface FraudConfig {
-  coldStartThreshold: number;
-  minHistoryForBaseline: number;
-  averageMultiplier: number;
-  maxGeoDistanceKm: number;
-  velocityWindowMinutes: number;
-  velocityLookbackWindows: number;
-  velocityColdStartMax: number;
-  velocityMultiplier: number;
-}
+import { FraudConfigService, FraudConfig } from '../../services/fraud-config.service';
 
 @Component({
   selector: 'app-fraud-settings',
@@ -23,7 +13,7 @@ interface FraudConfig {
   styleUrls: ['./fraud-settings.scss']
 })
 export class FraudSettingsComponent implements OnInit {
-  private http = inject(HttpClient);
+  private fraudConfigService = inject(FraudConfigService);
   private toast = inject(ToastService);
   
   config: FraudConfig = {
@@ -38,14 +28,14 @@ export class FraudSettingsComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.http.get<FraudConfig>('http://localhost:8080/api/v1/admin/fraud-config').subscribe({
+    this.fraudConfigService.getConfig().subscribe({
       next: (res) => this.config = res,
       error: (err) => console.error('Failed to load config', err)
     });
   }
 
   saveConfig() {
-    this.http.put('http://localhost:8080/api/v1/admin/fraud-config', this.config).subscribe({
+    this.fraudConfigService.updateConfig(this.config).subscribe({
       next: () => this.toast.success('Fraud rules updated successfully'),
       error: () => this.toast.error('Failed to update fraud rules')
     });
