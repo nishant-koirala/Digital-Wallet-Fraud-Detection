@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
                 .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<ProblemDetail> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+    }
+
     @ExceptionHandler(OtpRequiredException.class)
     public ResponseEntity<ProblemDetail> handleOtpRequired(OtpRequiredException ex) {
         return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED)
