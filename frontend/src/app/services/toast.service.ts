@@ -15,7 +15,8 @@ export class ToastService {
   messages = signal<Toast[]>([]);
 
   show(message: string, type: ToastType = 'info') {
-    const toast: Toast = { id: crypto.randomUUID(), message, type };
+    const id = Math.random().toString(36).substring(2, 9);
+    const toast: Toast = { id, message, type };
     this.messages.update(t => [...t, toast]);
     setTimeout(() => {
       this.remove(toast.id);
