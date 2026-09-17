@@ -17,7 +17,7 @@ export class OtpVerify implements OnInit {
   loading = false;
   
   private authRequest: any = null;
-  private action: 'login' | 'register' | null = null;
+  action: 'login' | 'register' | null = null;
   
   private authService = inject(AuthService);
   private router = inject(Router);
