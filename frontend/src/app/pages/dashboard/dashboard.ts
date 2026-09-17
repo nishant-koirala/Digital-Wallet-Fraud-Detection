@@ -45,9 +45,6 @@ export class Dashboard implements OnInit {
   transferOtp = signal('');
   showOtpField = signal(false);
   simulateForeignLocation = signal(false);
-  
-  simulateForeignLocation = signal(false);
-  
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
   
