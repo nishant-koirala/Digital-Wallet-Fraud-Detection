@@ -30,8 +30,7 @@ export class Register {
       name: this.name,
       email: this.email,
       phone: this.phone,
-      password: this.password,
-      otp: this.otp
+      password: this.password
     }).subscribe({
       next: () => {
         this.router.navigate(['/']);

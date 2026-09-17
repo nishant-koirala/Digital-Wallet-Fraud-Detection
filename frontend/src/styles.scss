@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Premium Dark Theme Tokens */
+/* Premium Light Theme Tokens (Fonepay Match) */
 :root {
   /* Core Colors */
   --color-primary: #e31837; /* Fonepay Red */
-  --color-primary-glow: rgba(227, 24, 55, 0.5);
+  --color-primary-glow: rgba(227, 24, 55, 0.2);
   --color-secondary: #c91530; /* Darker Red */
   --color-accent: #ff4d4d; /* Light Red */
   
@@ -14,25 +14,24 @@
   --color-warning: #f59e0b;
 
   /* Backgrounds & Surfaces */
-  --color-bg-base: #0f172a; /* Slate 900 */
-  --color-surface: rgba(30, 41, 59, 0.7); /* Glassmorphism base */
-  --color-surface-hover: rgba(30, 41, 59, 0.9);
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-bg-base: #f4f7f6; /* Light Grey Background */
+  --color-surface: #ffffff; /* Solid White Cards */
+  --color-surface-hover: #fafafa;
+  --color-border: #e2e8f0; /* Light Grey Borders */
 
   /* Typography */
-  --color-text-main: #f8fafc;
-  --color-text-muted: #94a3b8;
+  --color-text-main: #1f2937; /* Dark Slate Text */
+  --color-text-muted: #64748b; /* Medium Slate Text */
   
   --font-family-sans: 'Inter', sans-serif;
   --font-family-mono: 'JetBrains Mono', monospace;
   
-  --border-radius-lg: 16px;
-  --border-radius-md: 10px;
-  --border-radius-sm: 6px;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --border-radius-sm: 4px;
   
-  /* Shadows & Glass */
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --blur-glass: blur(12px);
+  /* Shadows */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Resets & Globals */
@@ -55,7 +54,8 @@ html, body {
 /* Typography Utils */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  color: var(--color-text-main);
 }
 
 .text-slate, .text-muted {
@@ -72,10 +72,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-primary);
 }
 
 /* Layout Utils */
@@ -85,21 +82,19 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2rem;
 }
 
-/* Premium Glassmorphism Cards */
-.glass-panel {
+/* Solid Cards (Replacing Glassmorphism) */
+.glass-panel, .solid-card {
   background: var(--color-surface);
-  backdrop-filter: var(--blur-glass);
-  -webkit-backdrop-filter: var(--blur-glass);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-glass);
+  box-shadow: var(--shadow-card);
   padding: 2rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.glass-panel:hover {
+.glass-panel:hover, .solid-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* Forms & Inputs */
@@ -118,7 +113,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   color: var(--color-text-main);
@@ -129,7 +124,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-control:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-glow);
+  box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.15);
 }
 
 /* Buttons */
@@ -145,23 +140,20 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 4px 15px var(--color-primary-glow);
+  box-shadow: 0 2px 4px rgba(227, 24, 55, 0.2);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-  filter: brightness(1.1);
+  background: var(--color-secondary);
 }
 
 .btn-success {
