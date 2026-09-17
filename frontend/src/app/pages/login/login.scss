@@ -5,8 +5,8 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+  background: radial-gradient(circle at 10% 20%, rgba(227, 24, 55, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 90% 80%, rgba(201, 21, 48, 0.15) 0%, transparent 50%);
   background-color: var(--color-bg-base);
   padding: 20px;
   position: relative;
@@ -35,7 +35,7 @@
 .auth-container::after {
   bottom: -100px;
   right: -100px;
-  background: rgba(236, 72, 153, 0.3);
+  background: rgba(227, 24, 55, 0.3);
   animation-delay: -5s;
 }
 
