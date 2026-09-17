@@ -4,16 +4,16 @@
       <div class="logo">F</div>
     </div>
     <div class="auth-header">
-      <h2>Security Verification</h2>
-      <p>Enter the 6-digit OTP sent to your email</p>
+      <h2>{{ action === 'register' ? 'Verify Your Email' : 'Security Verification' }}</h2>
+      <p>{{ action === 'register' ? 'We sent a 6-digit verification code to your email' : 'Enter the 6-digit OTP sent to your email' }}</p>
     </div>
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
-        <label>OTP Code</label>
+        <label>{{ action === 'register' ? 'Verification Code' : 'OTP Code' }}</label>
         <input type="text" class="form-control" [(ngModel)]="otp" name="otp" required placeholder="000000">
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="loading || !otp">
-        {{ loading ? 'Verifying...' : 'Verify OTP' }}
+        {{ loading ? 'Verifying...' : (action === 'register' ? 'Verify Email' : 'Verify OTP') }}
       </button>
     </form>
     <div class="auth-footer">
