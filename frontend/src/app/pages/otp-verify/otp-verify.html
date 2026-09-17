@@ -7,12 +7,15 @@
       <h2>{{ action === 'register' ? 'Verify Your Email' : 'Security Verification' }}</h2>
       <p>{{ action === 'register' ? 'We sent a 6-digit verification code to your email' : 'Enter the 6-digit OTP sent to your email' }}</p>
     </div>
-    <form (ngSubmit)="onSubmit()" class="auth-form">
+    <form (ngSubmit)="otpForm.form.valid && onSubmit()" #otpForm="ngForm" class="auth-form">
       <div class="form-group">
         <label>{{ action === 'register' ? 'Verification Code' : 'OTP Code' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="otp" name="otp" required placeholder="000000">
+        <input type="text" class="form-control" [(ngModel)]="otp" name="otp" required pattern="^[0-9]{6}$" maxlength="6" placeholder="000000" #otpInput="ngModel" [ngClass]="{'is-invalid': otpInput.invalid && (otpInput.dirty || otpInput.touched)}">
+        <div class="error-text" *ngIf="otpInput.invalid && (otpInput.dirty || otpInput.touched)">
+          Please enter exactly 6 digits.
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary" [disabled]="loading || !otp">
+      <button type="submit" class="btn btn-primary" [disabled]="loading || otpForm.invalid">
         {{ loading ? 'Verifying...' : (action === 'register' ? 'Verify Email' : 'Verify OTP') }}
       </button>
     </form>
