@@ -10,26 +10,22 @@
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
         <label>Full Name</label>
-        <input type="text" [(ngModel)]="name" name="name" required>
+        <input type="text" class="form-control" [(ngModel)]="name" name="name" required>
       </div>
       <div class="form-group">
         <label>Email Address</label>
-        <input type="email" [(ngModel)]="email" name="email" required>
+        <input type="email" class="form-control" [(ngModel)]="email" name="email" required>
       </div>
       <div class="form-group">
         <label>Phone Number</label>
-        <input type="tel" [(ngModel)]="phone" name="phone" required>
+        <input type="tel" class="form-control" [(ngModel)]="phone" name="phone" required>
       </div>
-      <div class="form-group" *ngIf="!showOtp">
+      <div class="form-group">
         <label>Password</label>
-        <input type="password" [(ngModel)]="password" name="password" required>
+        <input type="password" class="form-control" [(ngModel)]="password" name="password" required>
       </div>
-      <div class="form-group" *ngIf="showOtp">
-        <label>OTP Code</label>
-        <input type="text" [(ngModel)]="otp" name="otp" required placeholder="Check your email">
-      </div>
-      <button type="submit" class="btn-primary" [disabled]="loading">
-        {{ loading ? (showOtp ? 'Verifying...' : 'Registering...') : (showOtp ? 'Verify & Register' : 'Register') }}
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" [disabled]="loading">
+        {{ loading ? 'Registering...' : 'Register' }}
       </button>
     </form>
     <div class="auth-footer">
