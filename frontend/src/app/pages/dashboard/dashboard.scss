@@ -11,12 +11,12 @@
   margin-bottom: 3rem;
   
   .balance-card {
-    @extend .glass-panel;
+    @extend .solid-card;
     padding: 3rem;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-    border-left: 4px solid var(--color-primary);
+    background: var(--color-primary);
+    color: white;
 
     /* Decorative background gradient inside the card */
     &::after {
@@ -26,7 +26,7 @@
       right: -10%;
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
       border-radius: 50%;
       pointer-events: none;
     }
@@ -34,7 +34,7 @@
 
   .balance-label {
     font-size: 1.1rem;
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -46,7 +46,6 @@
     font-size: 3.5rem;
     font-weight: 700;
     color: #fff;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
   
   .actions {
@@ -58,7 +57,7 @@
 }
 
 .recent-transactions {
-  @extend .glass-panel;
+  @extend .solid-card;
   padding: 2rem;
   
   .list-header {
@@ -89,7 +88,7 @@
         .chip {
           padding: 0.5rem 1.25rem;
           border: 1px solid var(--color-border);
-          background: rgba(15, 23, 42, 0.5);
+          background: #ffffff;
           color: var(--color-text-muted);
           border-radius: 20px;
           cursor: pointer;
@@ -101,7 +100,6 @@
             background: var(--color-primary);
             color: #fff;
             border-color: var(--color-primary);
-            box-shadow: 0 0 15px var(--color-primary-glow);
           }
         }
       }
@@ -121,10 +119,10 @@
     transition: all 0.2s ease;
     padding: 1.25rem 1rem;
     border-radius: var(--border-radius-md);
+    border-bottom: 1px solid var(--color-border);
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-      transform: translateX(4px);
+      background-color: var(--color-surface-hover);
     }
     
     .details, .amount-status {
@@ -169,8 +167,7 @@
 .drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 100;
   animation: fadeIn 0.2s ease-out;
 }
@@ -182,13 +179,13 @@
   bottom: 0;
   width: 450px;
   max-width: 100%;
-  background: var(--color-bg-base);
+  background: var(--color-surface);
   z-index: 101;
   border-left: 1px solid var(--color-border);
   padding: 2.5rem;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
   animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -201,11 +198,12 @@
   h3 { 
     margin: 0; 
     font-size: 1.5rem;
+    color: var(--color-text-main);
   }
   
   .close-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
+    background: transparent;
+    border: 1px solid var(--color-border);
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -217,8 +215,8 @@
     transition: all 0.2s;
     
     &:hover { 
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
+      background: var(--color-bg-base);
+      color: var(--color-text-main);
     }
   }
 }
