@@ -1,13 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
-
-interface KycStatusResponse {
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'NOT_SUBMITTED';
-  documentType?: string;
-}
+import { KycService, KycStatusResponse } from '../../services/kyc.service';
 
 @Component({
   selector: 'app-kyc-submit',
@@ -17,7 +12,7 @@ interface KycStatusResponse {
   styleUrls: ['./kyc-submit.scss']
 })
 export class KycSubmitComponent implements OnInit {
-  private http = inject(HttpClient);
+  private kycService = inject(KycService);
   private toast = inject(ToastService);
 
   status: KycStatusResponse['status'] = 'NOT_SUBMITTED';
@@ -31,7 +26,7 @@ export class KycSubmitComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.http.get<KycStatusResponse>('http://localhost:8080/api/v1/kyc').subscribe({
+    this.kycService.getStatus().subscribe({
       next: (res) => {
         this.status = res.status;
         this.isLoading = false;
@@ -48,7 +43,7 @@ export class KycSubmitComponent implements OnInit {
   }
 
   submitKyc() {
-    this.http.post('http://localhost:8080/api/v1/kyc', this.formData).subscribe({
+    this.kycService.submitKyc(this.formData).subscribe({
       next: () => {
         this.toast.success('KYC submitted successfully!');
         this.status = 'PENDING';
