@@ -127,6 +127,21 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.15);
 }
 
+.form-control.is-invalid {
+  border-color: var(--color-signal-red);
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.error-text {
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
