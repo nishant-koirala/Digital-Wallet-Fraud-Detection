@@ -12,16 +12,12 @@
         <label>Email Address</label>
         <input type="email" class="form-control" [(ngModel)]="email" name="email" required>
       </div>
-      <div class="form-group" *ngIf="!showOtp">
+      <div class="form-group">
         <label>Password</label>
         <input type="password" class="form-control" [(ngModel)]="password" name="password" required>
       </div>
-      <div class="form-group" *ngIf="showOtp">
-        <label>OTP Code</label>
-        <input type="text" class="form-control" [(ngModel)]="otp" name="otp" required placeholder="Check your email">
-      </div>
       <button type="submit" class="btn btn-primary" [disabled]="loading">
-        {{ loading ? (showOtp ? 'Verifying...' : 'Logging in...') : (showOtp ? 'Verify & Login' : 'Log In') }}
+        {{ loading ? 'Logging in...' : 'Log In' }}
       </button>
     </form>
     <div class="auth-footer">

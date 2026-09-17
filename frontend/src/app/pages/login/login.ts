@@ -15,8 +15,6 @@ import { ToastService } from '../../services/toast.service';
 export class Login {
   email = '';
   password = '';
-  otp = '';
-  showOtp = false;
   loading = false;
 
   private authService = inject(AuthService);
@@ -26,7 +24,7 @@ export class Login {
   onSubmit() {
     this.loading = true;
     
-    this.authService.login({ email: this.email, password: this.password, otp: this.otp }).subscribe({
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.router.navigate(['/']);
         this.toastService.success('Logged in successfully!');
@@ -34,8 +32,10 @@ export class Login {
       error: (err) => {
         this.loading = false;
         if (err.status === 428) {
-          this.showOtp = true;
           this.toastService.info('OTP required. Please check your email.');
+          this.router.navigate(['/verify-otp'], { 
+            state: { action: 'login', authRequest: { email: this.email, password: this.password } } 
+          });
         } else {
           this.toastService.error(err.error?.detail || 'Login failed.');
         }

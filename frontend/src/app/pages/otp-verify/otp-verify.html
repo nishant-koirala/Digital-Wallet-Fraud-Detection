@@ -1,0 +1,23 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="logo-container">
+      <div class="logo">F</div>
+    </div>
+    <div class="auth-header">
+      <h2>Security Verification</h2>
+      <p>Enter the 6-digit OTP sent to your email</p>
+    </div>
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label>OTP Code</label>
+        <input type="text" class="form-control" [(ngModel)]="otp" name="otp" required placeholder="000000">
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="loading || !otp">
+        {{ loading ? 'Verifying...' : 'Verify OTP' }}
+      </button>
+    </form>
+    <div class="auth-footer">
+      <p>Didn't receive it? <a routerLink="/login">Go back to login</a></p>
+    </div>
+  </div>
+</div>

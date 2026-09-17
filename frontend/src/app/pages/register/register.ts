@@ -17,8 +17,6 @@ export class Register {
   email = '';
   phone = '';
   password = '';
-  otp = '';
-  showOtp = false;
   loading = false;
 
   private authService = inject(AuthService);
@@ -42,8 +40,18 @@ export class Register {
       error: (err) => {
         this.loading = false;
         if (err.status === 428) {
-          this.showOtp = true;
           this.toastService.info('OTP required. Please check your email.');
+          this.router.navigate(['/verify-otp'], { 
+            state: { 
+              action: 'register', 
+              authRequest: { 
+                name: this.name, 
+                email: this.email, 
+                phone: this.phone, 
+                password: this.password 
+              } 
+            } 
+          });
         } else {
           this.toastService.error(err.error?.detail || 'Registration failed.');
         }
