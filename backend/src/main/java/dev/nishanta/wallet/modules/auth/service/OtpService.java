@@ -1,6 +1,7 @@
 package dev.nishanta.wallet.modules.auth.service;
 
 import dev.nishanta.wallet.common.exception.BusinessRuleException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -13,7 +14,17 @@ public class OtpService {
     private final EmailService emailService;
     
     // In-memory cache for demo purposes. Real apps use Redis with TTL.
-    private final Map<String, String> otpStore = new ConcurrentHashMap<>();
+    private final Map<String, OtpRecord> otpStore = new ConcurrentHashMap<>();
+
+    private static class OtpRecord {
+        final String otp;
+        final long createdAt;
+
+        OtpRecord(String otp, long createdAt) {
+            this.otp = otp;
+            this.createdAt = createdAt;
+        }
+    }
 
     public OtpService(EmailService emailService) {
         this.emailService = emailService;
@@ -23,23 +34,34 @@ public class OtpService {
         // Generate a 6-digit OTP
         String otp = String.format("%06d", new Random().nextInt(999999));
         
-        otpStore.put(email, otp);
+        otpStore.put(email, new OtpRecord(otp, System.currentTimeMillis()));
         
         emailService.sendOtpEmail(email, otp);
     }
 
     public void validateOtp(String email, String inputOtp) {
-        String storedOtp = otpStore.get(email);
+        OtpRecord record = otpStore.get(email);
         
-        if (storedOtp == null) {
+        if (record == null) {
             throw new BusinessRuleException("No active OTP session found or OTP expired");
         }
         
-        if (!storedOtp.equals(inputOtp)) {
+        if (System.currentTimeMillis() - record.createdAt > 5 * 60 * 1000) { // 5 mins
+            otpStore.remove(email);
+            throw new BusinessRuleException("OTP expired");
+        }
+        
+        if (!record.otp.equals(inputOtp)) {
             throw new BusinessRuleException("Invalid OTP provided");
         }
         
         // OTP is valid, clear it
         otpStore.remove(email);
+    }
+
+    @Scheduled(fixedRate = 60000) // Runs every minute
+    public void cleanupExpiredOtps() {
+        long expiryTime = System.currentTimeMillis() - (5 * 60 * 1000);
+        otpStore.entrySet().removeIf(entry -> entry.getValue().createdAt < expiryTime);
     }
 }
