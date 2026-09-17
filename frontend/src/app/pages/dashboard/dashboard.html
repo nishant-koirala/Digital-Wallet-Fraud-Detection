@@ -1,79 +1,76 @@
-<div class="dashboard-header">
-  <div class="text-slate">Available Balance</div>
-  <div class="balance-figure">Rs. {{ displayBalance() | number:'1.2-2' }}</div>
-  
-  <div class="sparkline">
-    <svg viewBox="0 0 200 40" preserveAspectRatio="none">
-      <path d="M0 30 Q 20 20, 40 25 T 80 15 T 120 20 T 160 5 T 200 10 L 200 40 L 0 40 Z" fill="#F6F5F4" />
-      <path d="M0 30 Q 20 20, 40 25 T 80 15 T 120 20 T 160 5 T 200 10" fill="none" stroke="#0A0D12" stroke-width="1.5" />
-    </svg>
-  </div>
-  
-  <div class="actions">
-    @if (isAdmin) {
-      <a href="/admin/analytics" class="btn">Analytics</a>
-      <a href="/admin/fraud-review" class="btn">Fraud Review</a>
-      <a href="/admin/fraud-settings" class="btn">Fraud Settings</a>
-      <a href="/admin/kyc-review" class="btn">KYC Review</a>
-      <a href="/merchant-review" class="btn">Merchants</a>
-      <a href="/admin/audit-logs" class="btn">Audit Logs</a>
-    }
-    <a href="/profile" class="btn">Profile</a>
-    <a href="/kyc" class="btn">KYC Verification</a>
-    <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
-    <button class="btn" (click)="openDepositModal()">Deposit</button>
-    <button class="btn" (click)="openWithdrawModal()">Withdraw</button>
-    <a href="/pay-bills" class="btn">Pay Bills</a>
-    <a href="/qr" class="btn">Pay via QR</a>
-  </div>
-</div>
-
-<div class="recent-transactions">
-  <div class="list-header">
-    <h2 class="text-medium">Recent</h2>
-    
-    <div class="filters">
-      <div style="display: flex; gap: 8px;">
-        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="downloadStatement('pdf')">↓ PDF</button>
-        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="downloadStatement('csv')">↓ CSV</button>
-      </div>
-      <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="balance-card">
+      <div class="balance-label">Available Balance</div>
+      <div class="balance-figure">Rs. {{ displayBalance() | number:'1.2-2' }}</div>
       
-      <div class="chips">
-        <button class="chip" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">All</button>
-        <button class="chip" [class.active]="filter() === 'RECEIVED'" (click)="filter.set('RECEIVED')">Received</button>
-        <button class="chip" [class.active]="filter() === 'SENT'" (click)="filter.set('SENT')">Sent</button>
+      <div class="actions">
+        @if (isAdmin) {
+          <a href="/admin/analytics" class="btn">Analytics</a>
+          <a href="/admin/fraud-review" class="btn">Fraud Review</a>
+          <a href="/admin/fraud-settings" class="btn">Fraud Settings</a>
+          <a href="/admin/kyc-review" class="btn">KYC Review</a>
+          <a href="/merchant-review" class="btn">Merchants</a>
+          <a href="/admin/audit-logs" class="btn">Audit Logs</a>
+        }
+        <a href="/profile" class="btn">Profile</a>
+        <a href="/kyc" class="btn">KYC Verification</a>
+        <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
+        <button class="btn" (click)="openDepositModal()">Deposit</button>
+        <button class="btn" (click)="openWithdrawModal()">Withdraw</button>
+        <a href="/pay-bills" class="btn">Pay Bills</a>
+        <a href="/qr" class="btn">Pay via QR</a>
       </div>
     </div>
   </div>
 
-  <ul class="plain-list">
-    @for (t of filteredTransactions(); track t.id) {
-      <li class="transaction-row" (click)="openTransaction(t)">
-        <div class="details">
-          <span class="name text-medium">{{ t.name }}</span>
-          <span class="meta text-slate">{{ t.meta }}</span>
+  <div class="recent-transactions">
+    <div class="list-header">
+      <h2>Recent Transactions</h2>
+      
+      <div class="filters">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('pdf')">↓ PDF</button>
+          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('csv')">↓ CSV</button>
         </div>
-        <div class="amount-status">
-          <span class="amount" [class.positive]="t.amount > 0">
-            {{ t.amount > 0 ? '+' : '' }} Rs. {{ (t.amount > 0 ? t.amount : -t.amount) | number:'1.2-2' }}
-          </span>
-          <span class="status text-slate">{{ t.time }}</span>
+        <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+        
+        <div class="chips">
+          <button class="chip" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">All</button>
+          <button class="chip" [class.active]="filter() === 'RECEIVED'" (click)="filter.set('RECEIVED')">Received</button>
+          <button class="chip" [class.active]="filter() === 'SENT'" (click)="filter.set('SENT')">Sent</button>
         </div>
-      </li>
-    }
-    @empty {
-      <li class="empty-state text-slate">No transactions found.</li>
-    }
-  </ul>
+      </div>
+    </div>
+
+    <ul class="transaction-list">
+      @for (t of filteredTransactions(); track t.id) {
+        <li class="transaction-row" (click)="openTransaction(t)">
+          <div class="details">
+            <span class="name">{{ t.name }}</span>
+            <span class="meta">{{ t.meta }}</span>
+          </div>
+          <div class="amount-status">
+            <span class="amount" [class.positive]="t.amount > 0">
+              {{ t.amount > 0 ? '+' : '' }} Rs. {{ (t.amount > 0 ? t.amount : -t.amount) | number:'1.2-2' }}
+            </span>
+            <span class="status">{{ t.time }}</span>
+          </div>
+        </li>
+      }
+      @empty {
+        <li class="empty-state">No transactions found.</li>
+      }
+    </ul>
+  </div>
 </div>
 
 @if (selectedTransaction()) {
   <div class="drawer-backdrop" (click)="closeTransaction()"></div>
   <div class="drawer">
     <div class="drawer-header">
-      <h3 class="text-medium">Transaction Details</h3>
-      <button class="close-btn" (click)="closeTransaction()">×</button>
+      <h3>Transaction Details</h3>
+      <button class="close-btn" (click)="closeTransaction()">✕</button>
     </div>
     <div class="drawer-content">
       <div class="drawer-amount" [class.positive]="selectedTransaction()!.amount > 0">
@@ -81,20 +78,20 @@
       </div>
       
       <div class="detail-row">
-        <span class="text-slate">Party</span>
-        <span class="text-medium">{{ selectedTransaction()!.name }}</span>
+        <span class="label">Party</span>
+        <span class="value">{{ selectedTransaction()!.name }}</span>
       </div>
       <div class="detail-row">
-        <span class="text-slate">Identifier</span>
-        <span>{{ selectedTransaction()!.meta }}</span>
+        <span class="label">Identifier</span>
+        <span class="value">{{ selectedTransaction()!.meta }}</span>
       </div>
       <div class="detail-row">
-        <span class="text-slate">Time</span>
-        <span>{{ selectedTransaction()!.time }}</span>
+        <span class="label">Time</span>
+        <span class="value">{{ selectedTransaction()!.time }}</span>
       </div>
       <div class="detail-row">
-        <span class="text-slate">Txn ID</span>
-        <span class="monospace">{{ selectedTransaction()!.id }}</span>
+        <span class="label">Txn ID</span>
+        <span class="value monospace">{{ selectedTransaction()!.id }}</span>
       </div>
     </div>
   </div>
@@ -102,68 +99,67 @@
 
 @if (showDepositModal()) {
   <div class="drawer-backdrop" (click)="closeDepositModal()"></div>
-  <div class="drawer" style="height: auto; min-height: 250px;">
+  <div class="drawer" style="width: 400px;">
     <div class="drawer-header">
-      <h3 class="text-medium">Deposit Funds</h3>
-      <button class="close-btn" (click)="closeDepositModal()">×</button>
+      <h3>Deposit Funds</h3>
+      <button class="close-btn" (click)="closeDepositModal()">✕</button>
     </div>
-    <div class="drawer-content" style="padding-top: 20px;">
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
-        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
+    <div class="drawer-content">
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
       </div>
-      <button class="btn btn-primary" style="width: 100%;" (click)="submitDeposit()">Confirm Deposit</button>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitDeposit()">Confirm Deposit</button>
     </div>
   </div>
 }
 
 @if (showWithdrawModal()) {
   <div class="drawer-backdrop" (click)="closeWithdrawModal()"></div>
-  <div class="drawer" style="height: auto; min-height: 250px;">
+  <div class="drawer" style="width: 400px;">
     <div class="drawer-header">
-      <h3 class="text-medium">Withdraw Funds</h3>
-      <button class="close-btn" (click)="closeWithdrawModal()">×</button>
+      <h3>Withdraw Funds</h3>
+      <button class="close-btn" (click)="closeWithdrawModal()">✕</button>
     </div>
-    <div class="drawer-content" style="padding-top: 20px;">
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
-        <input type="number" class="search-input" style="width: 100%;" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
+    <div class="drawer-content">
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
       </div>
-      <button class="btn btn-primary" style="width: 100%;" (click)="submitWithdraw()">Confirm Withdraw</button>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitWithdraw()">Confirm Withdraw</button>
     </div>
   </div>
 }
 
 @if (showTransferModal()) {
   <div class="drawer-backdrop" (click)="closeTransferModal()"></div>
-  <div class="drawer" style="height: auto; min-height: 350px;">
+  <div class="drawer" style="width: 400px;">
     <div class="drawer-header">
-      <h3 class="text-medium">Send Funds</h3>
-      <button class="close-btn" (click)="closeTransferModal()">×</button>
+      <h3>Send Funds</h3>
+      <button class="close-btn" (click)="closeTransferModal()">✕</button>
     </div>
-    <div class="drawer-content" style="padding-top: 20px;">
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px;">Destination Phone Number</label>
-        <input type="text" class="search-input" style="width: 100%;" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
+    <div class="drawer-content">
+      <div class="form-group">
+        <label>Destination Phone Number</label>
+        <input type="text" class="form-control" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
       </div>
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px;">Amount</label>
-        <input type="number" class="search-input" style="width: 100%;" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" class="form-control" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
       </div>
       
       @if (showOtpField()) {
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="text-slate" style="display: block; margin-bottom: 8px; color: #e31837; font-weight: bold;">Enter OTP (Check Email/Console)</label>
-        <input type="text" class="search-input" style="width: 100%;" placeholder="6-digit code" [ngModel]="transferOtp()" (ngModelChange)="transferOtp.set($event)">
+      <div class="form-group">
+        <label style="color: var(--color-warning);">OTP Required (Check Email)</label>
+        <input type="text" class="form-control" placeholder="6-digit code" [ngModel]="transferOtp()" (ngModelChange)="transferOtp.set($event)" style="border-color: var(--color-warning);">
       </div>
       }
 
-      <div class="form-group" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+      <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
         <input type="checkbox" id="foreignLocation" [ngModel]="simulateForeignLocation()" (ngModelChange)="simulateForeignLocation.set($event)">
-        <label for="foreignLocation" class="text-slate">Simulate transfer from foreign location (NY)</label>
+        <label for="foreignLocation" style="margin-bottom: 0;">Simulate foreign location (NY)</label>
       </div>
-      <button class="btn btn-primary" style="width: 100%;" (click)="submitTransfer()">Send Now</button>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitTransfer()">Send Now</button>
     </div>
   </div>
 }
-

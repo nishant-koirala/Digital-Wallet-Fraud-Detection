@@ -1,36 +1,61 @@
 @import '../../../styles.scss';
 
-$fonepay-red: #e31837;
-$fonepay-red-hover: #c91530;
-$fonepay-bg: #f8f9fa;
-$text-dark: #1f2937;
-$text-light: #6b7280;
-$input-bg: #f3f4f6;
-$input-border: #e5e7eb;
-
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: $fonepay-bg;
-  background-image: radial-gradient(circle at top right, rgba(227, 24, 55, 0.05), transparent 40%),
-                    radial-gradient(circle at bottom left, rgba(227, 24, 55, 0.05), transparent 40%);
+  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+  background-color: var(--color-bg-base);
   padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle animated background orbs */
+.auth-container::before,
+.auth-container::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+  animation: float 10s infinite ease-in-out alternate;
+}
+
+.auth-container::before {
+  top: -100px;
+  left: -100px;
+  background: var(--color-primary-glow);
+}
+
+.auth-container::after {
+  bottom: -100px;
+  right: -100px;
+  background: rgba(236, 72, 153, 0.3);
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 50px) scale(1.1); }
 }
 
 .auth-card {
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  padding: 48px 40px;
+  /* Extending glass-panel from global */
+  @extend .glass-panel;
   width: 100%;
   max-width: 420px;
-  animation: slideUp 0.4s ease-out forwards;
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -40,22 +65,23 @@ $input-border: #e5e7eb;
   margin-bottom: 24px;
 
   .logo {
-    width: 60px;
-    height: 60px;
-    background: $fonepay-red;
-    border-radius: 14px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: 18px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
-    box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
+    box-shadow: 0 8px 25px var(--color-primary-glow);
     transform: rotate(-10deg);
-    transition: transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     
     &:hover {
-      transform: rotate(0deg) scale(1.05);
+      transform: rotate(0deg) scale(1.1);
+      box-shadow: 0 12px 30px var(--color-primary-glow);
     }
   }
 }
@@ -65,15 +91,13 @@ $input-border: #e5e7eb;
   margin-bottom: 32px;
   
   h2 {
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 28px;
     margin-bottom: 8px;
-    color: $text-dark;
-    letter-spacing: -0.5px;
+    color: var(--color-text-main);
   }
   
   p {
-    color: $text-light;
+    color: var(--color-text-muted);
     font-size: 15px;
   }
 }
@@ -84,118 +108,22 @@ $input-border: #e5e7eb;
   gap: 20px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  
-  label {
-    font-size: 14px;
-    font-weight: 600;
-    color: $text-dark;
-    margin-left: 4px;
-  }
-  
-  input {
-    padding: 14px 16px;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 15px;
-    background: $input-bg;
-    color: $text-dark;
-    transition: all 0.2s ease;
-    
-    &::placeholder {
-      color: #9ca3af;
-    }
-    
-    &:hover {
-      background: #e5e7eb;
-    }
-    
-    &:focus {
-      outline: none;
-      background: #ffffff;
-      border-color: $fonepay-red;
-      box-shadow: 0 0 0 4px rgba(227, 24, 55, 0.1);
-    }
-  }
-}
-
-.btn-primary {
-  margin-top: 12px;
-  padding: 16px;
-  background: $fonepay-red;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(227, 24, 55, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
-  &:hover:not(:disabled) {
-    background: $fonepay-red-hover;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(227, 24, 55, 0.3);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-}
-
-.error-msg {
-  color: $fonepay-red;
-  font-size: 14px;
-  background: rgba(227, 24, 55, 0.1);
-  padding: 12px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  &::before {
-    content: "!";
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 20px;
-    height: 20px;
-    background: $fonepay-red;
-    color: white;
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: bold;
-  }
-}
-
 .auth-footer {
   margin-top: 32px;
   text-align: center;
   font-size: 14px;
-  color: $text-light;
+  color: var(--color-text-muted);
   
   a {
-    color: $fonepay-red;
+    color: var(--color-accent);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 500;
     transition: color 0.2s ease;
     
     &:hover {
-      color: $fonepay-red-hover;
-      text-decoration: underline;
+      color: #fff;
     }
   }
 }
+
+/* Inherit forms & buttons from global styles.scss */
