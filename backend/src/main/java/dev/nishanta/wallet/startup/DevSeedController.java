@@ -21,4 +21,9 @@ public class DevSeedController {
     public SeedResponse seed() {
         return seedService.seed();
     }
+
+    @org.springframework.web.bind.annotation.GetMapping("/promote")
+    public String promoteAdmin(@org.springframework.web.bind.annotation.RequestParam String email) {
+        return seedService.promoteToAdmin(email);
+    }
 }

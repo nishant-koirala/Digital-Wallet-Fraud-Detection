@@ -76,4 +76,18 @@ public class SeedService {
                 .findFirst()
                 .orElseGet(() -> walletRepository.save(new Wallet(user, WalletType.PERSONAL, "NPR")));
     }
+
+    @Transactional
+    public String promoteToAdmin(String email) {
+        User user = userRepository.findAll().stream()
+                .filter(u -> u.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
+        if (user == null) {
+            return "User not found";
+        }
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
+        return "User " + email + " promoted to ADMIN!";
+    }
 }
