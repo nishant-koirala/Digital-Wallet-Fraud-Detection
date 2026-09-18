@@ -43,7 +43,7 @@ public class AdminReportService {
                         tx.getAmount().toString(),
                         tx.getCurrency(),
                         tx.getStatus().name(),
-                        tx.isFraudulent() ? "YES" : "NO"
+                        tx.getStatus() == dev.nishanta.wallet.modules.transaction.domain.TransactionStatus.FLAGGED ? "YES" : "NO"
                 );
             }
             
@@ -69,7 +69,7 @@ public class AdminReportService {
                         user.getId().toString(),
                         user.getName(),
                         user.getEmail(),
-                        user.getPhone() != null ? user.getPhone() : "N/A",
+                        user.getPhoneNumber() != null ? user.getPhoneNumber() : "N/A",
                         user.getRole().name(),
                         user.getCreatedAt() != null ? user.getCreatedAt().toString() : "N/A"
                 );
