@@ -22,26 +22,83 @@
   }
 }
 
-.qr-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
+.fonepay-qr-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  border: 1px solid rgba(0,0,0,0.05);
   
-  .qr-placeholder {
-    width: 200px;
-    height: 200px;
-    background-color: var(--color-ink);
-    margin-bottom: 1.5rem;
-    background-image: 
-      linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), 
-      linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
+  .qr-card-header {
+    background: #e31837; /* Fonepay Red */
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+    
+    .brand {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.25rem;
+      font-style: italic;
+    }
+    
+    .subtitle {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      opacity: 0.9;
+    }
   }
   
-  .wallet-id {
-    letter-spacing: 1px;
+  .qr-card-body {
+    padding: 2rem;
+    text-align: center;
+    background: #ffffff;
+    
+    .scan-text {
+      color: var(--color-text-main);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .qr-placeholder {
+      width: 220px;
+      height: 220px;
+      background-color: var(--color-bg-base);
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+    
+    .qr-code-wrapper {
+      display: inline-block;
+      padding: 10px;
+      border: 2px solid #e31837;
+      border-radius: 12px;
+    }
+  }
+  
+  .qr-card-footer {
+    background: #f8f9fa;
+    padding: 1.25rem;
+    text-align: center;
+    border-top: 1px dashed #ddd;
+    
+    .merchant-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 0.25rem;
+    }
+    
+    .wallet-id {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
   }
 }
 

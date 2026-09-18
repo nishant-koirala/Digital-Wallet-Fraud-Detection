@@ -4,14 +4,26 @@
     <a href="/" class="back-link text-slate">Back to Dashboard</a>
   </div>
   
-  <div class="card qr-card">
-    <div class="qr-placeholder" *ngIf="!myWalletId()">Loading...</div>
-    
-    <div class="qr-code-wrapper" *ngIf="myWalletId()" style="margin-bottom: 1.5rem;">
-      <qrcode [qrdata]="myWalletId()" [width]="200" [errorCorrectionLevel]="'M'"></qrcode>
+  <div class="fonepay-qr-card">
+    <div class="qr-card-header">
+      <div class="brand">fonepay</div>
+      <div class="subtitle">NEPAL'S PAYMENT NETWORK</div>
     </div>
     
-    <div class="wallet-id monospace" *ngIf="myWalletId()">{{ myWalletId() }}</div>
+    <div class="qr-card-body">
+      <div class="scan-text">Scan to Pay</div>
+      
+      <div class="qr-placeholder" *ngIf="!myWalletId()">Loading...</div>
+      
+      <div class="qr-code-wrapper" *ngIf="myWalletId()">
+        <qrcode [qrdata]="myWalletId()" [width]="220" [errorCorrectionLevel]="'M'"></qrcode>
+      </div>
+    </div>
+    
+    <div class="qr-card-footer">
+      <div class="merchant-name">My Digital Wallet</div>
+      <div class="wallet-id monospace" *ngIf="myWalletId()">{{ myWalletId() }}</div>
+    </div>
   </div>
   
   <div class="upload-zone">
