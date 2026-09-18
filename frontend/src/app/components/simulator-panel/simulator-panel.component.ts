@@ -8,9 +8,16 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="simulator-panel" [class.hacker-mode]="currentMode === 'HACKER'">
+    <!-- Floating Action Button -->
+    <button class="simulator-fab" (click)="toggleExpanded()" [class.hacker-mode]="currentMode === 'HACKER'" *ngIf="!isExpanded">
+      🛠️ Demo
+    </button>
+
+    <!-- Expanded Panel -->
+    <div class="simulator-panel" [class.hacker-mode]="currentMode === 'HACKER'" *ngIf="isExpanded">
       <div class="panel-header">
         🛠️ Demo Simulator
+        <button class="close-btn" (click)="toggleExpanded()">✕</button>
       </div>
       <div class="panel-body">
         <label>Simulate Device:</label>
@@ -28,6 +35,32 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: [`
+    .simulator-fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      padding: 10px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 9999;
+      cursor: pointer;
+      font-weight: 600;
+      color: #333;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      }
+      
+      &.hacker-mode {
+        border-color: #ff4444;
+        color: #cc0000;
+      }
+    }
+
     .simulator-panel {
       position: fixed;
       bottom: 20px;
@@ -35,16 +68,21 @@ import { FormsModule } from '@angular/forms';
       background: white;
       border: 1px solid #ddd;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
       z-index: 9999;
       width: 250px;
       font-family: var(--font-family, sans-serif);
-      transition: all 0.3s ease;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
     }
 
     .hacker-mode {
       border: 2px solid #ff4444;
-      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+      box-shadow: 0 8px 24px rgba(255, 68, 68, 0.3);
     }
 
     .panel-header {
@@ -54,11 +92,31 @@ import { FormsModule } from '@angular/forms';
       border-bottom: 1px solid #ddd;
       border-radius: 8px 8px 0 0;
       font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .hacker-mode .panel-header {
       background: #ffeeee;
       color: #cc0000;
+      border-bottom-color: #ffcccc;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #888;
+      
+      &:hover { color: #333; }
+    }
+
+    .hacker-mode .close-btn {
+      color: #cc0000;
+      &:hover { color: #990000; }
     }
 
     .panel-body {
@@ -93,6 +151,7 @@ export class SimulatorPanelComponent {
   
   profiles: DeviceProfile[] = this.simulator.getAllProfiles();
   currentMode: SimulatorMode = 'NORMAL';
+  isExpanded = false;
   
   get currentProfile() {
     return this.simulator.getCurrentProfile();
@@ -106,5 +165,9 @@ export class SimulatorPanelComponent {
 
   onModeChange() {
     this.simulator.setMode(this.currentMode);
+  }
+
+  toggleExpanded() {
+    this.isExpanded = !this.isExpanded;
   }
 }
