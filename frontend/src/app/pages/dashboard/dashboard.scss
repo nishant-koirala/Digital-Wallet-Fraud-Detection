@@ -50,9 +50,23 @@
   
   .actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     position: relative;
     z-index: 2;
+
+    .btn {
+      background: #ffffff;
+      color: var(--color-primary) !important; /* Override btn-primary */
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-weight: 600;
+      
+      &:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+      }
+    }
   }
 }
 
