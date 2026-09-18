@@ -75,7 +75,7 @@ public class WithdrawService {
         }
 
         Transaction transaction = new Transaction(
-                idempotencyKey, targetWallet, lockedMint, amount, targetWallet.getCurrency(), null, null);
+                idempotencyKey, targetWallet, lockedMint, amount, targetWallet.getCurrency(), null, null, null, null);
         transactionRepository.save(transaction);
 
         LedgerEntry debit = new LedgerEntry(

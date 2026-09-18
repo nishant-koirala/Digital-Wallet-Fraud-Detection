@@ -15,8 +15,11 @@ import dev.nishanta.wallet.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import dev.nishanta.wallet.modules.fraud.domain.UserDevice;
+import dev.nishanta.wallet.modules.fraud.repository.UserDeviceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -29,11 +32,13 @@ public class AuthService {
     private final EmailService emailService;
     private final AuditService auditService;
     private final OtpService otpService;
+    private final UserDeviceRepository userDeviceRepository;
 
     public AuthService(UserRepository userRepository, WalletRepository walletRepository,
                        PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager, EmailService emailService,
-                       AuditService auditService, OtpService otpService) {
+                       AuditService auditService, OtpService otpService,
+                       UserDeviceRepository userDeviceRepository) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.passwordEncoder = passwordEncoder;
@@ -42,10 +47,11 @@ public class AuthService {
         this.emailService = emailService;
         this.auditService = auditService;
         this.otpService = otpService;
+        this.userDeviceRepository = userDeviceRepository;
     }
 
     @Transactional
-    public AuthResponse register(AuthRequest request) {
+    public AuthResponse register(AuthRequest request, String deviceId, String ipAddress) {
         if (userRepository.findAll().stream().anyMatch(u -> u.getEmail().equals(request.email()))) {
             throw new BusinessRuleException("Email already exists");
         }
@@ -71,11 +77,16 @@ public class AuthService {
 
         auditService.logAction("USER", user.getId(), "REGISTER", user.getEmail(), null, request);
 
+        if (deviceId != null && ipAddress != null) {
+            UserDevice device = new UserDevice(user.getId(), deviceId, ipAddress, true);
+            userDeviceRepository.save(device);
+        }
+
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
         return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());
     }
 
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponse login(AuthRequest request, String deviceId, String ipAddress) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         if (request.otp() == null || request.otp().isEmpty()) {
@@ -94,6 +105,20 @@ public class AuthService {
                 .filter(w -> w.getUser().getId().equals(user.getId()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
+
+        if (deviceId != null && ipAddress != null) {
+            Optional<UserDevice> existingDevice = userDeviceRepository.findByUserIdAndDeviceId(user.getId(), deviceId);
+            if (existingDevice.isPresent()) {
+                UserDevice d = existingDevice.get();
+                d.setIpAddress(ipAddress);
+                d.setLastSeenAt(java.time.LocalDateTime.now());
+                userDeviceRepository.save(d);
+            } else {
+                // If it's a new device, we might mark it as untrusted, but for now we just record it.
+                UserDevice newDevice = new UserDevice(user.getId(), deviceId, ipAddress, false);
+                userDeviceRepository.save(newDevice);
+            }
+        }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
         return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());

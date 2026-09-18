@@ -39,7 +39,7 @@ public class BillPaymentService {
                 null
         );
 
-        TransferResponse response = transferService.transfer(internalRequest);
+        TransferResponse response = transferService.transfer(internalRequest, null, null);
 
         auditService.logAction("BILL_PAYMENT", null, "PAY_BILL", request.customerId(), null, request);
 

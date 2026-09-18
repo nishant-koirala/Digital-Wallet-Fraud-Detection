@@ -68,7 +68,7 @@ public class DepositService {
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
 
         Transaction transaction = new Transaction(
-                idempotencyKey, lockedMint, targetWallet, amount, targetWallet.getCurrency(), null, null);
+                idempotencyKey, lockedMint, targetWallet, amount, targetWallet.getCurrency(), null, null, null, null);
         transactionRepository.save(transaction);
 
         LedgerEntry debit = new LedgerEntry(

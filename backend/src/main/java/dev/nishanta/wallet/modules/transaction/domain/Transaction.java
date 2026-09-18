@@ -40,12 +40,16 @@ public class Transaction {
     private BigDecimal latitude;
     private BigDecimal longitude;
 
+    private String deviceId;
+    private String ipAddress;
+
 
     protected Transaction() {
     }
 
     public Transaction(String idempotencyKey, Wallet fromWallet, Wallet toWallet,
-                       BigDecimal amount, String currency, BigDecimal latitude, BigDecimal longitude) {
+                       BigDecimal amount, String currency, BigDecimal latitude, BigDecimal longitude,
+                       String deviceId, String ipAddress) {
         if (fromWallet.getId().equals(toWallet.getId())) {
             throw new IllegalArgumentException("A transaction cannot transfer to the same wallet");
         }
@@ -57,6 +61,8 @@ public class Transaction {
         this.currency = currency;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.deviceId = deviceId;
+        this.ipAddress = ipAddress;
         this.status = TransactionStatus.PENDING;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -73,6 +79,8 @@ public class Transaction {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public BigDecimal getLatitude() { return latitude; }
     public BigDecimal getLongitude() { return longitude; }
+    public String getDeviceId() { return deviceId; }
+    public String getIpAddress() { return ipAddress; }
 
     public void markCompleted() {
         this.status = TransactionStatus.COMPLETED;
