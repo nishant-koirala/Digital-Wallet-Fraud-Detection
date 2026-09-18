@@ -78,21 +78,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
     margin-bottom: 2rem;
     
     h2 {
       margin-bottom: 0;
       font-size: 1.5rem;
       color: var(--color-text-main);
+      white-space: nowrap;
     }
     
     .filters {
       display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       gap: 1rem;
       
       .search-input {
         @extend .form-control;
         width: 250px;
+        max-width: 100%;
       }
       
       .chips {
