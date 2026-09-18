@@ -2,27 +2,126 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
     <div>
       <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">System Reports</h2>
-      <p class="text-secondary" style="color: #64748b;">Export complete system data for offline analysis and record-keeping.</p>
+      <p class="text-secondary" style="color: #64748b;">View and export filtered system data.</p>
     </div>
   </div>
 
-  <div class="reports-grid">
-    <div class="solid-card report-card">
-      <div class="report-icon">💸</div>
-      <h3>Transactions Report</h3>
-      <p class="text-secondary">A complete list of all transactions across all users, including fraud flags and status.</p>
-      <button class="btn btn-primary mt-3 w-100" [disabled]="isExportingTx()" (click)="exportTransactions()">
-        {{ isExportingTx() ? 'Exporting...' : 'Download CSV' }}
-      </button>
-    </div>
+  <div class="tabs-container" style="margin-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
+    <button class="btn" [class.active-tab]="activeTab() === 'TRANSACTIONS'" (click)="setTab('TRANSACTIONS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Transactions</button>
+    <button class="btn" [class.active-tab]="activeTab() === 'USERS'" (click)="setTab('USERS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Users</button>
+  </div>
 
-    <div class="solid-card report-card">
-      <div class="report-icon">👥</div>
-      <h3>Users Report</h3>
-      <p class="text-secondary">A complete list of all registered users, their roles, and contact information.</p>
-      <button class="btn btn-primary mt-3 w-100" [disabled]="isExportingUsers()" (click)="exportUsers()">
-        {{ isExportingUsers() ? 'Exporting...' : 'Download CSV' }}
-      </button>
-    </div>
+  <div class="solid-card" style="padding: 1.5rem;">
+    <!-- Transactions Tab -->
+    @if (activeTab() === 'TRANSACTIONS') {
+      <div class="toolbar" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: center;">
+        <div class="filters" style="display: flex; gap: 1rem; align-items: center;">
+          <span class="text-slate">Status:</span>
+          <select class="form-control" [ngModel]="txStatusFilter()" (ngModelChange)="txStatusFilter.set($event); onTxFilterChange()" style="width: 200px;">
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="FLAGGED">Flagged</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" [disabled]="isExportingTx()" (click)="exportTransactions()">
+          <span style="margin-right: 0.5rem;">📥</span> {{ isExportingTx() ? 'Exporting...' : 'Download CSV' }}
+        </button>
+      </div>
+
+      <div class="table-container" style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+              <th style="padding: 1rem; color: #64748b;">ID</th>
+              <th style="padding: 1rem; color: #64748b;">Date</th>
+              <th style="padding: 1rem; color: #64748b;">Amount</th>
+              <th style="padding: 1rem; color: #64748b;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of transactions(); track tx.id) {
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <td style="padding: 1rem;" class="monospace">{{ tx.id | slice:0:8 }}...</td>
+                <td style="padding: 1rem;" class="text-slate">{{ tx.createdAt | date:'short' }}</td>
+                <td style="padding: 1rem;" class="text-medium">{{ tx.currency }} {{ tx.amount }}</td>
+                <td style="padding: 1rem;">
+                  <span class="chip" [class]="tx.status.toLowerCase()">{{ tx.status }}</span>
+                  @if (tx.isFraudulent) {
+                    <span class="chip flagged" style="margin-left: 0.5rem;">FRAUD</span>
+                  }
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr><td colspan="4" class="text-center text-slate" style="padding: 2rem;">No transactions found.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+        <span class="text-slate">Page {{ txPage() + 1 }} of {{ txTotalPages() || 1 }}</span>
+        <div class="page-controls" style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-outline" [disabled]="txPage() === 0" (click)="prevTxPage()">Previous</button>
+          <button class="btn btn-outline" [disabled]="txPage() >= txTotalPages() - 1 || txTotalPages() === 0" (click)="nextTxPage()">Next</button>
+        </div>
+      </div>
+    }
+
+    <!-- Users Tab -->
+    @if (activeTab() === 'USERS') {
+      <div class="toolbar" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: center;">
+        <div class="filters" style="display: flex; gap: 1rem; align-items: center;">
+          <span class="text-slate">Role:</span>
+          <select class="form-control" [ngModel]="userRoleFilter()" (ngModelChange)="userRoleFilter.set($event); onUserFilterChange()" style="width: 200px;">
+            <option value="ALL">All Roles</option>
+            <option value="USER">User</option>
+            <option value="MERCHANT">Merchant</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" [disabled]="isExportingUsers()" (click)="exportUsers()">
+          <span style="margin-right: 0.5rem;">📥</span> {{ isExportingUsers() ? 'Exporting...' : 'Download CSV' }}
+        </button>
+      </div>
+
+      <div class="table-container" style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+              <th style="padding: 1rem; color: #64748b;">Name</th>
+              <th style="padding: 1rem; color: #64748b;">Email</th>
+              <th style="padding: 1rem; color: #64748b;">Role</th>
+              <th style="padding: 1rem; color: #64748b;">KYC Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <td style="padding: 1rem;" class="text-medium">{{ user.name }}</td>
+                <td style="padding: 1rem;" class="text-slate">{{ user.email }}</td>
+                <td style="padding: 1rem;"><span class="chip">{{ user.role }}</span></td>
+                <td style="padding: 1rem;">
+                  <span class="chip" [class]="user.kycStatus === 'APPROVED' ? 'completed' : 'pending'">{{ user.kycStatus }}</span>
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr><td colspan="4" class="text-center text-slate" style="padding: 2rem;">No users found.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+        <span class="text-slate">Page {{ userPage() + 1 }} of {{ userTotalPages() || 1 }}</span>
+        <div class="page-controls" style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-outline" [disabled]="userPage() === 0" (click)="prevUserPage()">Previous</button>
+          <button class="btn btn-outline" [disabled]="userPage() >= userTotalPages() - 1 || userTotalPages() === 0" (click)="nextUserPage()">Next</button>
+        </div>
+      </div>
+    }
   </div>
 </div>
