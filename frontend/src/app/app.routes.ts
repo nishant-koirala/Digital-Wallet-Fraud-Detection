@@ -5,6 +5,7 @@ import { QrScreen } from './pages/qr-screen/qr-screen';
 import { FraudReview } from './pages/fraud-review/fraud-review';
 import { MerchantReview } from './pages/merchant-review/merchant-review';
 import { AdminAnalytics } from './pages/admin-analytics/admin-analytics';
+import { AdminReports } from './pages/admin-reports/admin-reports';
 import { PayBills } from './pages/pay-bills/pay-bills';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
@@ -39,6 +40,7 @@ export const routes: Routes = [
       { path: 'kyc-review', component: KycReviewComponent },
       { path: 'merchants', component: MerchantReview },
       { path: 'audit-logs', component: AuditLogs },
+      { path: 'reports', component: AdminReports },
       { path: '', redirectTo: 'analytics', pathMatch: 'full' }
     ]
   },

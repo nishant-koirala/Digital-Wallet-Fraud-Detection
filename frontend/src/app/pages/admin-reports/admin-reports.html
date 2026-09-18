@@ -1,0 +1,28 @@
+<div class="dashboard-container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">System Reports</h2>
+      <p class="text-secondary" style="color: #64748b;">Export complete system data for offline analysis and record-keeping.</p>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="solid-card report-card">
+      <div class="report-icon">💸</div>
+      <h3>Transactions Report</h3>
+      <p class="text-secondary">A complete list of all transactions across all users, including fraud flags and status.</p>
+      <button class="btn btn-primary mt-3 w-100" [disabled]="isExportingTx()" (click)="exportTransactions()">
+        {{ isExportingTx() ? 'Exporting...' : 'Download CSV' }}
+      </button>
+    </div>
+
+    <div class="solid-card report-card">
+      <div class="report-icon">👥</div>
+      <h3>Users Report</h3>
+      <p class="text-secondary">A complete list of all registered users, their roles, and contact information.</p>
+      <button class="btn btn-primary mt-3 w-100" [disabled]="isExportingUsers()" (click)="exportUsers()">
+        {{ isExportingUsers() ? 'Exporting...' : 'Download CSV' }}
+      </button>
+    </div>
+  </div>
+</div>
