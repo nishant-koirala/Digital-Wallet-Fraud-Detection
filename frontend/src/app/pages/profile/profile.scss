@@ -35,26 +35,26 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--text-main);
+    color: var(--color-text-main);
   }
   
   input {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid var(--surface-hover);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: var(--surface);
-    color: var(--text-main);
+    background: var(--color-surface);
+    color: var(--color-text-main);
     transition: all 0.2s;
     
     &:focus {
       outline: none;
-      border-color: var(--primary);
+      border-color: var(--color-primary);
     }
     
     &.disabled-input {
-      background: rgba(255, 255, 255, 0.02);
-      color: var(--text-slate);
+      background: var(--color-bg-base);
+      color: var(--color-text-muted);
       cursor: not-allowed;
     }
   }
@@ -70,19 +70,19 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
   
   .text-danger {
-    color: var(--danger);
+    color: var(--color-signal-red);
   }
   
   .danger-warning {
     background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
+    color: var(--color-signal-red);
     padding: 16px;
     border-radius: 8px;
-    border-left: 4px solid var(--danger);
+    border-left: 4px solid var(--color-signal-red);
   }
   
   .btn-danger {
-    background: var(--danger);
+    background: var(--color-signal-red);
     color: white;
     
     &:hover {
@@ -94,5 +94,5 @@
 .loading-state {
   text-align: center;
   padding: 60px 0;
-  color: var(--text-slate);
+  color: var(--color-text-muted);
 }
