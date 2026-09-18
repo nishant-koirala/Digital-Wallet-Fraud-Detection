@@ -1,8 +1,13 @@
-<div class="card">
-  <h2>KYC Review Queue</h2>
-  <p class="text-secondary">Review and approve user submitted identity documents.</p>
+<div class="dashboard-container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">KYC Review Queue</h2>
+      <p class="text-secondary" style="color: #64748b;">Review and approve user submitted identity documents.</p>
+    </div>
+    <a href="/" class="back-link text-slate" style="color: #64748b; text-decoration: none;">Back to Dashboard</a>
+  </div>
 
-  <div *ngIf="documents.length === 0" class="mt-4">
+  <div *ngIf="documents.length === 0" class="solid-card" style="padding: 2rem; text-align: center; color: #64748b;">
     <p>No pending KYC applications found.</p>
   </div>
 
@@ -28,7 +33,7 @@
 
       <div class="doc-actions mt-3">
         <button class="btn btn-primary" (click)="approve(doc.id)">Approve</button>
-        <button class="btn btn-outline" (click)="reject(doc.id)">Reject</button>
+        <button class="btn btn-outline" style="border: 1px solid var(--color-signal-red); color: var(--color-signal-red);" (click)="reject(doc.id)">Reject</button>
       </div>
     </div>
   </div>
