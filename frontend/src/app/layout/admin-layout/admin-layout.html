@@ -1,0 +1,41 @@
+<div class="admin-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>God Mode</h2>
+      <span class="badge">ADMIN</span>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a routerLink="/admin/analytics" routerLinkActive="active" class="nav-item">
+        <span class="icon">📊</span> Analytics
+      </a>
+      <a routerLink="/admin/fraud-review" routerLinkActive="active" class="nav-item">
+        <span class="icon">🚨</span> Fraud Review
+      </a>
+      <a routerLink="/admin/fraud-settings" routerLinkActive="active" class="nav-item">
+        <span class="icon">⚙️</span> Fraud Rules
+      </a>
+      <a routerLink="/admin/kyc-review" routerLinkActive="active" class="nav-item">
+        <span class="icon">📋</span> KYC Review
+      </a>
+      <a routerLink="/admin/merchants" routerLinkActive="active" class="nav-item">
+        <span class="icon">🏪</span> Merchants
+      </a>
+      <a routerLink="/admin/audit-logs" routerLinkActive="active" class="nav-item">
+        <span class="icon">📝</span> Audit Logs
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

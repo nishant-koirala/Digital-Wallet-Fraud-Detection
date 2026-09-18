@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { QrScreen } from './pages/qr-screen/qr-screen';
 import { FraudReview } from './pages/fraud-review/fraud-review';
@@ -27,13 +28,21 @@ export const routes: Routes = [
   { path: 'qr', component: QrScreen, canActivate: [authGuard] },
   { path: 'pay-bills', component: PayBills, canActivate: [authGuard] },
   { path: 'kyc', component: KycSubmitComponent, canActivate: [authGuard] },
-  { path: 'admin/fraud-review', component: FraudReview, canActivate: [authGuard, adminGuard] },
-  { path: 'admin/analytics', component: AdminAnalytics, canActivate: [authGuard, adminGuard] },
-  { path: 'admin/fraud-settings', component: FraudSettingsComponent, canActivate: [authGuard, adminGuard] },
-  { path: 'admin/kyc-review', component: KycReviewComponent, canActivate: [authGuard, adminGuard] },
-  { path: 'merchant-review', component: MerchantReview, canActivate: [authGuard, adminGuard] },
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [authGuard, adminGuard],
+    children: [
+      { path: 'analytics', component: AdminAnalytics },
+      { path: 'fraud-review', component: FraudReview },
+      { path: 'fraud-settings', component: FraudSettingsComponent },
+      { path: 'kyc-review', component: KycReviewComponent },
+      { path: 'merchants', component: MerchantReview },
+      { path: 'audit-logs', component: AuditLogs },
+      { path: '', redirectTo: 'analytics', pathMatch: 'full' }
+    ]
+  },
   { path: 'merchant/onboard', component: MerchantOnboard, canActivate: [authGuard] },
-  { path: 'admin/audit-logs', component: AuditLogs, canActivate: [authGuard, adminGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
