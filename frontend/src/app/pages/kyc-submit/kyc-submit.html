@@ -1,7 +1,9 @@
-<div class="card max-w-md mx-auto mt-4">
-  <h2>KYC Verification</h2>
-  <p class="text-secondary mb-4">Complete your identity verification to lift transfer limits.</p>
-
+<div class="kyc-container">
+  <div class="kyc-card">
+    <div class="header">
+      <h2>KYC Verification</h2>
+      <p class="text-slate mb-4">Complete your identity verification to lift transfer limits.</p>
+    </div>
   <div *ngIf="isLoading">Loading status...</div>
 
   <div *ngIf="!isLoading">
@@ -45,5 +47,6 @@
 
       <button class="btn btn-primary w-100" (click)="submitKyc()" [disabled]="!formData.documentNumber">Submit Document</button>
     </div>
+  </div>
   </div>
 </div>
