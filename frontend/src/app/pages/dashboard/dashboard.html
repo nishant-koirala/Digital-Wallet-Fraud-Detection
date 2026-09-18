@@ -3,26 +3,56 @@
     <div class="balance-card">
       <div class="balance-label">Available Balance</div>
       <div class="balance-figure">Rs. {{ displayBalance() | number:'1.2-2' }}</div>
-      
-      <div class="actions">
-        @if (isAdmin) {
-          <a href="/admin/analytics" class="btn">Analytics</a>
-          <a href="/admin/fraud-review" class="btn">Fraud Review</a>
-          <a href="/admin/fraud-settings" class="btn">Fraud Settings</a>
-          <a href="/admin/kyc-review" class="btn">KYC Review</a>
-          <a href="/merchant-review" class="btn">Merchants</a>
-          <a href="/admin/audit-logs" class="btn">Audit Logs</a>
-        }
-        <a href="/profile" class="btn">Profile</a>
-        <a href="/kyc" class="btn">KYC Verification</a>
-        <button class="btn btn-primary" (click)="openTransferModal()">Send</button>
-        <button class="btn" (click)="openDepositModal()">Deposit</button>
-        <button class="btn" (click)="openWithdrawModal()">Withdraw</button>
-        <a href="/pay-bills" class="btn">Pay Bills</a>
-        <a href="/qr" class="btn">Pay via QR</a>
-      </div>
+  </div>
+
+  <div class="quick-actions-section">
+    <h3>Quick Actions</h3>
+    <div class="quick-actions">
+      <button class="action-card" (click)="openTransferModal()">
+        <span class="action-icon">💸</span>
+        <span>Send</span>
+      </button>
+      <button class="action-card" (click)="openDepositModal()">
+        <span class="action-icon">📥</span>
+        <span>Deposit</span>
+      </button>
+      <button class="action-card" (click)="openWithdrawModal()">
+        <span class="action-icon">📤</span>
+        <span>Withdraw</span>
+      </button>
+      <a href="/pay-bills" class="action-card">
+        <span class="action-icon">🧾</span>
+        <span>Pay Bills</span>
+      </a>
+      <a href="/qr" class="action-card">
+        <span class="action-icon">🔳</span>
+        <span>Pay QR</span>
+      </a>
+      <a href="/profile" class="action-card">
+        <span class="action-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="/kyc" class="action-card">
+        <span class="action-icon">📄</span>
+        <span>KYC</span>
+      </a>
     </div>
   </div>
+
+  @if (isAdmin) {
+    <div class="quick-actions-section admin-section">
+      <h3>Admin Controls</h3>
+      <div class="quick-actions">
+        <a href="/admin/analytics" class="action-card"><span class="action-icon">📊</span><span>Analytics</span></a>
+        <a href="/admin/fraud-review" class="action-card"><span class="action-icon">🚨</span><span>Fraud Review</span></a>
+        <a href="/admin/fraud-settings" class="action-card"><span class="action-icon">⚙️</span><span>Fraud Rules</span></a>
+        <a href="/admin/kyc-review" class="action-card"><span class="action-icon">📋</span><span>KYC Review</span></a>
+        <a href="/merchant-review" class="action-card"><span class="action-icon">🏪</span><span>Merchants</span></a>
+        <a href="/admin/audit-logs" class="action-card"><span class="action-icon">📝</span><span>Audit Logs</span></a>
+      </div>
+    </div>
+  }
+</div>
 
   <div class="recent-transactions">
     <div class="list-header">
