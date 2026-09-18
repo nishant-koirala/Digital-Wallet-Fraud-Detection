@@ -14,6 +14,9 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
+    org.springframework.data.domain.Page<Transaction> findByStatus(TransactionStatus status, org.springframework.data.domain.Pageable pageable);
+    List<Transaction> findByStatus(TransactionStatus status);
+
     long countByFromWalletIdAndCreatedAtAfter(UUID fromWalletId, LocalDateTime after);
 
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.fromWallet.id = :walletId " +
