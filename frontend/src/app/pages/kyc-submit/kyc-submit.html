@@ -36,13 +36,25 @@
       </div>
 
       <div class="form-group mb-3">
-        <label>Front Image URL (Mock)</label>
-        <input type="text" class="form-control" [(ngModel)]="formData.frontImageUrl">
+        <label>Front Image</label>
+        <div class="file-picker-wrapper">
+          <input type="file" id="frontImage" (change)="onFileSelect($event, 'front')" accept="image/*" class="file-input">
+          <label for="frontImage" class="file-picker-label">
+            <span class="icon">📁</span>
+            <span class="text">{{ frontFileName || 'Choose front image...' }}</span>
+          </label>
+        </div>
       </div>
 
       <div class="form-group mb-4">
-        <label>Back Image URL (Mock)</label>
-        <input type="text" class="form-control" [(ngModel)]="formData.backImageUrl">
+        <label>Back Image</label>
+        <div class="file-picker-wrapper">
+          <input type="file" id="backImage" (change)="onFileSelect($event, 'back')" accept="image/*" class="file-input">
+          <label for="backImage" class="file-picker-label">
+            <span class="icon">📁</span>
+            <span class="text">{{ backFileName || 'Choose back image...' }}</span>
+          </label>
+        </div>
       </div>
 
       <button class="btn btn-primary w-100" (click)="submitKyc()" [disabled]="!formData.documentNumber">Submit Document</button>
