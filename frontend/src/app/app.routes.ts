@@ -14,6 +14,7 @@ import { FraudSettingsComponent } from './pages/fraud-settings/fraud-settings';
 import { KycSubmitComponent } from './pages/kyc-submit/kyc-submit';
 import { OtpVerify } from './pages/otp-verify/otp-verify';
 import { KycReviewComponent } from './pages/kyc-review/kyc-review';
+import { TransactionsPage } from './pages/transactions-page/transactions-page';
 import { authGuard } from './auth.guard';
 import { adminGuard } from './admin.guard';
 
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'verify-otp', component: OtpVerify },
   { path: 'register', component: Register },
   { path: '', component: Dashboard, canActivate: [authGuard] },
+  { path: 'transactions', component: TransactionsPage, canActivate: [authGuard] },
   { path: 'qr', component: QrScreen, canActivate: [authGuard] },
   { path: 'pay-bills', component: PayBills, canActivate: [authGuard] },
   { path: 'kyc', component: KycSubmitComponent, canActivate: [authGuard] },
