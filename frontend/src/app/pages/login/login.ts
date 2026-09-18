@@ -25,8 +25,12 @@ export class Login {
     this.loading = true;
     
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
+      next: (res) => {
+        if (res.role === 'ADMIN') {
+          this.router.navigate(['/admin/analytics']);
+        } else {
+          this.router.navigate(['/']);
+        }
         this.toastService.success('Logged in successfully!');
       },
       error: (err) => {
