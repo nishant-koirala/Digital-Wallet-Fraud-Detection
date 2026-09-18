@@ -29,17 +29,7 @@
       <h2>Recent Transactions</h2>
       
       <div class="filters">
-        <div style="display: flex; gap: 8px;">
-          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('pdf')">↓ PDF</button>
-          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('csv')">↓ CSV</button>
-        </div>
-        <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
-        
-        <div class="chips">
-          <button class="chip" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">All</button>
-          <button class="chip" [class.active]="filter() === 'RECEIVED'" (click)="filter.set('RECEIVED')">Received</button>
-          <button class="chip" [class.active]="filter() === 'SENT'" (click)="filter.set('SENT')">Sent</button>
-        </div>
+        <a href="/transactions" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View All</a>
       </div>
     </div>
 

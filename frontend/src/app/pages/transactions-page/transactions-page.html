@@ -1,0 +1,77 @@
+<div class="transactions-container">
+  <div class="header">
+    <h2>All Transactions</h2>
+    <a href="/" class="back-link text-slate">Back to Dashboard</a>
+  </div>
+
+  <div class="recent-transactions">
+    <div class="list-header">
+      
+      <div class="filters">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('pdf')">↓ PDF</button>
+          <button class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" (click)="downloadStatement('csv')">↓ CSV</button>
+        </div>
+        <input type="text" class="search-input" placeholder="Search..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+        
+        <div class="chips">
+          <button class="chip" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">All</button>
+          <button class="chip" [class.active]="filter() === 'RECEIVED'" (click)="filter.set('RECEIVED')">Received</button>
+          <button class="chip" [class.active]="filter() === 'SENT'" (click)="filter.set('SENT')">Sent</button>
+        </div>
+      </div>
+    </div>
+
+    <ul class="transaction-list">
+      @for (t of filteredTransactions(); track t.id) {
+        <li class="transaction-row" (click)="openTransaction(t)">
+          <div class="details">
+            <span class="name">{{ t.name }}</span>
+            <span class="meta">{{ t.meta }}</span>
+          </div>
+          <div class="amount-status">
+            <span class="amount" [class.positive]="t.amount > 0">
+              {{ t.amount > 0 ? '+' : '' }} Rs. {{ (t.amount > 0 ? t.amount : -t.amount) | number:'1.2-2' }}
+            </span>
+            <span class="status">{{ t.time }}</span>
+          </div>
+        </li>
+      }
+      @empty {
+        <li class="empty-state">No transactions found.</li>
+      }
+    </ul>
+  </div>
+</div>
+
+@if (selectedTransaction()) {
+  <div class="drawer-backdrop" (click)="closeTransaction()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3>Transaction Details</h3>
+      <button class="close-btn" (click)="closeTransaction()">✕</button>
+    </div>
+    <div class="drawer-content">
+      <div class="drawer-amount" [class.positive]="selectedTransaction()!.amount > 0">
+        {{ selectedTransaction()!.amount > 0 ? '+' : '' }} Rs. {{ (selectedTransaction()!.amount > 0 ? selectedTransaction()!.amount : -selectedTransaction()!.amount) | number:'1.2-2' }}
+      </div>
+      
+      <div class="detail-row">
+        <span class="label">Party</span>
+        <span class="value">{{ selectedTransaction()!.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Identifier</span>
+        <span class="value">{{ selectedTransaction()!.meta }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Time</span>
+        <span class="value">{{ selectedTransaction()!.time }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Txn ID</span>
+        <span class="value monospace">{{ selectedTransaction()!.id }}</span>
+      </div>
+    </div>
+  </div>
+}

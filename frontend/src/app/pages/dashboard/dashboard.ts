@@ -45,22 +45,12 @@ export class Dashboard implements OnInit {
   transferOtp = signal('');
   showOtpField = signal(false);
   simulateForeignLocation = signal(false);
-  searchQuery = signal('');
-  filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
   
   selectedTransaction = signal<Transaction | null>(null);
   transactions = signal<Transaction[]>([]);
 
   filteredTransactions = computed(() => {
-    let filtered = this.transactions();
-    if (this.filter() === 'SENT') filtered = filtered.filter(t => t.amount < 0);
-    if (this.filter() === 'RECEIVED') filtered = filtered.filter(t => t.amount > 0);
-    
-    if (this.searchQuery()) {
-      const lowerQ = this.searchQuery().toLowerCase();
-      filtered = filtered.filter(t => t.name.toLowerCase().includes(lowerQ) || t.meta.toLowerCase().includes(lowerQ));
-    }
-    return filtered;
+    return this.transactions().slice(0, 5);
   });
 
   ngOnInit() {
