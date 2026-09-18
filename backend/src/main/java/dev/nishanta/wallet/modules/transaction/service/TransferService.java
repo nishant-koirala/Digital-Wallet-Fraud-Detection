@@ -61,7 +61,7 @@ public class TransferService {
     }
 
     @Transactional
-    public TransferResponse transfer(TransferRequest request) {
+    public TransferResponse transfer(TransferRequest request, String deviceId, String ipAddress) {
         String idempotencyKey = request.idempotencyKey();
         UUID fromWalletId = request.fromWalletId();
         
@@ -111,7 +111,7 @@ public class TransferService {
         // have something to reason about.
         Transaction transaction = new Transaction(
                 idempotencyKey, fromWallet, toWallet, amount, fromWallet.getCurrency(),
-                request.latitude(), request.longitude());
+                request.latitude(), request.longitude(), deviceId, ipAddress);
         transactionRepository.save(transaction);
 
         // Fraud check happens BEFORE any money actually moves. A flagged

@@ -51,7 +51,7 @@ public class SeedService {
         // Seed alice with some starting balance, so transfers can be tested.
         Transaction seedTx = new Transaction(
                 "seed-" + System.currentTimeMillis(), mintWallet, aliceWallet,
-                new BigDecimal("1000.0000"), "NPR", null, null);
+                new BigDecimal("1000.0000"), "NPR", null, null, null, null);
         transactionRepository.save(seedTx);
         ledgerEntryRepository.save(new LedgerEntry(
                 seedTx, mintWallet, new BigDecimal("-1000.0000"), EntryType.DEBIT, "NPR"));
