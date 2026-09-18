@@ -27,7 +27,7 @@ export const routes: Routes = [
   { path: 'qr', component: QrScreen, canActivate: [authGuard] },
   { path: 'pay-bills', component: PayBills, canActivate: [authGuard] },
   { path: 'kyc', component: KycSubmitComponent, canActivate: [authGuard] },
-  { path: 'admin', component: FraudReview, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/fraud-review', component: FraudReview, canActivate: [authGuard, adminGuard] },
   { path: 'admin/analytics', component: AdminAnalytics, canActivate: [authGuard, adminGuard] },
   { path: 'admin/fraud-settings', component: FraudSettingsComponent, canActivate: [authGuard, adminGuard] },
   { path: 'admin/kyc-review', component: KycReviewComponent, canActivate: [authGuard, adminGuard] },
