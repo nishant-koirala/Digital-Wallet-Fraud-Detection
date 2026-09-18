@@ -25,6 +25,9 @@ export class KycSubmitComponent implements OnInit {
     backImageUrl: 'https://example.com/mock-id-back.jpg'
   };
 
+  frontFileName = '';
+  backFileName = '';
+
   ngOnInit() {
     this.kycService.getStatus().subscribe({
       next: (res) => {
@@ -40,6 +43,19 @@ export class KycSubmitComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  onFileSelect(event: any, side: 'front' | 'back') {
+    const file = event.target.files[0];
+    if (file) {
+      if (side === 'front') {
+        this.frontFileName = file.name;
+        this.formData.frontImageUrl = `mock-storage://${file.name}`;
+      } else {
+        this.backFileName = file.name;
+        this.formData.backImageUrl = `mock-storage://${file.name}`;
+      }
+    }
   }
 
   submitKyc() {
