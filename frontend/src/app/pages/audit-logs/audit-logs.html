@@ -1,52 +1,57 @@
-<div class="header">
-  <h2>Audit Logs</h2>
-  <a href="/" class="back-link text-slate">Back to Dashboard</a>
-</div>
-
-<div class="card">
-  <div class="toolbar">
-    <div class="search-box">
-      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()" placeholder="Search by Action or User ID...">
-      <button class="btn btn-primary" (click)="onSearch()">Search</button>
+<div class="dashboard-container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Audit Logs</h2>
+      <p class="text-secondary" style="color: #64748b;">Review system activities and admin actions.</p>
     </div>
+    <a href="/" class="back-link text-slate" style="color: #64748b; text-decoration: none;">Back to Dashboard</a>
   </div>
 
-  @if (isLoading()) {
-    <div class="loading-state">Loading audit trail...</div>
-  } @else if (logs().length === 0) {
-    <div class="empty-state">No audit logs found.</div>
-  } @else {
-    <div class="table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Action</th>
-            <th>Entity Type</th>
-            <th>Entity ID</th>
-            <th>Performed By</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (log of logs(); track log.id) {
-            <tr>
-              <td class="text-slate monospace">{{ log.createdAt | date:'short' }}</td>
-              <td><span class="chip" [class]="log.action.toLowerCase()">{{ log.action }}</span></td>
-              <td class="text-slate">{{ log.entityType }}</td>
-              <td class="monospace" title="{{ log.entityId }}">{{ log.entityId | slice:0:8 }}...</td>
-              <td class="text-medium">{{ log.performedBy }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <div class="pagination">
-      <span class="text-slate">Page {{ currentPage() + 1 }} of {{ totalPages() }} ({{ totalElements() }} total items)</span>
-      <div class="page-controls">
-        <button class="btn btn-outline" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
-        <button class="btn btn-outline" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+  <div class="solid-card" style="padding: 1.5rem;">
+    <div class="toolbar" style="margin-bottom: 1.5rem;">
+      <div class="search-box" style="display: flex; gap: 1rem;">
+        <input type="text" class="form-control" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--border-radius-md); background: var(--color-bg-base); color: var(--color-text-main);" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()" placeholder="Search by Action or User ID...">
+        <button class="btn btn-primary" (click)="onSearch()">Search</button>
       </div>
     </div>
-  }
+
+    @if (isLoading()) {
+      <div class="loading-state" style="text-align: center; padding: 2rem; color: #64748b;">Loading audit trail...</div>
+    } @else if (logs().length === 0) {
+      <div class="empty-state" style="text-align: center; padding: 2rem; color: #64748b;">No audit logs found.</div>
+    } @else {
+      <div class="table-container" style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+              <th style="padding: 1rem; font-weight: 500; color: #64748b;">Time</th>
+              <th style="padding: 1rem; font-weight: 500; color: #64748b;">Action</th>
+              <th style="padding: 1rem; font-weight: 500; color: #64748b;">Entity Type</th>
+              <th style="padding: 1rem; font-weight: 500; color: #64748b;">Entity ID</th>
+              <th style="padding: 1rem; font-weight: 500; color: #64748b;">Performed By</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs(); track log.id) {
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <td style="padding: 1rem;" class="text-slate monospace">{{ log.createdAt | date:'short' }}</td>
+                <td style="padding: 1rem;"><span class="chip" [class]="log.action.toLowerCase()">{{ log.action }}</span></td>
+                <td style="padding: 1rem;" class="text-slate">{{ log.entityType }}</td>
+                <td style="padding: 1rem;" class="monospace" title="{{ log.entityId }}">{{ log.entityId | slice:0:8 }}...</td>
+                <td style="padding: 1rem;" class="text-medium">{{ log.performedBy }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+        <span class="text-slate" style="color: #64748b;">Page {{ currentPage() + 1 }} of {{ totalPages() }} ({{ totalElements() }} total items)</span>
+        <div class="page-controls" style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-outline" style="border: 1px solid var(--color-border); background: transparent; color: var(--color-text-main); cursor: pointer;" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
+          <button class="btn btn-outline" style="border: 1px solid var(--color-border); background: transparent; color: var(--color-text-main); cursor: pointer;" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+        </div>
+      </div>
+    }
+  </div>
 </div>
