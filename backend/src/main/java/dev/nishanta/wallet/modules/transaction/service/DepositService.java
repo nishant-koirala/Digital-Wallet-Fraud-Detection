@@ -76,6 +76,8 @@ public class DepositService {
 
         securityUtils.verifyWalletOwnership(targetWallet);
 
+        transactionLimitValidator.validateDailyLimit(targetWallet, amount);
+
         Transaction transaction = new Transaction(
                 idempotencyKey, lockedMint, targetWallet, amount, targetWallet.getCurrency(), null, null, null, null);
         transactionRepository.save(transaction);
