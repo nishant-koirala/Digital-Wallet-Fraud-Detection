@@ -1,14 +1,13 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common/http'; // Oops, CommonModule from @angular/common
+import { CommonModule } from '@angular/common';
 import { AdminReportService, ReportTransaction, ReportUser } from '../../services/admin-report.service';
 import { ToastService } from '../../services/toast.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule as NgCommonModule } from '@angular/common'; // Fix this
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [NgCommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-reports.html',
   styleUrl: './admin-reports.scss'
 })
