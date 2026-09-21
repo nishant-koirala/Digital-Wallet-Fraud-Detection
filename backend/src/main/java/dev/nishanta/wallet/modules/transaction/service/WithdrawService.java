@@ -23,6 +23,7 @@ import java.util.UUID;
 import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
 import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
 import dev.nishanta.wallet.common.exception.OtpRequiredException;
+import dev.nishanta.wallet.modules.auth.service.OtpService;
 import dev.nishanta.wallet.security.SecurityUtils;
 
 @Service
