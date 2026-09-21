@@ -4,10 +4,12 @@ import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.fraud.dto.FraudConfigRequest;
 import dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/fraud-config")
+@PreAuthorize("hasRole('ADMIN')")
 public class FraudConfigController {
 
     private final FraudConfigRepository fraudConfigRepository;

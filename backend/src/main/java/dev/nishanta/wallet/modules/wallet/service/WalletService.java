@@ -25,17 +25,30 @@ public class WalletService {
         this.transactionRepository = transactionRepository;
     }
 
+    private void verifyWalletOwnership(Wallet wallet) {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
+        }
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to access this wallet");
+        }
+    }
+
     public BalanceResponse getBalance(UUID walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new NotFoundException("Wallet not found: " + walletId));
+        verifyWalletOwnership(wallet);
 
         var balance = balanceCalculator.calculateBalance(walletId);
         return new BalanceResponse(walletId, balance, wallet.getCurrency());
     }
 
     public List<Transaction> getTransactions(UUID walletId) {
-        walletRepository.findById(walletId)
+        Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new NotFoundException("Wallet not found: " + walletId));
+        verifyWalletOwnership(wallet);
         return transactionRepository.findRecentByWalletId(walletId);
     }
 }

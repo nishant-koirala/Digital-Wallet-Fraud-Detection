@@ -52,7 +52,7 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(AuthRequest request, String deviceId, String ipAddress) {
-        if (userRepository.findAll().stream().anyMatch(u -> u.getEmail().equals(request.email()))) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new BusinessRuleException("Email already exists");
         }
 
@@ -96,9 +96,7 @@ public class AuthService {
             otpService.validateOtp(request.email(), request.otp());
         }
 
-        User user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(request.email()))
-                .findFirst()
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Wallet wallet = walletRepository.findAll().stream()
@@ -112,10 +110,10 @@ public class AuthService {
                 UserDevice d = existingDevice.get();
                 d.setIpAddress(ipAddress);
                 d.setLastSeenAt(java.time.LocalDateTime.now());
+                d.setTrusted(true);
                 userDeviceRepository.save(d);
             } else {
-                // If it's a new device, we might mark it as untrusted, but for now we just record it.
-                UserDevice newDevice = new UserDevice(user.getId(), deviceId, ipAddress, false);
+                UserDevice newDevice = new UserDevice(user.getId(), deviceId, ipAddress, true);
                 userDeviceRepository.save(newDevice);
             }
         }

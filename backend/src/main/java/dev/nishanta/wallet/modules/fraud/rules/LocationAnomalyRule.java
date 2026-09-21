@@ -54,7 +54,7 @@ public class LocationAnomalyRule implements FraudRule {
 
     @Override
     public String ruleName() {
-        return "GEO_MISMATCH";
+        return "LOCATION_ANOMALY";
     }
 
     // Haversine formula to calculate distance between two lat/lon points in km

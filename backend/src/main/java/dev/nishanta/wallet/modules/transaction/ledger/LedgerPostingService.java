@@ -31,6 +31,11 @@ public class LedgerPostingService {
     }
 
     public void postAndComplete(Transaction transaction, Wallet fromWallet, Wallet toWallet) {
+        if (!fromWallet.getCurrency().equals(transaction.getCurrency()) || 
+            !toWallet.getCurrency().equals(transaction.getCurrency())) {
+            throw new dev.nishanta.wallet.common.exception.BusinessRuleException("Currency mismatch between wallets and transaction");
+        }
+        
         LedgerEntry debit = new LedgerEntry(
                 transaction, fromWallet, transaction.getAmount().negate(), EntryType.DEBIT, fromWallet.getCurrency());
         LedgerEntry credit = new LedgerEntry(

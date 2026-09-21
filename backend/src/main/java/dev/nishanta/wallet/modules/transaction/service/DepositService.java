@@ -43,6 +43,17 @@ public class DepositService {
         this.auditService = auditService;
     }
 
+    private void verifyWalletOwnership(Wallet wallet) {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
+        }
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
+        }
+    }
+
     @Transactional
     public BalanceResponse deposit(UUID targetWalletId, DepositRequest request) {
         String idempotencyKey = request.idempotencyKey();
@@ -66,6 +77,8 @@ public class DepositService {
 
         Wallet lockedMint = firstLockId.equals(mintId) ? firstLocked : secondLocked;
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
+
+        verifyWalletOwnership(targetWallet);
 
         Transaction transaction = new Transaction(
                 idempotencyKey, lockedMint, targetWallet, amount, targetWallet.getCurrency(), null, null, null, null);

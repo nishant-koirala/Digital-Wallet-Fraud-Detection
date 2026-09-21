@@ -20,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
+import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
+import dev.nishanta.wallet.common.exception.OtpRequiredException;
+import dev.nishanta.wallet.modules.auth.service.OtpService;
 
 @Service
 public class WithdrawService {
@@ -30,19 +34,39 @@ public class WithdrawService {
     private final LedgerEntryRepository ledgerEntryRepository;
     private final BalanceCalculator balanceCalculator;
     private final AuditService auditService;
+    private final TransactionLimitValidator transactionLimitValidator;
+    private final FraudDetectionService fraudDetectionService;
+    private final OtpService otpService;
 
     public WithdrawService(MintWalletProvider mintWalletProvider,
                            WalletRepository walletRepository,
                            TransactionRepository transactionRepository,
                            LedgerEntryRepository ledgerEntryRepository,
                            BalanceCalculator balanceCalculator,
-                           AuditService auditService) {
+                           AuditService auditService,
+                           TransactionLimitValidator transactionLimitValidator,
+                           FraudDetectionService fraudDetectionService,
+                           OtpService otpService) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.balanceCalculator = balanceCalculator;
         this.auditService = auditService;
+        this.transactionLimitValidator = transactionLimitValidator;
+        this.fraudDetectionService = fraudDetectionService;
+        this.otpService = otpService;
+    }
+
+    private void verifyWalletOwnership(Wallet wallet) {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
+        }
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
+        }
     }
 
     @Transactional
@@ -69,14 +93,30 @@ public class WithdrawService {
         Wallet lockedMint = firstLockId.equals(mintId) ? firstLocked : secondLocked;
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
 
+        verifyWalletOwnership(targetWallet);
+
         BigDecimal currentBalance = balanceCalculator.calculateBalance(targetWallet.getId());
         if (currentBalance.compareTo(amount) < 0) {
             throw new BusinessRuleException("Insufficient funds for withdrawal");
         }
 
+        // --- KYC LOGIC & DAILY LIMITS ---
+        transactionLimitValidator.validateDailyLimit(targetWallet, amount);
+
         Transaction transaction = new Transaction(
                 idempotencyKey, targetWallet, lockedMint, amount, targetWallet.getCurrency(), null, null, null, null);
         transactionRepository.save(transaction);
+
+        // Fraud check happens BEFORE any money actually moves.
+        FraudDetectionResult result = fraudDetectionService.evaluateFraud(transaction);
+        if (result == FraudDetectionResult.FLAGGED) {
+            return toResponse(targetWalletId, targetWallet.getCurrency()); // return early without processing
+        } else if (result == FraudDetectionResult.MINOR_FRAUD) {
+            String userEmail = targetWallet.getUser().getEmail();
+            // Just throw OtpRequiredException for minor fraud to trigger step-up logic if needed
+            otpService.generateAndSendOtp(userEmail);
+            throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
+        }
 
         LedgerEntry debit = new LedgerEntry(
                 transaction, targetWallet, amount.negate(), EntryType.DEBIT, targetWallet.getCurrency());

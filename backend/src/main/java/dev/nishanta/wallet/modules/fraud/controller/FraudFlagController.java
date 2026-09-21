@@ -4,6 +4,7 @@ import dev.nishanta.wallet.modules.fraud.dto.FraudFlagResponse;
 import dev.nishanta.wallet.modules.fraud.dto.ReviewRequest;
 import dev.nishanta.wallet.modules.fraud.dto.ReviewResponse;
 import dev.nishanta.wallet.modules.fraud.service.FraudReviewService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(ApiRoutes.FRAUD_FLAG_BASE)
+@PreAuthorize("hasRole('ADMIN')")
 public class FraudFlagController {
 
     private final FraudReviewService fraudReviewService;

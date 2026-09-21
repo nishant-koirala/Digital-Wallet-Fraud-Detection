@@ -64,24 +64,18 @@ public class SeedService {
     }
 
     private User findOrCreateUser(String name, String email, Role role, String phone) {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
+        return userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(new User(name, email, "placeholder", role, phone)));
     }
 
     private Wallet findOrCreateWallet(User user) {
-        return walletRepository.findAll().stream()
-                .filter(w -> w.getUser().getId().equals(user.getId()))
-                .findFirst()
+        return walletRepository.findByUserIdAndType(user.getId(), WalletType.PERSONAL)
                 .orElseGet(() -> walletRepository.save(new Wallet(user, WalletType.PERSONAL, "NPR")));
     }
 
     @Transactional
     public String promoteToAdmin(String email) {
-        User user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
+        User user = userRepository.findByEmail(email)
                 .orElse(null);
         if (user == null) {
             return "User not found";

@@ -60,6 +60,17 @@ public class TransferService {
         this.transactionLimitValidator = transactionLimitValidator;
     }
 
+    private void verifyWalletOwnership(Wallet wallet) {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
+        }
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
+        }
+    }
+
     @Transactional
     public TransferResponse transfer(TransferRequest request, String deviceId, String ipAddress) {
         String idempotencyKey = request.idempotencyKey();
@@ -83,6 +94,7 @@ public class TransferService {
 
         WalletPair wallets = walletLockingService.lockForTransfer(fromWalletId, toWalletId);
         Wallet fromWallet = wallets.fromWallet();
+        verifyWalletOwnership(fromWallet);
         Wallet toWallet = wallets.toWallet();
 
         BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWallet.getId());

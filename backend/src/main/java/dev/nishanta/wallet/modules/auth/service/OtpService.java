@@ -5,13 +5,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpService {
 
     private final EmailService emailService;
+    private final SecureRandom secureRandom = new SecureRandom();
     
     // In-memory cache for demo purposes. Real apps use Redis with TTL.
     private final Map<String, OtpRecord> otpStore = new ConcurrentHashMap<>();
@@ -32,7 +33,7 @@ public class OtpService {
 
     public void generateAndSendOtp(String email) {
         // Generate a 6-digit OTP
-        String otp = String.format("%06d", new Random().nextInt(999999));
+        String otp = String.format("%06d", secureRandom.nextInt(999999));
         
         otpStore.put(email, new OtpRecord(otp, System.currentTimeMillis()));
         

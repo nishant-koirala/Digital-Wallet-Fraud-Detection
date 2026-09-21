@@ -3,6 +3,7 @@ package dev.nishanta.wallet.modules.merchant.controller;
 import dev.nishanta.wallet.common.constant.ApiRoutes;
 import dev.nishanta.wallet.modules.merchant.dto.MerchantResponse;
 import dev.nishanta.wallet.modules.merchant.service.MerchantService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(ApiRoutes.ADMIN_MERCHANTS_BASE)
+@PreAuthorize("hasRole('ADMIN')")
 public class MerchantAdminController {
 
     private final MerchantService merchantService;

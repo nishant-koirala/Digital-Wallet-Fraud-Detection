@@ -1,7 +1,9 @@
 package dev.nishanta.wallet.modules.kyc.controller;
 
+import dev.nishanta.wallet.common.constant.ApiRoutes;
 import dev.nishanta.wallet.modules.kyc.dto.KycResponse;
 import dev.nishanta.wallet.modules.kyc.service.KycService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/kyc")
+@PreAuthorize("hasRole('ADMIN')")
 public class KycAdminController {
 
     private final KycService kycService;
