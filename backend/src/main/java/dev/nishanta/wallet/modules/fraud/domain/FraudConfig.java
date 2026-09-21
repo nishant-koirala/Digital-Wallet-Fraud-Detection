@@ -37,6 +37,19 @@ public class FraudConfig {
         this.velocityMultiplier = velocityMultiplier;
     }
 
+    public static FraudConfig createDefault() {
+        return new FraudConfig(
+                new BigDecimal("50000"), // coldStartThreshold
+                5, // minHistoryForBaseline
+                new BigDecimal("5"), // averageMultiplier
+                500.0, // maxGeoDistanceKm
+                10, // velocityWindowMinutes
+                6, // velocityLookbackWindows
+                5, // velocityColdStartMax
+                3.0 // velocityMultiplier
+        );
+    }
+
     public Integer getId() {
         return id;
     }

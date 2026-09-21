@@ -28,7 +28,7 @@ public class VelocityRule implements FraudRule {
     @Override
     public FraudSeverity evaluate(Transaction transaction) {
         FraudConfig config = fraudConfigRepository.findById(1)
-                .orElseGet(() -> new FraudConfig(new java.math.BigDecimal("50000"), 5, new java.math.BigDecimal("5"), 500.0, 10, 6, 5, 3.0));
+                .orElseGet(FraudConfig::createDefault);
 
         UUID walletId = transaction.getFromWallet().getId();
         LocalDateTime now = LocalDateTime.now();

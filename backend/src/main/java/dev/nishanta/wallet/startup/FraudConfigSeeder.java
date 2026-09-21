@@ -17,9 +17,7 @@ public class FraudConfigSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (fraudConfigRepository.count() == 0) {
-            FraudConfig defaultConfig = new FraudConfig();
-            // Optional: You can customize default thresholds here if the domain model allows it
-            // defaultConfig.setHighVelocityThreshold(10);
+            FraudConfig defaultConfig = FraudConfig.createDefault();
             fraudConfigRepository.save(defaultConfig);
         }
     }

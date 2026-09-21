@@ -13,6 +13,7 @@ import dev.nishanta.wallet.modules.wallet.dto.DepositRequest;
 import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 import dev.nishanta.wallet.modules.wallet.service.MintWalletProvider;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
+import dev.nishanta.wallet.security.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,30 +29,25 @@ public class DepositService {
     private final LedgerEntryRepository ledgerEntryRepository;
     private final BalanceCalculator balanceCalculator;
     private final AuditService auditService;
+    private final TransactionLimitValidator transactionLimitValidator;
+    private final SecurityUtils securityUtils;
 
     public DepositService(MintWalletProvider mintWalletProvider,
                           WalletRepository walletRepository,
                           TransactionRepository transactionRepository,
                           LedgerEntryRepository ledgerEntryRepository,
                           BalanceCalculator balanceCalculator,
-                          AuditService auditService) {
+                          AuditService auditService,
+                          TransactionLimitValidator transactionLimitValidator,
+                          SecurityUtils securityUtils) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.balanceCalculator = balanceCalculator;
         this.auditService = auditService;
-    }
-
-    private void verifyWalletOwnership(Wallet wallet) {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
-        }
-        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
-        }
+        this.transactionLimitValidator = transactionLimitValidator;
+        this.securityUtils = securityUtils;
     }
 
     @Transactional
@@ -78,7 +74,7 @@ public class DepositService {
         Wallet lockedMint = firstLockId.equals(mintId) ? firstLocked : secondLocked;
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
 
-        verifyWalletOwnership(targetWallet);
+        securityUtils.verifyWalletOwnership(targetWallet);
 
         Transaction transaction = new Transaction(
                 idempotencyKey, lockedMint, targetWallet, amount, targetWallet.getCurrency(), null, null, null, null);

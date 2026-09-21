@@ -23,7 +23,7 @@ import java.util.UUID;
 import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
 import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
 import dev.nishanta.wallet.common.exception.OtpRequiredException;
-import dev.nishanta.wallet.modules.auth.service.OtpService;
+import dev.nishanta.wallet.security.SecurityUtils;
 
 @Service
 public class WithdrawService {
@@ -37,6 +37,7 @@ public class WithdrawService {
     private final TransactionLimitValidator transactionLimitValidator;
     private final FraudDetectionService fraudDetectionService;
     private final OtpService otpService;
+    private final SecurityUtils securityUtils;
 
     public WithdrawService(MintWalletProvider mintWalletProvider,
                            WalletRepository walletRepository,
@@ -46,7 +47,8 @@ public class WithdrawService {
                            AuditService auditService,
                            TransactionLimitValidator transactionLimitValidator,
                            FraudDetectionService fraudDetectionService,
-                           OtpService otpService) {
+                           OtpService otpService,
+                           SecurityUtils securityUtils) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -56,17 +58,7 @@ public class WithdrawService {
         this.transactionLimitValidator = transactionLimitValidator;
         this.fraudDetectionService = fraudDetectionService;
         this.otpService = otpService;
-    }
-
-    private void verifyWalletOwnership(Wallet wallet) {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
-        }
-        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
-        }
+        this.securityUtils = securityUtils;
     }
 
     @Transactional
@@ -93,7 +85,7 @@ public class WithdrawService {
         Wallet lockedMint = firstLockId.equals(mintId) ? firstLocked : secondLocked;
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
 
-        verifyWalletOwnership(targetWallet);
+        securityUtils.verifyWalletOwnership(targetWallet);
 
         BigDecimal currentBalance = balanceCalculator.calculateBalance(targetWallet.getId());
         if (currentBalance.compareTo(amount) < 0) {
@@ -113,9 +105,12 @@ public class WithdrawService {
             return toResponse(targetWalletId, targetWallet.getCurrency()); // return early without processing
         } else if (result == FraudDetectionResult.MINOR_FRAUD) {
             String userEmail = targetWallet.getUser().getEmail();
-            // Just throw OtpRequiredException for minor fraud to trigger step-up logic if needed
-            otpService.generateAndSendOtp(userEmail);
-            throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
+            if (request.otp() == null || request.otp().isEmpty()) {
+                otpService.generateAndSendOtp(userEmail);
+                throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
+            } else {
+                otpService.validateOtp(userEmail, request.otp());
+            }
         }
 
         LedgerEntry debit = new LedgerEntry(

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public record WithdrawRequest(
         String idempotencyKey,
-        BigDecimal amount
+        BigDecimal amount,
+        String otp
 ) {
 }

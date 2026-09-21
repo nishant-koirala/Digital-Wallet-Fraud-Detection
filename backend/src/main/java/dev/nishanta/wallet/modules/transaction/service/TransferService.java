@@ -27,6 +27,8 @@ import java.util.UUID;
 // Single responsibility: orchestrate a transfer. Wallet locking, balance
 // enforcement, fraud detection and ledger posting are each delegated to
 // their own service.
+import dev.nishanta.wallet.security.SecurityUtils;
+
 @Service
 public class TransferService {
 
@@ -39,6 +41,7 @@ public class TransferService {
     private final WalletRepository walletRepository;
     private final OtpService otpService;
     private final TransactionLimitValidator transactionLimitValidator;
+    private final SecurityUtils securityUtils;
 
     public TransferService(TransactionRepository transactionRepository,
                            WalletLockingService walletLockingService,
@@ -48,7 +51,8 @@ public class TransferService {
                            AuditService auditService,
                            WalletRepository walletRepository,
                            OtpService otpService,
-                           TransactionLimitValidator transactionLimitValidator) {
+                           TransactionLimitValidator transactionLimitValidator,
+                           SecurityUtils securityUtils) {
         this.transactionRepository = transactionRepository;
         this.walletLockingService = walletLockingService;
         this.fraudDetectionService = fraudDetectionService;
@@ -58,17 +62,7 @@ public class TransferService {
         this.walletRepository = walletRepository;
         this.otpService = otpService;
         this.transactionLimitValidator = transactionLimitValidator;
-    }
-
-    private void verifyWalletOwnership(Wallet wallet) {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new org.springframework.security.access.AccessDeniedException("Not authenticated");
-        }
-        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (!isAdmin && !wallet.getUser().getEmail().equals(auth.getName())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to use this wallet");
-        }
+        this.securityUtils = securityUtils;
     }
 
     @Transactional
@@ -92,9 +86,12 @@ public class TransferService {
             return toResponse(existing.get());
         }
 
+        Wallet fromWalletCheck = walletRepository.findById(fromWalletId)
+                .orElseThrow(() -> new BusinessRuleException("Wallet not found"));
+        securityUtils.verifyWalletOwnership(fromWalletCheck);
+
         WalletPair wallets = walletLockingService.lockForTransfer(fromWalletId, toWalletId);
         Wallet fromWallet = wallets.fromWallet();
-        verifyWalletOwnership(fromWallet);
         Wallet toWallet = wallets.toWallet();
 
         BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWallet.getId());

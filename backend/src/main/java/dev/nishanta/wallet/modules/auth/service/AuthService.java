@@ -99,9 +99,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Wallet wallet = walletRepository.findAll().stream()
-                .filter(w -> w.getUser().getId().equals(user.getId()))
-                .findFirst()
+        Wallet wallet = walletRepository.findByUserIdAndType(user.getId(), WalletType.PERSONAL)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
 
         if (deviceId != null && ipAddress != null) {
