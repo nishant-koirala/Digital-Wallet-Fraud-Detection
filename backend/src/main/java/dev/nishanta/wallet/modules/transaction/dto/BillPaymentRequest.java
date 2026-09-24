@@ -8,6 +8,7 @@ public record BillPaymentRequest(
         UUID fromWalletId,
         String billerId,
         String customerId,
-        BigDecimal amount
+        BigDecimal amount,
+        String pin
 ) {
 }

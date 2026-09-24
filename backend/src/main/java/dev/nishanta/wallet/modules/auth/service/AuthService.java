@@ -63,7 +63,12 @@ public class AuthService {
             otpService.validateOtp(request.email(), request.otp());
         }
 
+        if (request.pin() == null || request.pin().length() < 4) {
+            throw new BusinessRuleException("A 4-digit Transaction PIN is required");
+        }
+
         User user = new User(request.name(), request.email(), passwordEncoder.encode(request.password()), Role.USER, request.phone());
+        user.setPin(passwordEncoder.encode(request.pin()));
         userRepository.save(user);
 
         Wallet wallet = new Wallet(user, WalletType.PERSONAL, "NPR");

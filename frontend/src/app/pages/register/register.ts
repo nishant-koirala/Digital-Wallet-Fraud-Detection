@@ -17,6 +17,7 @@ export class Register {
   email = '';
   phone = '';
   password = '';
+  pin = '';
   loading = false;
 
   private authService = inject(AuthService);
@@ -30,7 +31,8 @@ export class Register {
       name: this.name,
       email: this.email,
       phone: this.phone,
-      password: this.password
+      password: this.password,
+      pin: this.pin
     }).subscribe({
       next: () => {
         this.router.navigate(['/']);
@@ -47,7 +49,8 @@ export class Register {
                 name: this.name, 
                 email: this.email, 
                 phone: this.phone, 
-                password: this.password 
+                password: this.password,
+                pin: this.pin
               } 
             } 
           });

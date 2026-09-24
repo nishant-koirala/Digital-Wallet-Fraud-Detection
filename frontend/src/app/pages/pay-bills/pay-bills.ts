@@ -19,15 +19,16 @@ export class PayBills {
   billerId = signal<string>('electricity');
   customerId = signal<string>('');
   amount = signal<number | null>(null);
+  pin = signal<string>('');
 
   isSubmitting = signal(false);
 
   submitPayment() {
-    if (!this.billerId() || !this.customerId() || !this.amount()) return;
+    if (!this.billerId() || !this.customerId() || !this.amount() || !this.pin()) return;
     
     this.isSubmitting.set(true);
     
-    this.transactionService.payBill(this.billerId(), this.customerId(), this.amount()!).subscribe({
+    this.transactionService.payBill(this.billerId(), this.customerId(), this.amount()!, this.pin()).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.toastService.show('Bill paid successfully!', 'success');

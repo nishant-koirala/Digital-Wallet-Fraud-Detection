@@ -32,12 +32,13 @@ export class WalletService {
     });
   }
 
-  withdraw(amount: number) {
+  withdraw(amount: number, pin: string) {
     const walletId = this.authService.walletId;
     const idempotencyKey = crypto.randomUUID();
     return this.http.post<any>(`${this.baseUrl}/${walletId}/withdraw`, {
       idempotencyKey,
-      amount
+      amount,
+      pin
     });
   }
 

@@ -36,7 +36,8 @@ public class BillPaymentService {
                 null,
                 null,
                 null,
-                null
+                null,
+                request.pin()
         );
 
         TransferResponse response = transferService.transfer(internalRequest, null, null);

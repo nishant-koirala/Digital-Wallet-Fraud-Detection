@@ -48,11 +48,13 @@ export class Dashboard implements OnInit {
 
   showWithdrawModal = signal(false);
   withdrawAmount = signal<number | null>(null);
+  withdrawPin = signal('');
 
   showTransferModal = signal(false);
   transferToPhone = signal('');
   transferAmount = signal<number | null>(null);
   transferOtp = signal('');
+  transferPin = signal('');
   showOtpField = signal(false);
   isSubmitting = signal(false);
   
@@ -183,6 +185,7 @@ export class Dashboard implements OnInit {
   openWithdrawModal() {
     this.showWithdrawModal.set(true);
     this.withdrawAmount.set(null);
+    this.withdrawPin.set('');
   }
 
   closeWithdrawModal() {
@@ -191,10 +194,11 @@ export class Dashboard implements OnInit {
 
   submitWithdraw() {
     const amount = this.withdrawAmount();
-    if (!amount || amount <= 0 || this.isSubmitting()) return;
+    const pin = this.withdrawPin();
+    if (!amount || amount <= 0 || !pin || this.isSubmitting()) return;
     
     this.isSubmitting.set(true);
-    this.walletService.withdraw(amount).subscribe({
+    this.walletService.withdraw(amount, pin).subscribe({
       next: (res: any) => {
         this.isSubmitting.set(false);
         this.closeWithdrawModal();
@@ -218,6 +222,7 @@ export class Dashboard implements OnInit {
     this.transferToPhone.set('');
     this.transferAmount.set(null);
     this.transferOtp.set('');
+    this.transferPin.set('');
     this.showOtpField.set(false);
   }
 
@@ -237,8 +242,9 @@ export class Dashboard implements OnInit {
     let longitude = 85.3240;
 
     const otp = this.transferOtp();
+    const pin = this.transferPin();
 
-    this.transactionService.transfer(toPhone, amount, latitude, longitude, otp).subscribe({
+    this.transactionService.transfer(toPhone, amount, latitude, longitude, otp, pin).subscribe({
       next: (res: any) => {
         this.isSubmitting.set(false);
         this.closeTransferModal();

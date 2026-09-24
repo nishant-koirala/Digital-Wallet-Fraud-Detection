@@ -25,6 +25,7 @@ import dev.nishanta.wallet.modules.fraud.service.FraudDetectionService;
 import dev.nishanta.wallet.common.exception.OtpRequiredException;
 import dev.nishanta.wallet.modules.auth.service.OtpService;
 import dev.nishanta.wallet.security.SecurityUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class WithdrawService {
@@ -39,6 +40,7 @@ public class WithdrawService {
     private final FraudDetectionService fraudDetectionService;
     private final OtpService otpService;
     private final SecurityUtils securityUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public WithdrawService(MintWalletProvider mintWalletProvider,
                            WalletRepository walletRepository,
@@ -49,7 +51,8 @@ public class WithdrawService {
                            TransactionLimitValidator transactionLimitValidator,
                            FraudDetectionService fraudDetectionService,
                            OtpService otpService,
-                           SecurityUtils securityUtils) {
+                           SecurityUtils securityUtils,
+                           PasswordEncoder passwordEncoder) {
         this.mintWalletProvider = mintWalletProvider;
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -60,6 +63,7 @@ public class WithdrawService {
         this.fraudDetectionService = fraudDetectionService;
         this.otpService = otpService;
         this.securityUtils = securityUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -87,6 +91,10 @@ public class WithdrawService {
         Wallet targetWallet = firstLockId.equals(mintId) ? secondLocked : firstLocked;
 
         securityUtils.verifyWalletOwnership(targetWallet);
+
+        if (request.pin() == null || targetWallet.getUser().getPinHash() == null || !passwordEncoder.matches(request.pin(), targetWallet.getUser().getPinHash())) {
+            throw new BusinessRuleException("Invalid Transaction PIN");
+        }
 
         BigDecimal currentBalance = balanceCalculator.calculateBalance(targetWallet.getId());
         if (currentBalance.compareTo(amount) < 0) {

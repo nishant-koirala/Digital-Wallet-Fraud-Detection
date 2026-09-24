@@ -22,7 +22,7 @@ export class TransactionService {
   private authService = inject(AuthService);
   private baseUrl = environment.apiUrl + '/transactions';
 
-  transfer(toPhoneNumber: string, amount: number, latitude?: number, longitude?: number, otp?: string): Observable<TransferResponse> {
+  transfer(toPhoneNumber: string, amount: number, latitude?: number, longitude?: number, otp?: string, pin?: string): Observable<TransferResponse> {
     const idempotencyKey = crypto.randomUUID();
     const fromWalletId = this.authService.walletId;
 
@@ -33,11 +33,12 @@ export class TransactionService {
       amount,
       latitude,
       longitude,
-      otp
+      otp,
+      pin
     });
   }
 
-  payBill(billerId: string, customerId: string, amount: number): Observable<TransferResponse> {
+  payBill(billerId: string, customerId: string, amount: number, pin: string): Observable<TransferResponse> {
     const idempotencyKey = crypto.randomUUID();
     const fromWalletId = this.authService.walletId;
 
@@ -46,7 +47,8 @@ export class TransactionService {
       fromWalletId,
       billerId,
       customerId,
-      amount
+      amount,
+      pin
     });
   }
 }

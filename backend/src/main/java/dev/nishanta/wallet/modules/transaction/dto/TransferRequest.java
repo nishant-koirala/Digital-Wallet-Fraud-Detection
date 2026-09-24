@@ -16,5 +16,6 @@ public record TransferRequest(
         String currency,
         BigDecimal latitude,
         BigDecimal longitude,
-        String otp
+        String otp,
+        String pin
 ) {}

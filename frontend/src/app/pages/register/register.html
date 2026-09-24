@@ -36,6 +36,13 @@
           Password must be at least 8 characters long.
         </div>
       </div>
+      <div class="form-group">
+        <label>Transaction PIN (4 Digits)</label>
+        <input type="password" class="form-control" [(ngModel)]="pin" name="pin" required pattern="^[0-9]{4}$" maxlength="4" #pinInput="ngModel" [ngClass]="{'is-invalid': pinInput.invalid && (pinInput.dirty || pinInput.touched)}">
+        <div class="error-text" *ngIf="pinInput.invalid && (pinInput.dirty || pinInput.touched)">
+          PIN must be exactly 4 digits.
+        </div>
+      </div>
       <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" [disabled]="loading || registerForm.invalid">
         {{ loading ? 'Registering...' : 'Register' }}
       </button>

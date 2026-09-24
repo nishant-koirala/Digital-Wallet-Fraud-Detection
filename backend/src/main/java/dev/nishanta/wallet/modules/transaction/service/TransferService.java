@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 // Single responsibility: orchestrate a transfer. Wallet locking, balance
 // enforcement, fraud detection and ledger posting are each delegated to
@@ -42,6 +43,7 @@ public class TransferService {
     private final OtpService otpService;
     private final TransactionLimitValidator transactionLimitValidator;
     private final SecurityUtils securityUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public TransferService(TransactionRepository transactionRepository,
                            WalletLockingService walletLockingService,
@@ -52,7 +54,8 @@ public class TransferService {
                            WalletRepository walletRepository,
                            OtpService otpService,
                            TransactionLimitValidator transactionLimitValidator,
-                           SecurityUtils securityUtils) {
+                           SecurityUtils securityUtils,
+                           PasswordEncoder passwordEncoder) {
         this.transactionRepository = transactionRepository;
         this.walletLockingService = walletLockingService;
         this.fraudDetectionService = fraudDetectionService;
@@ -63,6 +66,7 @@ public class TransferService {
         this.otpService = otpService;
         this.transactionLimitValidator = transactionLimitValidator;
         this.securityUtils = securityUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(noRollbackFor = OtpRequiredException.class)
@@ -89,6 +93,10 @@ public class TransferService {
         Wallet fromWalletCheck = walletRepository.findById(fromWalletId)
                 .orElseThrow(() -> new BusinessRuleException("Wallet not found"));
         securityUtils.verifyWalletOwnership(fromWalletCheck);
+        
+        if (request.pin() == null || fromWalletCheck.getUser().getPinHash() == null || !passwordEncoder.matches(request.pin(), fromWalletCheck.getUser().getPinHash())) {
+            throw new BusinessRuleException("Invalid Transaction PIN");
+        }
 
         // Fraud check happens BEFORE any money actually moves. A flagged
         // transaction must not have already changed either wallet's

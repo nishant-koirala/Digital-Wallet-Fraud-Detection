@@ -116,6 +116,10 @@
       <label>Amount</label>
       <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
     </div>
+    <div class="form-group">
+      <label>Transaction PIN</label>
+      <input type="password" class="form-control" placeholder="4-digit PIN" maxlength="4" [ngModel]="withdrawPin()" (ngModelChange)="withdrawPin.set($event)">
+    </div>
     <button class="btn btn-primary btn-block" (click)="submitWithdraw()" [disabled]="isSubmitting()">
       {{ isSubmitting() ? 'Processing...' : 'Confirm Withdraw' }}
     </button>
@@ -131,6 +135,10 @@
     <div class="form-group">
       <label>Amount</label>
       <input type="number" class="form-control" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
+    </div>
+    <div class="form-group">
+      <label>Transaction PIN</label>
+      <input type="password" class="form-control" placeholder="4-digit PIN" maxlength="4" [ngModel]="transferPin()" (ngModelChange)="transferPin.set($event)">
     </div>
     
     @if (showOtpField()) {
