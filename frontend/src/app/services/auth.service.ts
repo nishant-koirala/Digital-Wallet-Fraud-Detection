@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { WsNotificationService } from './ws-notification.service';
+import { NotificationService } from './notification.service';
 
 export interface AuthResponse {
   walletId: string;
@@ -17,7 +17,7 @@ export interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private wsNotificationService = inject(WsNotificationService);
+  private notificationService = inject(NotificationService);
   private baseUrl = environment.apiUrl + '/auth';
 
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(null);
@@ -30,8 +30,8 @@ export class AuthService {
     if (saved) {
       const auth = JSON.parse(saved);
       this.currentUserSubject.next(auth);
-      // Since token is in cookie, the browser handles it during websocket connection
-      this.wsNotificationService.connect('', auth.walletId);
+      this.currentUserSubject.next(auth);
+      this.notificationService.connect();
     }
   }
 
@@ -75,13 +75,13 @@ export class AuthService {
   private clearSession() {
     localStorage.removeItem('auth_user');
     this.currentUserSubject.next(null);
-    this.wsNotificationService.disconnect();
+    this.notificationService.disconnect();
     this.router.navigate(['/login']);
   }
 
   private setSession(authResult: AuthResponse) {
     localStorage.setItem('auth_user', JSON.stringify(authResult));
     this.currentUserSubject.next(authResult);
-    this.wsNotificationService.connect('', authResult.walletId);
+    this.notificationService.connect();
   }
 }

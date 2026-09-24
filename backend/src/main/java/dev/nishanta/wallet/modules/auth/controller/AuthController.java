@@ -23,21 +23,29 @@ public class AuthController {
 
     @PostMapping("/register")
     public AuthResponse register(@RequestBody AuthRequest request,
-                                 @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
-                                 @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress,
+                                 @CookieValue(value = "deviceId", required = false) String deviceId,
+                                 HttpServletRequest httpRequest,
                                  HttpServletResponse response) {
+        if (deviceId == null || deviceId.isBlank()) {
+            deviceId = java.util.UUID.randomUUID().toString();
+        }
+        String ipAddress = httpRequest.getRemoteAddr();
         JwtAuthResult result = authService.register(request, deviceId, ipAddress);
-        setCookies(response, result.accessToken(), result.refreshToken());
+        setCookies(response, result.accessToken(), result.refreshToken(), deviceId);
         return new AuthResponse(null, result.walletId(), result.role(), result.name());
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request,
-                              @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
-                              @RequestHeader(value = "X-Forwarded-For", required = false) String ipAddress,
+                              @CookieValue(value = "deviceId", required = false) String deviceId,
+                              HttpServletRequest httpRequest,
                               HttpServletResponse response) {
+        if (deviceId == null || deviceId.isBlank()) {
+            deviceId = java.util.UUID.randomUUID().toString();
+        }
+        String ipAddress = httpRequest.getRemoteAddr();
         JwtAuthResult result = authService.login(request, deviceId, ipAddress);
-        setCookies(response, result.accessToken(), result.refreshToken());
+        setCookies(response, result.accessToken(), result.refreshToken(), deviceId);
         return new AuthResponse(null, result.walletId(), result.role(), result.name());
     }
 
@@ -54,7 +62,19 @@ public class AuthController {
         }
         
         JwtAuthResult result = authService.refresh(refreshToken);
-        setCookies(response, result.accessToken(), result.refreshToken());
+        String deviceId = null;
+        if (request.getCookies() != null) {
+            Optional<Cookie> devCookie = Arrays.stream(request.getCookies())
+                    .filter(c -> "deviceId".equals(c.getName()))
+                    .findFirst();
+            if (devCookie.isPresent()) {
+                deviceId = devCookie.get().getValue();
+            }
+        }
+        if (deviceId == null) {
+            deviceId = java.util.UUID.randomUUID().toString();
+        }
+        setCookies(response, result.accessToken(), result.refreshToken(), deviceId);
         return new AuthResponse(null, result.walletId(), result.role(), result.name());
     }
 
@@ -76,7 +96,7 @@ public class AuthController {
         response.addCookie(refreshCookie);
     }
 
-    private void setCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+    private void setCookies(HttpServletResponse response, String accessToken, String refreshToken, String deviceId) {
         Cookie accessCookie = new Cookie("accessToken", accessToken);
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true); // Should be true in prod for HTTPS
@@ -89,7 +109,14 @@ public class AuthController {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
         
+        Cookie devCookie = new Cookie("deviceId", deviceId);
+        devCookie.setHttpOnly(true);
+        devCookie.setSecure(true);
+        devCookie.setPath("/");
+        devCookie.setMaxAge(365 * 24 * 60 * 60); // 1 year
+        
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
+        response.addCookie(devCookie);
     }
 }
