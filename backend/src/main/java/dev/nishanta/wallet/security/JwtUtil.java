@@ -30,15 +30,22 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
         claims.put("walletId", walletId);
-        return createToken(claims, username);
+        claims.put("type", "access");
+        return createToken(claims, username, expiration); // Short lived
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "refresh");
+        return createToken(claims, username, 7 * 24 * 60 * 60 * 1000L); // 7 days
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long exp) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + exp))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -54,6 +61,10 @@ public class JwtUtil {
 
     public String extractWalletId(String token) {
         return extractClaim(token, claims -> claims.get("walletId", String.class));
+    }
+    
+    public String extractType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
     }
     
     public String extractRole(String token) {

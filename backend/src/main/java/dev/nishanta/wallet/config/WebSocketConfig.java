@@ -48,20 +48,55 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String authHeader = accessor.getFirstNativeHeader("Authorization");
-                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                        String token = authHeader.substring(7);
-                        try {
-                            String username = jwtUtil.extractUsername(token);
-                            String role = jwtUtil.extractRole(token);
-                            if (username != null && jwtUtil.validateToken(token, username)) {
-                                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                        username, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
-                                accessor.setUser(auth);
+                if (accessor != null) {
+                    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                        String token = null;
+                        
+                        // First check cookies for accessToken
+                        String cookieHeader = accessor.getFirstNativeHeader("cookie");
+                        if (cookieHeader != null) {
+                            String[] cookies = cookieHeader.split(";");
+                            for (String cookie : cookies) {
+                                if (cookie.trim().startsWith("accessToken=")) {
+                                    token = cookie.trim().substring("accessToken=".length());
+                                    break;
+                                }
                             }
-                        } catch (Exception e) {
-                            System.err.println("WebSocket JWT Validation failed: " + e.getMessage());
+                        }
+                        
+                        // Fallback to Authorization header
+                        String authHeader = accessor.getFirstNativeHeader("Authorization");
+                        if (token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
+                            token = authHeader.substring(7);
+                        }
+
+                        if (token != null) {
+                            try {
+                                String username = jwtUtil.extractUsername(token);
+                                String role = jwtUtil.extractRole(token);
+                                String walletId = jwtUtil.extractWalletId(token);
+                                if (username != null && jwtUtil.validateToken(token, username)) {
+                                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                                            username, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+                                    accessor.setUser(auth);
+                                    if (accessor.getSessionAttributes() == null) {
+                                        accessor.setSessionAttributes(new java.util.concurrent.ConcurrentHashMap<>());
+                                    }
+                                    accessor.getSessionAttributes().put("walletId", walletId);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("WebSocket JWT Validation failed: " + e.getMessage());
+                            }
+                        }
+                    } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                        String destination = accessor.getDestination();
+                        if (destination != null && destination.startsWith("/topic/notifications/")) {
+                            String requestedWalletId = destination.substring("/topic/notifications/".length());
+                            Object sessionWalletId = accessor.getSessionAttributes() != null ? 
+                                                     accessor.getSessionAttributes().get("walletId") : null;
+                            if (sessionWalletId == null || !sessionWalletId.toString().equals(requestedWalletId)) {
+                                throw new IllegalArgumentException("Unauthorized subscription destination");
+                            }
                         }
                     }
                 }

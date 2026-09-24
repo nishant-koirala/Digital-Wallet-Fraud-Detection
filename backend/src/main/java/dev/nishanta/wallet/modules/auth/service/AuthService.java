@@ -3,7 +3,7 @@ import dev.nishanta.wallet.common.exception.BusinessRuleException;
 import dev.nishanta.wallet.common.exception.NotFoundException;
 import dev.nishanta.wallet.common.exception.OtpRequiredException;
 import dev.nishanta.wallet.modules.auth.dto.AuthRequest;
-import dev.nishanta.wallet.modules.auth.dto.AuthResponse;
+import dev.nishanta.wallet.modules.auth.dto.JwtAuthResult;
 import dev.nishanta.wallet.modules.audit.service.AuditService;
 import dev.nishanta.wallet.modules.user.domain.Role;
 import dev.nishanta.wallet.modules.user.domain.User;
@@ -51,7 +51,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse register(AuthRequest request, String deviceId, String ipAddress) {
+    public JwtAuthResult register(AuthRequest request, String deviceId, String ipAddress) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new BusinessRuleException("Email already exists");
         }
@@ -83,10 +83,11 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
-        return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        return new JwtAuthResult(token, refreshToken, wallet.getId().toString(), user.getRole().name(), user.getName());
     }
 
-    public AuthResponse login(AuthRequest request, String deviceId, String ipAddress) {
+    public JwtAuthResult login(AuthRequest request, String deviceId, String ipAddress) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         if (request.otp() == null || request.otp().isEmpty()) {
@@ -117,6 +118,28 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
-        return new AuthResponse(token, wallet.getId().toString(), user.getRole().name(), user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        return new JwtAuthResult(token, refreshToken, wallet.getId().toString(), user.getRole().name(), user.getName());
+    }
+
+    public JwtAuthResult refresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new dev.nishanta.wallet.common.exception.BusinessRuleException("Refresh token is missing");
+        }
+        String username = jwtUtil.extractUsername(refreshToken);
+        String type = jwtUtil.extractType(refreshToken);
+        if (username == null || !"refresh".equals(type) || !jwtUtil.validateToken(refreshToken, username)) {
+            throw new dev.nishanta.wallet.common.exception.BusinessRuleException("Invalid refresh token");
+        }
+        
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new dev.nishanta.wallet.common.exception.NotFoundException("User not found"));
+        Wallet wallet = walletRepository.findByUserIdAndType(user.getId(), WalletType.PERSONAL)
+                .orElseThrow(() -> new dev.nishanta.wallet.common.exception.NotFoundException("Wallet not found"));
+                
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), wallet.getId().toString());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        
+        return new JwtAuthResult(newAccessToken, newRefreshToken, wallet.getId().toString(), user.getRole().name(), user.getName());
     }
 }

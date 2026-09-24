@@ -33,8 +33,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String username = null;
         String role = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        
+        // Fallback to header for testing/swagger if needed
+        if (token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
+        }
+
+        if (token != null) {
             try {
                 username = jwtUtil.extractUsername(token);
                 role = jwtUtil.extractRole(token);

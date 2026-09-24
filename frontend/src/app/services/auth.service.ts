@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap } from 'rxjs';
@@ -5,7 +6,6 @@ import { Router } from '@angular/router';
 import { WsNotificationService } from './ws-notification.service';
 
 export interface AuthResponse {
-  token: string;
   walletId: string;
   role: string;
   name: string;
@@ -18,22 +18,21 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private wsNotificationService = inject(WsNotificationService);
-  private baseUrl = 'http://localhost:8080/api/v1/auth';
+  private baseUrl = environment.apiUrl + '/auth';
 
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
+  
+  private pendingAuthRequest: any = null;
 
   constructor() {
     const saved = localStorage.getItem('auth_user');
     if (saved) {
       const auth = JSON.parse(saved);
       this.currentUserSubject.next(auth);
-      this.wsNotificationService.connect(auth.token, auth.walletId);
+      // Since token is in cookie, the browser handles it during websocket connection
+      this.wsNotificationService.connect('', auth.walletId);
     }
-  }
-
-  get token(): string | null {
-    return this.currentUserSubject.value?.token || null;
   }
 
   get walletId(): string | null {
@@ -42,6 +41,16 @@ export class AuthService {
 
   get isAdmin(): boolean {
     return this.currentUserSubject.value?.role === 'ADMIN';
+  }
+
+  setPendingAuthRequest(request: any) {
+    this.pendingAuthRequest = request;
+  }
+
+  getPendingAuthRequest(): any {
+    const req = this.pendingAuthRequest;
+    this.pendingAuthRequest = null;
+    return req;
   }
 
   login(credentials: any) {
@@ -57,6 +66,13 @@ export class AuthService {
   }
 
   logout() {
+    this.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => this.clearSession(),
+      error: () => this.clearSession()
+    });
+  }
+
+  private clearSession() {
     localStorage.removeItem('auth_user');
     this.currentUserSubject.next(null);
     this.wsNotificationService.disconnect();
@@ -66,6 +82,6 @@ export class AuthService {
   private setSession(authResult: AuthResponse) {
     localStorage.setItem('auth_user', JSON.stringify(authResult));
     this.currentUserSubject.next(authResult);
-    this.wsNotificationService.connect(authResult.token, authResult.walletId);
+    this.wsNotificationService.connect('', authResult.walletId);
   }
 }
