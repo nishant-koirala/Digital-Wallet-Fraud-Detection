@@ -9,28 +9,28 @@
     <div class="stats-grid">
       <div class="solid-card stat-card">
         <div class="text-slate text-medium" style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.25rem;">💰</span> Total Processed Volume
+          <lucide-icon [img]="CircleDollarSign" style="width: 1.25rem; height: 1.25rem; color: var(--color-primary);"></lucide-icon> Total Processed Volume
         </div>
         <div class="stat-value" style="color: var(--color-primary);">Rs. {{ stats()!.totalVolume | number:'1.2-2' }}</div>
       </div>
       
       <div class="solid-card stat-card">
         <div class="text-slate text-medium" style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.25rem;">👥</span> Total Registered Users
+          <lucide-icon [img]="Users" style="width: 1.25rem; height: 1.25rem; color: var(--color-primary);"></lucide-icon> Total Registered Users
         </div>
         <div class="stat-value">{{ stats()!.totalUsers }}</div>
       </div>
       
       <div class="solid-card stat-card" style="border-top: 4px solid var(--color-confirm-green);">
         <div class="text-slate text-medium" style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.25rem;">✅</span> Safe Transactions
+          <lucide-icon [img]="ShieldCheck" style="width: 1.25rem; height: 1.25rem; color: var(--color-confirm-green);"></lucide-icon> Safe Transactions
         </div>
         <div class="stat-value" style="color: var(--color-confirm-green);">{{ stats()!.safeCount }}</div>
       </div>
       
       <div class="solid-card stat-card" style="border-top: 4px solid var(--color-signal-red);">
         <div class="text-slate text-medium" style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.25rem;">🚨</span> Flagged Transactions
+          <lucide-icon [img]="Siren" style="width: 1.25rem; height: 1.25rem; color: var(--color-signal-red);"></lucide-icon> Flagged Transactions
         </div>
         <div class="stat-value" style="color: var(--color-signal-red);">{{ stats()!.flaggedCount }}</div>
       </div>

@@ -2,14 +2,20 @@ import { Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit
 import { CommonModule } from '@angular/common';
 import { AnalyticsService, AnalyticsResponse } from '../../services/analytics.service';
 import Chart from 'chart.js/auto';
+import { LucideAngularModule, CircleDollarSign, Users, ShieldCheck, Siren } from 'lucide-angular';
 
 @Component({
   selector: 'app-admin-analytics',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './admin-analytics.html',
   styleUrl: './admin-analytics.scss'
 })
 export class AdminAnalytics implements OnInit, AfterViewInit {
+  readonly CircleDollarSign = CircleDollarSign;
+  readonly Users = Users;
+  readonly ShieldCheck = ShieldCheck;
+  readonly Siren = Siren;
+
   private analyticsService = inject(AnalyticsService);
   
   stats = signal<AnalyticsResponse | null>(null);

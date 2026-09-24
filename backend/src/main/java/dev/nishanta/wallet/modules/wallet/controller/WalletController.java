@@ -49,7 +49,10 @@ public class WalletController {
     }
 
     @GetMapping("/{walletId}/transactions")
-    public List<Transaction> getTransactions(@PathVariable UUID walletId) {
-        return walletService.getTransactions(walletId);
+    public org.springframework.data.domain.Page<Transaction> getTransactions(
+            @PathVariable UUID walletId,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size) {
+        return walletService.getTransactions(walletId, org.springframework.data.domain.PageRequest.of(page, size));
     }
 }

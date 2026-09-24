@@ -1,15 +1,19 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { TopBar } from './layout/top-bar/top-bar';
-import { ToastComponent } from './components/toast/toast.component';
 import { SimulatorPanelComponent } from './components/simulator-panel/simulator-panel.component';
+import { ToastComponent } from './components/toast/toast.component';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TopBar, ToastComponent, SimulatorPanelComponent],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, TopBar, SimulatorPanelComponent, ToastComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrls: ['./app.scss']
 })
 export class App {
-  protected readonly title = signal('frontend');
+  title = 'fraud-detection-wallet';
+  isProduction = environment.production;
 }

@@ -267,3 +267,25 @@ h1, h2, h3, h4, h5, h6 {
 .plain-list li:last-child {
   border-bottom: none;
 }
+
+/* Utilities */
+.btn-block {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.input-warning {
+  border-color: var(--color-warning);
+}
+.input-warning:focus {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}

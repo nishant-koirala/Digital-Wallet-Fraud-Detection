@@ -28,7 +28,7 @@ public class StatementService {
     }
 
     public byte[] generatePdfStatement(UUID walletId) {
-        List<Transaction> transactions = walletService.getTransactions(walletId);
+        List<Transaction> transactions = walletService.getTransactions(walletId, org.springframework.data.domain.Pageable.unpaged()).getContent();
         
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Document document = new Document();
@@ -67,7 +67,7 @@ public class StatementService {
     }
 
     public byte[] generateCsvStatement(UUID walletId) {
-        List<Transaction> transactions = walletService.getTransactions(walletId);
+        List<Transaction> transactions = walletService.getTransactions(walletId, org.springframework.data.domain.Pageable.unpaged()).getContent();
         
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              PrintWriter pw = new PrintWriter(new OutputStreamWriter(out))) {

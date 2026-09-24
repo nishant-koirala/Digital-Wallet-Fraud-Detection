@@ -1,27 +1,25 @@
 package dev.nishanta.wallet.modules.transaction.ledger;
 
 import dev.nishanta.wallet.modules.transaction.repository.LedgerEntryRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-// Single job: given a wallet's id, compute its current balance.
-// Balance is NEVER stored — it's always derived by summing every
-// ledger entry for that wallet (debits are negative, credits are
-// positive, so a plain sum gives the correct running balance).
-@Component
+@Service
 public class WalletBalanceCalculator implements BalanceCalculator {
 
-    private final LedgerEntryRepository ledgerEntryRepository;
+    private final WalletRepository walletRepository;
 
-    // Spring injects the repository automatically — we don't construct it ourselves.
-    public WalletBalanceCalculator(LedgerEntryRepository ledgerEntryRepository) {
-        this.ledgerEntryRepository = ledgerEntryRepository;
+    public WalletBalanceCalculator(WalletRepository walletRepository) {
+        this.walletRepository = walletRepository;
     }
 
     @Override
     public BigDecimal calculateBalance(UUID walletId) {
-        return ledgerEntryRepository.sumAmountByWalletId(walletId);
+        return walletRepository.findById(walletId)
+                .map(dev.nishanta.wallet.modules.wallet.domain.Wallet::getBalance)
+                .orElse(BigDecimal.ZERO);
     }
 }

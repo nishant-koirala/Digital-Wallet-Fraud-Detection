@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -16,7 +17,7 @@ export class WsNotificationService {
     }
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(environment.wsUrl),
       connectHeaders: {
         Authorization: `Bearer ${token}`
       },
@@ -43,3 +44,4 @@ export class WsNotificationService {
     }
   }
 }
+

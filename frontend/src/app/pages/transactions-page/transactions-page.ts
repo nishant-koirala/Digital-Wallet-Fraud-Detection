@@ -46,9 +46,9 @@ export class TransactionsPage implements OnInit {
   }
 
   fetchTransactions() {
-    this.walletService.getTransactions().subscribe({
-      next: (res: any[]) => {
-        const mapped = res.map((t: any) => {
+    this.walletService.getTransactions(0, 100).subscribe({
+      next: (res: any) => {
+        const mapped = res.content.map((t: any) => {
           const isOutgoing = t.fromWallet?.id === this.authService.walletId;
           const displayAmount = isOutgoing ? -t.amount : t.amount;
           

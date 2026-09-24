@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -26,7 +27,7 @@ export interface Page<T> {
 })
 export class AuditService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/audit';
+  private baseUrl = environment.apiUrl + '/audit-logs';
 
   getLogs(page: number, size: number, search?: string): Observable<Page<AuditLog>> {
     let params = new HttpParams()
@@ -40,3 +41,4 @@ export class AuditService {
     return this.http.get<Page<AuditLog>>(this.baseUrl, { params });
   }
 }
+

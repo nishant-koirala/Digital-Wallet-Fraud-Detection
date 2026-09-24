@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
@@ -19,7 +20,7 @@ export interface TransferResponse {
 export class TransactionService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private baseUrl = 'http://localhost:8080/api/v1/transactions';
+  private baseUrl = environment.apiUrl + '/transactions';
 
   transfer(toPhoneNumber: string, amount: number, latitude?: number, longitude?: number, otp?: string): Observable<TransferResponse> {
     const idempotencyKey = crypto.randomUUID();
@@ -49,3 +50,4 @@ export class TransactionService {
     });
   }
 }
+

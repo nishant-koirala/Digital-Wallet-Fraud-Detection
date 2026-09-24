@@ -3,15 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 import { KycService, KycStatusResponse } from '../../services/kyc.service';
+import { LucideAngularModule, CheckCircle, Clock, XCircle, Upload } from 'lucide-angular';
 
 @Component({
   selector: 'app-kyc-submit',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './kyc-submit.html',
   styleUrls: ['./kyc-submit.scss']
 })
 export class KycSubmitComponent implements OnInit {
+  readonly CheckCircle = CheckCircle;
+  readonly Clock = Clock;
+  readonly XCircle = XCircle;
+  readonly Upload = Upload;
   private kycService = inject(KycService);
   private toast = inject(ToastService);
 
@@ -48,13 +53,18 @@ export class KycSubmitComponent implements OnInit {
   onFileSelect(event: any, side: 'front' | 'back') {
     const file = event.target.files[0];
     if (file) {
-      if (side === 'front') {
-        this.frontFileName = file.name;
-        this.formData.frontImageUrl = `mock-storage://${file.name}`;
-      } else {
-        this.backFileName = file.name;
-        this.formData.backImageUrl = `mock-storage://${file.name}`;
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        if (side === 'front') {
+          this.frontFileName = file.name;
+          this.formData.frontImageUrl = base64String;
+        } else {
+          this.backFileName = file.name;
+          this.formData.backImageUrl = base64String;
+        }
+      };
+      reader.readAsDataURL(file);
     }
   }
 

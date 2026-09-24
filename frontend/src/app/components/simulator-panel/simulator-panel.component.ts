@@ -2,21 +2,22 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceSimulatorService, SimulatorMode, DeviceProfile } from '../../services/device-simulator.service';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Wrench } from 'lucide-angular';
 
 @Component({
   selector: 'app-simulator-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
     <!-- Floating Action Button -->
     <button class="simulator-fab" (click)="toggleExpanded()" [class.hacker-mode]="currentMode === 'HACKER'" *ngIf="!isExpanded">
-      🛠️ Demo
+      <lucide-icon [img]="Wrench" style="width: 1.2rem; height: 1.2rem; vertical-align: bottom;"></lucide-icon> Demo
     </button>
 
     <!-- Expanded Panel -->
     <div class="simulator-panel" [class.hacker-mode]="currentMode === 'HACKER'" *ngIf="isExpanded">
       <div class="panel-header">
-        🛠️ Demo Simulator
+        <lucide-icon [img]="Wrench" style="width: 1rem; height: 1rem; vertical-align: bottom;"></lucide-icon> Demo Simulator
         <button class="close-btn" (click)="toggleExpanded()">✕</button>
       </div>
       <div class="panel-body">
@@ -147,6 +148,7 @@ import { FormsModule } from '@angular/forms';
   `]
 })
 export class SimulatorPanelComponent {
+  readonly Wrench = Wrench;
   private simulator = inject(DeviceSimulatorService);
   
   profiles: DeviceProfile[] = this.simulator.getAllProfiles();

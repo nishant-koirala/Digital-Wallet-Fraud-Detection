@@ -1,0 +1,10 @@
+<div class="drawer-backdrop" (click)="closeModal()"></div>
+<div class="drawer" [style.width]="width" role="dialog" aria-modal="true" [attr.aria-label]="title">
+  <div class="drawer-header">
+    <h3>{{ title }}</h3>
+    <button class="close-btn" (click)="closeModal()" aria-label="Close modal">✕</button>
+  </div>
+  <div class="drawer-content">
+    <ng-content></ng-content>
+  </div>
+</div>

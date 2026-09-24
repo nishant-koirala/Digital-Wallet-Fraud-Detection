@@ -9,31 +9,31 @@
     <h3>Quick Actions</h3>
     <div class="quick-actions">
       <button class="action-card" (click)="openTransferModal()">
-        <span class="action-icon">💸</span>
+        <lucide-icon [img]="Send" class="action-icon"></lucide-icon>
         <span>Send</span>
       </button>
       <button class="action-card" (click)="openDepositModal()">
-        <span class="action-icon">📥</span>
+        <lucide-icon [img]="Download" class="action-icon"></lucide-icon>
         <span>Deposit</span>
       </button>
       <button class="action-card" (click)="openWithdrawModal()">
-        <span class="action-icon">📤</span>
+        <lucide-icon [img]="Upload" class="action-icon"></lucide-icon>
         <span>Withdraw</span>
       </button>
-      <a href="/pay-bills" class="action-card">
-        <span class="action-icon">🧾</span>
+      <a routerLink="/pay-bills" class="action-card">
+        <lucide-icon [img]="Receipt" class="action-icon"></lucide-icon>
         <span>Pay Bills</span>
       </a>
-      <a href="/qr" class="action-card">
-        <span class="action-icon">🔳</span>
+      <a routerLink="/qr" class="action-card">
+        <lucide-icon [img]="QrCode" class="action-icon"></lucide-icon>
         <span>Pay QR</span>
       </a>
-      <a href="/profile" class="action-card">
-        <span class="action-icon">👤</span>
+      <a routerLink="/profile" class="action-card">
+        <lucide-icon [img]="User" class="action-icon"></lucide-icon>
         <span>Profile</span>
       </a>
-      <a href="/kyc" class="action-card">
-        <span class="action-icon">📄</span>
+      <a routerLink="/kyc" class="action-card">
+        <lucide-icon [img]="FileText" class="action-icon"></lucide-icon>
         <span>KYC</span>
       </a>
     </div>
@@ -47,7 +47,7 @@
       <h2>Recent Transactions</h2>
       
       <div class="filters">
-        <a href="/transactions" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View All</a>
+        <a routerLink="/transactions" class="btn btn-primary btn-sm">View All</a>
       </div>
     </div>
 
@@ -74,100 +74,74 @@
 </div>
 
 @if (selectedTransaction()) {
-  <div class="drawer-backdrop" (click)="closeTransaction()"></div>
-  <div class="drawer">
-    <div class="drawer-header">
-      <h3>Transaction Details</h3>
-      <button class="close-btn" (click)="closeTransaction()">✕</button>
+  <app-modal title="Transaction Details" (close)="closeTransaction()">
+    <div class="drawer-amount" [class.positive]="selectedTransaction()!.amount > 0">
+      {{ selectedTransaction()!.amount > 0 ? '+' : '' }} Rs. {{ (selectedTransaction()!.amount > 0 ? selectedTransaction()!.amount : -selectedTransaction()!.amount) | number:'1.2-2' }}
     </div>
-    <div class="drawer-content">
-      <div class="drawer-amount" [class.positive]="selectedTransaction()!.amount > 0">
-        {{ selectedTransaction()!.amount > 0 ? '+' : '' }} Rs. {{ (selectedTransaction()!.amount > 0 ? selectedTransaction()!.amount : -selectedTransaction()!.amount) | number:'1.2-2' }}
-      </div>
-      
-      <div class="detail-row">
-        <span class="label">Party</span>
-        <span class="value">{{ selectedTransaction()!.name }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Identifier</span>
-        <span class="value">{{ selectedTransaction()!.meta }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Time</span>
-        <span class="value">{{ selectedTransaction()!.time }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Txn ID</span>
-        <span class="value monospace">{{ selectedTransaction()!.id }}</span>
-      </div>
+    
+    <div class="detail-row">
+      <span class="label">Party</span>
+      <span class="value">{{ selectedTransaction()!.name }}</span>
     </div>
-  </div>
+    <div class="detail-row">
+      <span class="label">Identifier</span>
+      <span class="value">{{ selectedTransaction()!.meta }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Time</span>
+      <span class="value">{{ selectedTransaction()!.time }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Txn ID</span>
+      <span class="value monospace">{{ selectedTransaction()!.id }}</span>
+    </div>
+  </app-modal>
 }
 
 @if (showDepositModal()) {
-  <div class="drawer-backdrop" (click)="closeDepositModal()"></div>
-  <div class="drawer" style="width: 400px;">
-    <div class="drawer-header">
-      <h3>Deposit Funds</h3>
-      <button class="close-btn" (click)="closeDepositModal()">✕</button>
+  <app-modal title="Deposit Funds" width="400px" (close)="closeDepositModal()">
+    <div class="form-group">
+      <label>Amount</label>
+      <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
     </div>
-    <div class="drawer-content">
-      <div class="form-group">
-        <label>Amount</label>
-        <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)">
-      </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitDeposit()">Confirm Deposit</button>
-    </div>
-  </div>
+    <button class="btn btn-primary btn-block" (click)="submitDeposit()" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Processing...' : 'Confirm Deposit' }}
+    </button>
+  </app-modal>
 }
 
 @if (showWithdrawModal()) {
-  <div class="drawer-backdrop" (click)="closeWithdrawModal()"></div>
-  <div class="drawer" style="width: 400px;">
-    <div class="drawer-header">
-      <h3>Withdraw Funds</h3>
-      <button class="close-btn" (click)="closeWithdrawModal()">✕</button>
+  <app-modal title="Withdraw Funds" width="400px" (close)="closeWithdrawModal()">
+    <div class="form-group">
+      <label>Amount</label>
+      <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
     </div>
-    <div class="drawer-content">
-      <div class="form-group">
-        <label>Amount</label>
-        <input type="number" class="form-control" placeholder="e.g. 1000" [ngModel]="withdrawAmount()" (ngModelChange)="withdrawAmount.set($event)">
-      </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitWithdraw()">Confirm Withdraw</button>
-    </div>
-  </div>
+    <button class="btn btn-primary btn-block" (click)="submitWithdraw()" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Processing...' : 'Confirm Withdraw' }}
+    </button>
+  </app-modal>
 }
 
 @if (showTransferModal()) {
-  <div class="drawer-backdrop" (click)="closeTransferModal()"></div>
-  <div class="drawer" style="width: 400px;">
-    <div class="drawer-header">
-      <h3>Send Funds</h3>
-      <button class="close-btn" (click)="closeTransferModal()">✕</button>
+  <app-modal title="Send Funds" width="400px" (close)="closeTransferModal()">
+    <div class="form-group">
+      <label>Destination Phone Number</label>
+      <input type="text" class="form-control" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
     </div>
-    <div class="drawer-content">
-      <div class="form-group">
-        <label>Destination Phone Number</label>
-        <input type="text" class="form-control" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
-      </div>
-      <div class="form-group">
-        <label>Amount</label>
-        <input type="number" class="form-control" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
-      </div>
-      
-      @if (showOtpField()) {
-      <div class="form-group">
-        <label style="color: var(--color-warning);">OTP Required (Check Email)</label>
-        <input type="text" class="form-control" placeholder="6-digit code" [ngModel]="transferOtp()" (ngModelChange)="transferOtp.set($event)" style="border-color: var(--color-warning);">
-      </div>
-      }
+    <div class="form-group">
+      <label>Amount</label>
+      <input type="number" class="form-control" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">
+    </div>
+    
+    @if (showOtpField()) {
+    <div class="form-group">
+      <label class="text-warning">OTP Required (Check Email)</label>
+      <input type="text" class="form-control input-warning" placeholder="6-digit code" [ngModel]="transferOtp()" (ngModelChange)="transferOtp.set($event)">
+    </div>
+    }
 
-      <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
-        <input type="checkbox" id="foreignLocation" [ngModel]="simulateForeignLocation()" (ngModelChange)="simulateForeignLocation.set($event)">
-        <label for="foreignLocation" style="margin-bottom: 0;">Simulate foreign location (NY)</label>
-      </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" (click)="submitTransfer()">Send Now</button>
-    </div>
-  </div>
+    <button class="btn btn-primary btn-block" (click)="submitTransfer()" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Processing...' : 'Send Now' }}
+    </button>
+  </app-modal>
 }

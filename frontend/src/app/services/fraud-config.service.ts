@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -18,7 +19,7 @@ export interface FraudConfig {
 })
 export class FraudConfigService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/admin/fraud-config';
+  private baseUrl = environment.apiUrl + '/admin/fraud-config';
 
   getConfig(): Observable<FraudConfig> {
     return this.http.get<FraudConfig>(this.baseUrl);
@@ -28,3 +29,4 @@ export class FraudConfigService {
     return this.http.put<FraudConfig>(this.baseUrl, config);
   }
 }
+

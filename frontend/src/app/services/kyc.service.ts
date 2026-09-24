@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -23,8 +24,8 @@ export interface KycDocument {
 })
 export class KycService {
   private http = inject(HttpClient);
-  private userBaseUrl = 'http://localhost:8080/api/v1/kyc';
-  private adminBaseUrl = 'http://localhost:8080/api/v1/admin/kyc';
+  private userBaseUrl = environment.apiUrl + '/kyc';
+  private adminBaseUrl = environment.apiUrl + '/admin/kyc';
 
   // User Actions
   getStatus(): Observable<KycStatusResponse> {
@@ -48,3 +49,4 @@ export class KycService {
     return this.http.post<void>(`${this.adminBaseUrl}/${id}/reject`, {});
   }
 }
+

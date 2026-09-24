@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 import { AdminReportService, ReportTransaction, ReportUser } from '../../services/admin-report.service';
 import { ToastService } from '../../services/toast.service';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Download } from 'lucide-angular';
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './admin-reports.html',
   styleUrl: './admin-reports.scss'
 })
 export class AdminReports implements OnInit {
+  readonly Download = Download;
   private reportService = inject(AdminReportService);
   private toastService = inject(ToastService);
 

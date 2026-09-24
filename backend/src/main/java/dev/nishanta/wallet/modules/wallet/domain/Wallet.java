@@ -7,6 +7,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "wallets")
@@ -25,6 +26,8 @@ public class Wallet {
 
     private String currency;
 
+    private BigDecimal balance = BigDecimal.ZERO;
+
     private LocalDateTime createdAt;
 
     protected Wallet() {
@@ -42,5 +45,7 @@ public class Wallet {
     public User getUser() { return user; }
     public WalletType getType() { return type; }
     public String getCurrency() { return currency; }
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

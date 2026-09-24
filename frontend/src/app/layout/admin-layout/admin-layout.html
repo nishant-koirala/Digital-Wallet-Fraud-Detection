@@ -8,31 +8,31 @@
     
     <nav class="sidebar-nav">
       <a routerLink="/admin/analytics" routerLinkActive="active" class="nav-item">
-        <span class="icon">📊</span> Analytics
+        <lucide-icon [img]="BarChart" class="icon"></lucide-icon> Analytics
       </a>
       <a routerLink="/admin/fraud-review" routerLinkActive="active" class="nav-item">
-        <span class="icon">🚨</span> Fraud Review
+        <lucide-icon [img]="ShieldAlert" class="icon"></lucide-icon> Fraud Review
       </a>
       <a routerLink="/admin/fraud-settings" routerLinkActive="active" class="nav-item">
-        <span class="icon">⚙️</span> Fraud Rules
+        <lucide-icon [img]="Settings" class="icon"></lucide-icon> Fraud Rules
       </a>
       <a routerLink="/admin/kyc-review" routerLinkActive="active" class="nav-item">
-        <span class="icon">📋</span> KYC Review
+        <lucide-icon [img]="ClipboardCheck" class="icon"></lucide-icon> KYC Review
       </a>
       <a routerLink="/admin/merchants" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏪</span> Merchants
+        <lucide-icon [img]="Store" class="icon"></lucide-icon> Merchants
       </a>
       <a routerLink="/admin/audit-logs" routerLinkActive="active" class="nav-item">
-        <span class="icon">📝</span> Audit Logs
+        <lucide-icon [img]="FileSignature" class="icon"></lucide-icon> Audit Logs
       </a>
       <a routerLink="/admin/reports" routerLinkActive="active" class="nav-item">
-        <span class="icon">📁</span> System Reports
+        <lucide-icon [img]="Folder" class="icon"></lucide-icon> System Reports
       </a>
     </nav>
     
     <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()">
-        <span class="icon">🚪</span> Logout
+        <lucide-icon [img]="LogOut" class="icon"></lucide-icon> Logout
       </button>
     </div>
   </aside>

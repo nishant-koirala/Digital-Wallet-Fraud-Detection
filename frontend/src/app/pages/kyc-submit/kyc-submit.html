@@ -9,15 +9,15 @@
   <div *ngIf="!isLoading">
     
     <div *ngIf="status === 'APPROVED'" class="alert alert-success">
-      ✅ Your KYC is approved. You have full access to all features.
+      <lucide-icon [img]="CheckCircle" style="width: 1.25rem; height: 1.25rem; vertical-align: bottom;"></lucide-icon> Your KYC is approved. You have full access to all features.
     </div>
     
     <div *ngIf="status === 'PENDING'" class="alert alert-warning">
-      ⏳ Your KYC is currently under review by an administrator.
+      <lucide-icon [img]="Clock" style="width: 1.25rem; height: 1.25rem; vertical-align: bottom;"></lucide-icon> Your KYC is currently under review by an administrator.
     </div>
     
     <div *ngIf="status === 'REJECTED'" class="alert alert-danger mb-4">
-      ❌ Your previous KYC submission was rejected. Please submit again with clearer documents.
+      <lucide-icon [img]="XCircle" style="width: 1.25rem; height: 1.25rem; vertical-align: bottom;"></lucide-icon> Your previous KYC submission was rejected. Please submit again with clearer documents.
     </div>
 
     <div *ngIf="status === 'NOT_SUBMITTED' || status === 'REJECTED'">
@@ -40,7 +40,7 @@
         <div class="file-picker-wrapper">
           <input type="file" id="frontImage" (change)="onFileSelect($event, 'front')" accept="image/*" class="file-input">
           <label for="frontImage" class="file-picker-label">
-            <span class="icon">📁</span>
+            <lucide-icon [img]="Upload" class="icon"></lucide-icon>
             <span class="text">{{ frontFileName || 'Choose front image...' }}</span>
           </label>
         </div>
@@ -51,7 +51,7 @@
         <div class="file-picker-wrapper">
           <input type="file" id="backImage" (change)="onFileSelect($event, 'back')" accept="image/*" class="file-input">
           <label for="backImage" class="file-picker-label">
-            <span class="icon">📁</span>
+            <lucide-icon [img]="Upload" class="icon"></lucide-icon>
             <span class="text">{{ backFileName || 'Choose back image...' }}</span>
           </label>
         </div>

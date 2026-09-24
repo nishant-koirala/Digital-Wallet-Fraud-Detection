@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -36,7 +37,7 @@ export interface ReportUser {
 })
 export class AdminReportService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/admin/reports';
+  private baseUrl = environment.apiUrl + '/admin/reports';
 
   getTransactions(status: string | null, page: number = 0, size: number = 10): Observable<PageData<ReportTransaction>> {
     let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
@@ -81,3 +82,4 @@ export class AdminReportService {
     window.URL.revokeObjectURL(url);
   }
 }
+

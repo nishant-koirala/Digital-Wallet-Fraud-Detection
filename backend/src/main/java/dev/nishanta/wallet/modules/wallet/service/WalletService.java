@@ -37,10 +37,10 @@ public class WalletService {
         return new BalanceResponse(walletId, balance, wallet.getCurrency());
     }
 
-    public List<Transaction> getTransactions(UUID walletId) {
+    public org.springframework.data.domain.Page<Transaction> getTransactions(UUID walletId, org.springframework.data.domain.Pageable pageable) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new NotFoundException("Wallet not found: " + walletId));
         securityUtils.verifyWalletOwnership(wallet);
-        return transactionRepository.findRecentByWalletId(walletId);
+        return transactionRepository.findRecentByWalletId(walletId, pageable);
     }
 }

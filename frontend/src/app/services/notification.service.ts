@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
@@ -21,7 +22,7 @@ export class NotificationService {
 
   constructor() {
     this.client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(environment.wsUrl),
       onConnect: () => {
         const walletId = this.authService.walletId;
         if (walletId) {
@@ -51,3 +52,4 @@ export class NotificationService {
     }
   }
 }
+

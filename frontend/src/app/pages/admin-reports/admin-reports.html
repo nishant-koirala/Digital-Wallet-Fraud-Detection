@@ -26,7 +26,7 @@
           </select>
         </div>
         <button class="btn btn-primary" [disabled]="isExportingTx()" (click)="exportTransactions()">
-          <span style="margin-right: 0.5rem;">📥</span> {{ isExportingTx() ? 'Exporting...' : 'Download CSV' }}
+          <lucide-icon [img]="Download" style="margin-right: 0.5rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;"></lucide-icon> {{ isExportingTx() ? 'Exporting...' : 'Download CSV' }}
         </button>
       </div>
 
@@ -83,7 +83,7 @@
           </select>
         </div>
         <button class="btn btn-primary" [disabled]="isExportingUsers()" (click)="exportUsers()">
-          <span style="margin-right: 0.5rem;">📥</span> {{ isExportingUsers() ? 'Exporting...' : 'Download CSV' }}
+          <lucide-icon [img]="Download" style="margin-right: 0.5rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;"></lucide-icon> {{ isExportingUsers() ? 'Exporting...' : 'Download CSV' }}
         </button>
       </div>
 

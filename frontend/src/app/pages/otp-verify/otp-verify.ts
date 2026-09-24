@@ -25,9 +25,10 @@ export class OtpVerify implements OnInit {
 
   ngOnInit() {
     const state = history.state;
-    if (state && state.action && state.authRequest) {
+    this.authRequest = this.authService.getPendingAuthRequest();
+    
+    if (state && state.action && this.authRequest) {
       this.action = state.action;
-      this.authRequest = state.authRequest;
     } else {
       // If accessed directly without state, redirect back to login
       this.router.navigate(['/login']);
@@ -46,7 +47,11 @@ export class OtpVerify implements OnInit {
 
     request$.subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        if (this.authService.isAdmin) {
+          this.router.navigate(['/admin/analytics']);
+        } else {
+          this.router.navigate(['/']);
+        }
         this.toastService.success(`${this.action === 'login' ? 'Logged in' : 'Registered'} successfully!`);
       },
       error: (err) => {

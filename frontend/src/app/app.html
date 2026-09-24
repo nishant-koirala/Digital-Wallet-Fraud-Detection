@@ -2,5 +2,5 @@
 <div class="container">
   <router-outlet></router-outlet>
 </div>
-<app-simulator-panel></app-simulator-panel>
+<app-simulator-panel *ngIf="!isProduction"></app-simulator-panel>
 <app-toast></app-toast>

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -15,9 +16,10 @@ export interface AnalyticsResponse {
 })
 export class AnalyticsService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/admin/analytics';
+  private baseUrl = environment.apiUrl + '/admin/analytics';
 
   getDashboardStats(): Observable<AnalyticsResponse> {
     return this.http.get<AnalyticsResponse>(this.baseUrl);
   }
 }
+

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -23,8 +24,8 @@ export interface MerchantResponse {
   providedIn: 'root'
 })
 export class MerchantService {
-  private baseUrl = 'http://localhost:8080/api/v1/merchants';
-  private apiUrl = 'http://localhost:8080/api/v1/merchants';
+  private baseUrl = environment.apiUrl + '/merchants';
+  private apiUrl = environment.apiUrl + '/merchants';
 
   constructor(private http: HttpClient) {}
 
@@ -36,3 +37,4 @@ export class MerchantService {
     return this.http.get<MerchantResponse>(`${this.apiUrl}/profile`);
   }
 }
+

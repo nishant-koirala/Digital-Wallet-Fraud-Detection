@@ -44,7 +44,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             UUID fromWalletId, UUID excludeId);
 
     @Query("SELECT t FROM Transaction t WHERE t.fromWallet.id = :walletId OR t.toWallet.id = :walletId ORDER BY t.createdAt DESC")
-    List<Transaction> findRecentByWalletId(@Param("walletId") UUID walletId);
+    org.springframework.data.domain.Page<Transaction> findRecentByWalletId(@Param("walletId") UUID walletId, org.springframework.data.domain.Pageable pageable);
 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.status = 'COMPLETED'")
     Optional<BigDecimal> findTotalVolume();

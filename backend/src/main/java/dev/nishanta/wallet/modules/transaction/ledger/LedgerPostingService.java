@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.nishanta.wallet.modules.wallet.repository.WalletRepository;
+
 // Single responsibility: write the linked debit/credit pair for a
 // completed transfer and mark the transaction COMPLETED. The caller owns
 // the surrounding transaction and balance checks.
@@ -20,13 +22,16 @@ public class LedgerPostingService {
 
     private final LedgerEntryRepository ledgerEntryRepository;
     private final TransactionRepository transactionRepository;
+    private final WalletRepository walletRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     public LedgerPostingService(LedgerEntryRepository ledgerEntryRepository,
                                 TransactionRepository transactionRepository,
+                                WalletRepository walletRepository,
                                 SimpMessagingTemplate messagingTemplate) {
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.transactionRepository = transactionRepository;
+        this.walletRepository = walletRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -42,6 +47,11 @@ public class LedgerPostingService {
                 transaction, toWallet, transaction.getAmount(), EntryType.CREDIT, toWallet.getCurrency());
         ledgerEntryRepository.save(debit);
         ledgerEntryRepository.save(credit);
+
+        fromWallet.setBalance(fromWallet.getBalance().subtract(transaction.getAmount()));
+        toWallet.setBalance(toWallet.getBalance().add(transaction.getAmount()));
+        walletRepository.save(fromWallet);
+        walletRepository.save(toWallet);
 
         transaction.markCompleted();
         transactionRepository.save(transaction);

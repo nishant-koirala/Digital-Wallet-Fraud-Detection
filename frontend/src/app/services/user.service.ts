@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -16,7 +17,7 @@ export interface UserProfile {
 })
 export class UserService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/users';
+  private baseUrl = environment.apiUrl + '/users';
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.baseUrl}/profile`);
@@ -34,3 +35,4 @@ export class UserService {
     return this.http.delete<void>(`${this.baseUrl}/account`);
   }
 }
+

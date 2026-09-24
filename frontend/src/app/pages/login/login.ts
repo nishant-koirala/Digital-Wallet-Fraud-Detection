@@ -26,19 +26,16 @@ export class Login {
     
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
-        if (res.role === 'ADMIN') {
-          this.router.navigate(['/admin/analytics']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        this.router.navigate(['/']);
         this.toastService.success('Logged in successfully!');
       },
       error: (err) => {
         this.loading = false;
         if (err.status === 428) {
           this.toastService.info('OTP required. Please check your email.');
+          this.authService.setPendingAuthRequest({ email: this.email, password: this.password });
           this.router.navigate(['/verify-otp'], { 
-            state: { action: 'login', authRequest: { email: this.email, password: this.password } } 
+            state: { action: 'login' } 
           });
         } else {
           this.toastService.error(err.error?.detail || 'Login failed.');

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,7 +9,7 @@ import { MerchantResponse } from './merchant.service';
 })
 export class MerchantAdminService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080/api/v1/admin/merchants';
+  private baseUrl = environment.apiUrl + '/admin/merchants';
 
   getPendingMerchants(): Observable<MerchantResponse[]> {
     return this.http.get<MerchantResponse[]>(`${this.baseUrl}/pending`);
@@ -22,3 +23,4 @@ export class MerchantAdminService {
     return this.http.post<void>(`${this.baseUrl}/${merchantId}/reject`, {});
   }
 }
+

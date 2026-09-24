@@ -6,7 +6,9 @@ import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { TransactionService } from '../../services/transaction.service';
 import { ToastService } from '../../services/toast.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { LucideAngularModule, Send, Download, Upload, Receipt, QrCode, User, FileText } from 'lucide-angular';
 
 interface Transaction {
   id: string;
@@ -18,11 +20,19 @@ interface Transaction {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, ModalComponent, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
+  // Lucide Icons
+  readonly Send = Send;
+  readonly Download = Download;
+  readonly Upload = Upload;
+  readonly Receipt = Receipt;
+  readonly QrCode = QrCode;
+  readonly User = User;
+  readonly FileText = FileText;
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
@@ -44,7 +54,7 @@ export class Dashboard implements OnInit {
   transferAmount = signal<number | null>(null);
   transferOtp = signal('');
   showOtpField = signal(false);
-  simulateForeignLocation = signal(false);
+  isSubmitting = signal(false);
   
   selectedTransaction = signal<Transaction | null>(null);
   transactions = signal<Transaction[]>([]);
@@ -78,15 +88,25 @@ export class Dashboard implements OnInit {
   }
 
   fetchTransactions() {
-    this.walletService.getTransactions().subscribe({
+    this.walletService.getTransactions(0, 10).subscribe({
       next: (res) => {
-        const mapped = res.map((t: any) => {
+        const mapped = res.content.map((t: any) => {
           const isOutgoing = t.fromWallet?.id === this.authService.walletId;
           const displayAmount = isOutgoing ? -t.amount : t.amount;
           
+          let txName = 'Transfer';
+          if (t.fromWallet?.type === 'MINT') {
+            txName = 'Deposit';
+          } else if (t.toWallet?.type === 'MINT') {
+            txName = 'Withdrawal';
+          } else if (!t.toWallet?.user) {
+            // Fallback in case type isn't serialized but user is null for MINT
+            txName = isOutgoing ? 'Withdrawal' : 'Deposit';
+          }
+          
           return {
             id: t.id,
-            name: t.toWallet?.id ? 'Transfer' : 'Deposit/System',
+            name: txName,
             meta: t.status,
             amount: displayAmount,
             time: new Date(t.createdAt).toLocaleDateString()
@@ -104,6 +124,12 @@ export class Dashboard implements OnInit {
     const increment = this.targetBalance / steps;
     
     let current = 0;
+    
+    // Clear previous interval if it exists
+    if ((this as any).balanceInterval) {
+      clearInterval((this as any).balanceInterval);
+    }
+    
     const timer = setInterval(() => {
       current += increment;
       if (current >= this.targetBalance) {
@@ -113,6 +139,8 @@ export class Dashboard implements OnInit {
         this.displayBalance.set(current);
       }
     }, stepTime);
+    
+    (this as any).balanceInterval = timer;
   }
 
   openTransaction(t: Transaction) {
@@ -134,16 +162,19 @@ export class Dashboard implements OnInit {
 
   submitDeposit() {
     const amount = this.depositAmount();
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0 || this.isSubmitting()) return;
     
+    this.isSubmitting.set(true);
     this.walletService.deposit(amount).subscribe({
       next: () => {
+        this.isSubmitting.set(false);
         this.closeDepositModal();
         this.fetchBalance();
         this.fetchTransactions();
         this.toastService.success(`Successfully deposited Rs. ${amount}`);
       },
       error: (err) => {
+        this.isSubmitting.set(false);
         this.toastService.error(err.error?.detail || 'Deposit failed.');
       }
     });
@@ -160,16 +191,23 @@ export class Dashboard implements OnInit {
 
   submitWithdraw() {
     const amount = this.withdrawAmount();
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0 || this.isSubmitting()) return;
     
+    this.isSubmitting.set(true);
     this.walletService.withdraw(amount).subscribe({
-      next: () => {
+      next: (res: any) => {
+        this.isSubmitting.set(false);
         this.closeWithdrawModal();
         this.fetchBalance();
         this.fetchTransactions();
-        this.toastService.success(`Successfully withdrew Rs. ${amount}`);
+        if (res?.status === 'FLAGGED' || res?.status === 'PENDING') {
+           this.toastService.info('Transaction held for review.');
+        } else {
+           this.toastService.success(`Successfully withdrew Rs. ${amount}`);
+        }
       },
       error: (err) => {
+        this.isSubmitting.set(false);
         this.toastService.error(err.error?.detail || 'Withdraw failed.');
       }
     });
@@ -191,27 +229,30 @@ export class Dashboard implements OnInit {
   submitTransfer() {
     const amount = this.transferAmount();
     const toPhone = this.transferToPhone();
-    if (!amount || amount <= 0 || !toPhone) return;
+    if (!amount || amount <= 0 || !toPhone || this.isSubmitting()) return;
 
-    // Simulate location (either real or mocked anomaly)
+    this.isSubmitting.set(true);
+    // Real location data would be grabbed via navigator.geolocation in a real app
     let latitude = 27.7172; // Default Kathmandu
     let longitude = 85.3240;
-
-    if (this.simulateForeignLocation()) {
-       latitude = 40.7128; // New York
-       longitude = -74.0060;
-    }
 
     const otp = this.transferOtp();
 
     this.transactionService.transfer(toPhone, amount, latitude, longitude, otp).subscribe({
-      next: () => {
+      next: (res: any) => {
+        this.isSubmitting.set(false);
         this.closeTransferModal();
         this.fetchBalance();
         this.fetchTransactions();
-        this.toastService.success('Transfer Successful!');
+        
+        if (res?.status === 'FLAGGED' || res?.status === 'PENDING') {
+           this.toastService.info('Transaction held for review.');
+        } else {
+           this.toastService.success('Transfer Successful!');
+        }
       },
       error: (err) => {
+        this.isSubmitting.set(false);
         if (err.status === 428) {
           // Precondition Required (OTP required)
           this.showOtpField.set(true);
