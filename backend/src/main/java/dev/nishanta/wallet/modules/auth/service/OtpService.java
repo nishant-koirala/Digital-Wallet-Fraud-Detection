@@ -20,10 +20,12 @@ public class OtpService {
     private static class OtpRecord {
         final String otp;
         final long createdAt;
+        int attempts;
 
         OtpRecord(String otp, long createdAt) {
             this.otp = otp;
             this.createdAt = createdAt;
+            this.attempts = 0;
         }
     }
 
@@ -50,6 +52,12 @@ public class OtpService {
         if (System.currentTimeMillis() - record.createdAt > 5 * 60 * 1000) { // 5 mins
             otpStore.remove(email);
             throw new BusinessRuleException("OTP expired");
+        }
+        
+        record.attempts++;
+        if (record.attempts > 5) {
+            otpStore.remove(email);
+            throw new BusinessRuleException("Maximum OTP attempts exceeded. Please request a new OTP.");
         }
         
         if (!record.otp.equals(inputOtp)) {

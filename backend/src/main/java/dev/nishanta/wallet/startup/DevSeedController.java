@@ -24,7 +24,8 @@ public class DevSeedController {
         return seedService.seed();
     }
 
-    @org.springframework.web.bind.annotation.GetMapping("/promote")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/promote")
     public String promoteAdmin(@org.springframework.web.bind.annotation.RequestParam String email) {
         return seedService.promoteToAdmin(email);
     }
