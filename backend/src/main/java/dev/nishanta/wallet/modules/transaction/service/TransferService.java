@@ -65,7 +65,7 @@ public class TransferService {
         this.securityUtils = securityUtils;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = OtpRequiredException.class)
     public TransferResponse transfer(TransferRequest request, String deviceId, String ipAddress) {
         String idempotencyKey = request.idempotencyKey();
         UUID fromWalletId = request.fromWalletId();
@@ -90,38 +90,33 @@ public class TransferService {
                 .orElseThrow(() -> new BusinessRuleException("Wallet not found"));
         securityUtils.verifyWalletOwnership(fromWalletCheck);
 
-        WalletPair wallets = walletLockingService.lockForTransfer(fromWalletId, toWalletId);
-        Wallet fromWallet = wallets.fromWallet();
-        Wallet toWallet = wallets.toWallet();
-
-        BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWallet.getId());
-        if (senderBalance.compareTo(amount) < 0) {
-            throw new InsufficientBalanceException("Insufficient balance in wallet " + fromWallet.getId());
-        }
-
-        // --- KYC LOGIC & DAILY LIMITS ---
-        transactionLimitValidator.validateDailyLimit(fromWallet, amount);
-
-        // --- 2FA OTP LOGIC ---
-        // Require OTP for transfers >= Rs 10,000 (we can use 1000 for easier demoing)
-        if (amount.compareTo(new BigDecimal("1000")) >= 0) {
-            String userEmail = fromWallet.getUser().getEmail();
-            if (request.otp() == null || request.otp().isEmpty()) {
-                otpService.generateAndSendOtp(userEmail);
-                throw new OtpRequiredException("OTP sent to " + userEmail);
-            } else {
-                otpService.validateOtp(userEmail, request.otp());
-            }
-        }
+        // Fraud check happens BEFORE any money actually moves. A flagged
+        // transaction must not have already changed either wallet's
+        // balance, or "held for review" would be a lie. 
+        // We use the basic fromWalletCheck for fraud, no locks yet.
 
         // Transaction is created and saved FIRST, as PENDING — this
         // exists regardless of outcome, so there's always a record of
         // the attempt, and fraud rules that query transaction history
         // have something to reason about.
         Transaction transaction = new Transaction(
-                idempotencyKey, fromWallet, toWallet, amount, fromWallet.getCurrency(),
+                idempotencyKey, fromWalletCheck, walletRepository.findById(toWalletId).get(), amount, fromWalletCheck.getCurrency(),
                 request.latitude(), request.longitude(), deviceId, ipAddress);
         transactionRepository.save(transaction);
+
+        // --- 2FA OTP LOGIC ---
+        // Require OTP for transfers >= Rs 10,000 (we can use 1000 for easier demoing)
+        if (amount.compareTo(new BigDecimal("1000")) >= 0) {
+            String userEmail = fromWalletCheck.getUser().getEmail();
+            if (request.otp() == null || request.otp().isEmpty()) {
+                otpService.generateAndSendOtp(userEmail);
+                transaction.markFailed();
+                transactionRepository.save(transaction);
+                throw new OtpRequiredException("OTP sent to " + userEmail);
+            } else {
+                otpService.validateOtp(userEmail, request.otp());
+            }
+        }
 
         // Fraud check happens BEFORE any money actually moves. A flagged
         // transaction must not have already changed either wallet's
@@ -132,20 +127,35 @@ public class TransferService {
         if (result == FraudDetectionResult.FLAGGED) {
             return toResponse(transaction);
         } else if (result == FraudDetectionResult.MINOR_FRAUD) {
-            String userEmail = fromWallet.getUser().getEmail();
+            String userEmail = fromWalletCheck.getUser().getEmail();
             if (request.otp() == null || request.otp().isEmpty()) {
                 otpService.generateAndSendOtp(userEmail);
+                transaction.markFailed();
+                transactionRepository.save(transaction);
                 throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
             } else {
                 otpService.validateOtp(userEmail, request.otp());
             }
         }
 
-        // Only a genuinely clean transaction reaches this point, where
-        // the double-entry ledger pair actually gets written.
-        ledgerPostingService.postAndComplete(transaction, fromWallet, toWallet);
+        // Only a genuinely clean transaction reaches this point.
+        // NOW we acquire locks.
+        WalletPair wallets = walletLockingService.lockForTransfer(fromWalletId, toWalletId);
+        Wallet fromWalletLocked = wallets.fromWallet();
+        Wallet toWalletLocked = wallets.toWallet();
 
-        auditService.logAction("TRANSACTION", transaction.getId(), "TRANSFER", fromWallet.getUser().getEmail(), null, request);
+        BigDecimal senderBalance = balanceCalculator.calculateBalance(fromWalletLocked.getId());
+        if (senderBalance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance in wallet " + fromWalletLocked.getId());
+        }
+
+        // --- KYC LOGIC & DAILY LIMITS ---
+        transactionLimitValidator.validateDailyLimit(fromWalletLocked, amount);
+
+        // Update the transaction's detached wallet references if necessary, or pass the fresh locked ones.
+        ledgerPostingService.postAndComplete(transaction, fromWalletLocked, toWalletLocked);
+
+        auditService.logAction("TRANSACTION", transaction.getId(), "TRANSFER", fromWalletLocked.getUser().getEmail(), null, request);
 
         return toResponse(transaction);
     }

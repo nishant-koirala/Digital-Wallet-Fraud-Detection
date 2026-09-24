@@ -32,7 +32,7 @@ public class AmountThresholdRule implements FraudRule {
         long historyCount = transactionRepository.countByFromWalletIdAndStatus(
                 walletId, TransactionStatus.COMPLETED);
 
-        dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).get();
+        dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).orElseGet(dev.nishanta.wallet.modules.fraud.domain.FraudConfig::createDefault);
 
         if (historyCount < config.getMinHistoryForBaseline()) {
             if (transaction.getAmount().compareTo(config.getColdStartThreshold().multiply(new BigDecimal("2"))) > 0) {

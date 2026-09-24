@@ -14,7 +14,6 @@ public class GeoMismatchRule implements FraudRule {
     // Faster than any commercial flight — a real person cannot cover
     // this distance in this time, no matter how they traveled.
     private static final double MAX_PLAUSIBLE_SPEED_KMH = 900.0;
-    private static final double EARTH_RADIUS_KM = 6371.0;
 
     private final TransactionRepository transactionRepository;
 
@@ -42,7 +41,7 @@ public class GeoMismatchRule implements FraudRule {
 
         Transaction prev = previous.get();
 
-        double distanceKm = haversineDistanceKm(
+        double distanceKm = dev.nishanta.wallet.modules.fraud.util.GeoUtils.haversineDistanceKm(
                 prev.getLatitude().doubleValue(), prev.getLongitude().doubleValue(),
                 transaction.getLatitude().doubleValue(), transaction.getLongitude().doubleValue());
 
@@ -60,16 +59,7 @@ public class GeoMismatchRule implements FraudRule {
         return (impliedSpeedKmh > MAX_PLAUSIBLE_SPEED_KMH) ? FraudSeverity.MAJOR : FraudSeverity.NONE;
     }
 
-    // Standard great-circle distance formula between two lat/long points.
-    private double haversineDistanceKm(double lat1, double lon1, double lat2, double lon2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS_KM * c;
-    }
+
 
     @Override
     public String ruleName() {
