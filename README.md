@@ -1,3 +1,7 @@
+# Digital Wallet Fraud Detection
+
+[![CI](https://github.com/nishant-koirala/Digital-Wallet-Fraud-Detection/actions/workflows/ci.yml/badge.svg)](https://github.com/nishant-koirala/Digital-Wallet-Fraud-Detection/actions/workflows/ci.yml)
+
 ## Backend — Tech Stack
 
 - Java 26, Spring Boot 4.1.0, Maven
