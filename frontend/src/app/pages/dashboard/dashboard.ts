@@ -8,7 +8,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { ToastService } from '../../services/toast.service';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { LucideAngularModule, Send, Download, Upload, Receipt, QrCode, User, FileText } from 'lucide-angular';
+import { LucideAngularModule, Send, Download, Upload, Receipt, QrCode, User, FileText, ShieldCheck } from 'lucide-angular';
 
 interface Transaction {
   id: string;
@@ -33,6 +33,7 @@ export class Dashboard implements OnInit {
   readonly QrCode = QrCode;
   readonly User = User;
   readonly FileText = FileText;
+  readonly ShieldCheck = ShieldCheck;
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);

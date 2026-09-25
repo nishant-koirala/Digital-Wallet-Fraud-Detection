@@ -39,7 +39,17 @@
     </div>
   </div>
 
-  <!-- Admin section removed -->
+  @if (isAdmin) {
+    <div class="admin-section" style="margin-top: 2rem;">
+      <h3>Admin Controls</h3>
+      <div class="quick-actions">
+        <a routerLink="/admin" class="action-card" style="border: 1px solid var(--danger); background-color: rgba(239, 68, 68, 0.05);">
+          <lucide-icon [img]="ShieldCheck" class="action-icon" style="color: var(--danger);"></lucide-icon>
+          <span style="color: var(--danger); font-weight: 600;">Admin Dashboard</span>
+        </a>
+      </div>
+    </div>
+  }
   </div> <!-- end dashboard-header -->
 
   <div class="recent-transactions">

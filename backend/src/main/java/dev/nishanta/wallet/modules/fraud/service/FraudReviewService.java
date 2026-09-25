@@ -60,10 +60,9 @@ public class FraudReviewService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public List<FraudFlagResponse> listPending() {
-        return fraudFlagRepository.findByReviewed(false).stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<FraudFlagResponse> listPending(org.springframework.data.domain.Pageable pageable) {
+        return fraudFlagRepository.findByReviewed(false, pageable)
+                .map(this::toResponse);
     }
 
     @Transactional

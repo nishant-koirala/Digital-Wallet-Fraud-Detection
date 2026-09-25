@@ -40,6 +40,14 @@
       }
     </tbody>
   </table>
+  
+  <div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+    <span class="text-slate" style="color: #64748b;">Page {{ currentPage() + 1 }} of {{ totalPages() }} ({{ totalElements() }} items)</span>
+    <div class="page-controls" style="display: flex; gap: 0.5rem;">
+      <button class="btn btn-outline" style="border: 1px solid var(--color-border); background: transparent; color: var(--color-text-main); cursor: pointer; padding: 0.5rem 1rem; border-radius: var(--border-radius-md);" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
+      <button class="btn btn-outline" style="border: 1px solid var(--color-border); background: transparent; color: var(--color-text-main); cursor: pointer; padding: 0.5rem 1rem; border-radius: var(--border-radius-md);" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+    </div>
+  </div>
 </div>
 
 

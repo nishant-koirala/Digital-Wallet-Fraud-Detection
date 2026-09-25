@@ -112,20 +112,6 @@ public class TransferService {
                 request.latitude(), request.longitude(), deviceId, ipAddress);
         transactionRepository.save(transaction);
 
-        // --- 2FA OTP LOGIC ---
-        // Require OTP for transfers >= Rs 10,000 (we can use 1000 for easier demoing)
-        if (amount.compareTo(new BigDecimal("1000")) >= 0) {
-            String userEmail = fromWalletCheck.getUser().getEmail();
-            if (request.otp() == null || request.otp().isEmpty()) {
-                otpService.generateAndSendOtp(userEmail);
-                transaction.markFailed();
-                transactionRepository.save(transaction);
-                throw new OtpRequiredException("OTP sent to " + userEmail);
-            } else {
-                otpService.validateOtp(userEmail, request.otp());
-            }
-        }
-
         // Fraud check happens BEFORE any money actually moves. A flagged
         // transaction must not have already changed either wallet's
         // balance, or "held for review" would be a lie. The detection
@@ -134,13 +120,19 @@ public class TransferService {
         
         if (result == FraudDetectionResult.FLAGGED) {
             return toResponse(transaction);
-        } else if (result == FraudDetectionResult.MINOR_FRAUD) {
+        }
+
+        // --- 2FA OTP LOGIC ---
+        // Require OTP for transfers >= Rs 1000 OR if MINOR_FRAUD was detected
+        boolean needsOtp = amount.compareTo(new BigDecimal("1000")) >= 0 || result == FraudDetectionResult.MINOR_FRAUD;
+
+        if (needsOtp) {
             String userEmail = fromWalletCheck.getUser().getEmail();
             if (request.otp() == null || request.otp().isEmpty()) {
                 otpService.generateAndSendOtp(userEmail);
                 transaction.markFailed();
                 transactionRepository.save(transaction);
-                throw new OtpRequiredException("Unusual activity detected. OTP sent to " + userEmail + " for step-up verification.");
+                throw new OtpRequiredException("Verification required. OTP sent to " + userEmail);
             } else {
                 otpService.validateOtp(userEmail, request.otp());
             }

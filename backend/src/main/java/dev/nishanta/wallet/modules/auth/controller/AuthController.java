@@ -4,6 +4,8 @@ import dev.nishanta.wallet.modules.auth.dto.AuthRequest;
 import dev.nishanta.wallet.modules.auth.dto.AuthResponse;
 import dev.nishanta.wallet.modules.auth.service.AuthService;
 import dev.nishanta.wallet.modules.auth.dto.JwtAuthResult;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,43 +82,53 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout(HttpServletResponse response) {
-        Cookie accessCookie = new Cookie("accessToken", null);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(true);
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(0);
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
         
-        Cookie refreshCookie = new Cookie("refreshToken", null);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(0);
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
         
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     private void setCookies(HttpServletResponse response, String accessToken, String refreshToken, String deviceId) {
-        Cookie accessCookie = new Cookie("accessToken", accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(true); // Should be true in prod for HTTPS
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(15 * 60); // 15 mins
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(15 * 60)
+                .sameSite("Strict")
+                .build();
         
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
         
-        Cookie devCookie = new Cookie("deviceId", deviceId);
-        devCookie.setHttpOnly(true);
-        devCookie.setSecure(true);
-        devCookie.setPath("/");
-        devCookie.setMaxAge(365 * 24 * 60 * 60); // 1 year
+        ResponseCookie devCookie = ResponseCookie.from("deviceId", deviceId)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(365 * 24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
         
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
-        response.addCookie(devCookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, devCookie.toString());
     }
 }

@@ -29,8 +29,9 @@ public class FraudFlagController {
     }
 
     @GetMapping(ApiRoutes.FRAUD_FLAG_PENDING)
-    public List<FraudFlagResponse> listPending() {
-        return fraudReviewService.listPending();
+    public org.springframework.data.domain.Page<FraudFlagResponse> listPending(
+            @org.springframework.data.web.PageableDefault(sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable) {
+        return fraudReviewService.listPending(pageable);
     }
 
     @PostMapping(ApiRoutes.FRAUD_FLAG_APPROVE)

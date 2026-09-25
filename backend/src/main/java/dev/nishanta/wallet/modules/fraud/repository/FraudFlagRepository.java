@@ -12,4 +12,5 @@ public interface FraudFlagRepository extends JpaRepository<FraudFlag, UUID> {
     Optional<FraudFlag> findByTransactionId(UUID transactionId);
 
     List<FraudFlag> findByReviewed(boolean reviewed);
+    org.springframework.data.domain.Page<FraudFlag> findByReviewed(boolean reviewed, org.springframework.data.domain.Pageable pageable);
 }
