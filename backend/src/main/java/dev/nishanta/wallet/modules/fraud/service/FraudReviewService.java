@@ -140,6 +140,7 @@ public class FraudReviewService {
                 flag.getRuleTriggered(),
                 flag.getRiskScore(),
                 flag.getTransaction().getStatus().name(),
+                flag.getTransaction().getAmount(),
                 flag.getCreatedAt()
         );
     }

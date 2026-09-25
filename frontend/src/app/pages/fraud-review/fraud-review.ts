@@ -25,7 +25,7 @@ export class FraudReview implements OnInit {
   currentPage = signal(0);
   totalPages = signal(0);
   totalElements = signal(0);
-  pageSize = 10;
+  pageSize = 1000;
 
   filterRule = signal<string>('ALL');
 
@@ -48,7 +48,7 @@ export class FraudReview implements OnInit {
           user: f.walletId || 'Unknown',
           userId: f.walletId,
           rule: f.flagReason,
-          amount: 0 // Backend response might not include amount directly, but this works for demo
+          amount: f.amount || 0 
         }));
         this.items.set(mapped);
       },

@@ -29,7 +29,7 @@ export class TransactionsPage implements OnInit {
   currentPage = signal(0);
   totalPages = signal(0);
   totalElements = signal(0);
-  pageSize = 10;
+  pageSize = 1000; // Fetch all for client-side filtering
   
   selectedTransaction = signal<Transaction | null>(null);
   transactions = signal<Transaction[]>([]);
@@ -38,7 +38,6 @@ export class TransactionsPage implements OnInit {
     let filtered = this.transactions();
     if (this.filter() === 'SENT') filtered = filtered.filter(t => t.amount < 0);
     if (this.filter() === 'RECEIVED') filtered = filtered.filter(t => t.amount > 0);
-    
     if (this.searchQuery()) {
       const lowerQ = this.searchQuery().toLowerCase();
       filtered = filtered.filter(t => t.name.toLowerCase().includes(lowerQ) || t.meta.toLowerCase().includes(lowerQ));

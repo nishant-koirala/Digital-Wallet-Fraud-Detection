@@ -8,6 +8,7 @@ public record FraudFlagResponse(
         String ruleTriggered,
         int riskScore,
         String transactionStatus,
+        java.math.BigDecimal amount,
         LocalDateTime flaggedAt
 ) {
 }
