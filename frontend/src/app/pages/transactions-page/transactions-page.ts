@@ -26,11 +26,6 @@ export class TransactionsPage implements OnInit {
   searchQuery = signal('');
   filter = signal<'ALL' | 'SENT' | 'RECEIVED'>('ALL');
   
-  currentPage = signal(0);
-  totalPages = signal(0);
-  totalElements = signal(0);
-  pageSize = 1000; // Fetch all for client-side filtering
-  
   selectedTransaction = signal<Transaction | null>(null);
   transactions = signal<Transaction[]>([]);
 
@@ -49,25 +44,9 @@ export class TransactionsPage implements OnInit {
     this.fetchTransactions();
   }
 
-  nextPage() {
-    if (this.currentPage() < this.totalPages() - 1) {
-      this.currentPage.update(p => p + 1);
-      this.fetchTransactions();
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage() > 0) {
-      this.currentPage.update(p => p - 1);
-      this.fetchTransactions();
-    }
-  }
-
   fetchTransactions() {
-    this.walletService.getTransactions(this.currentPage(), this.pageSize).subscribe({
+    this.walletService.getTransactions(0, 1000).subscribe({
       next: (res: any) => {
-        this.totalPages.set(res.totalPages || 0);
-        this.totalElements.set(res.totalElements || 0);
         const mapped = res.content.map((t: any) => {
           const isOutgoing = t.fromWallet?.id === this.authService.walletId;
           const displayAmount = isOutgoing ? -t.amount : t.amount;

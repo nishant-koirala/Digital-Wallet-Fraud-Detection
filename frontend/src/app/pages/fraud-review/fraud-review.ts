@@ -21,13 +21,8 @@ interface FraudItem {
 export class FraudReview implements OnInit {
   private fraudService = inject(FraudService);
   private toastService = inject(ToastService);
-  items = signal<FraudItem[]>([]);
-  currentPage = signal(0);
-  totalPages = signal(0);
-  totalElements = signal(0);
-  pageSize = 1000;
-
   filterRule = signal<string>('ALL');
+  items = signal<FraudItem[]>([]);
 
   filteredItems = computed(() => {
     if (this.filterRule() === 'ALL') return this.items();
@@ -39,10 +34,8 @@ export class FraudReview implements OnInit {
   }
 
   loadPending() {
-    this.fraudService.getPendingFlags(this.currentPage(), this.pageSize).subscribe({
+    this.fraudService.getPendingFlags(0, 1000).subscribe({
       next: (res) => {
-        this.totalPages.set(res.totalPages || 0);
-        this.totalElements.set(res.totalElements || 0);
         const mapped = res.content.map((f: any) => ({
           id: f.transactionId,
           user: f.walletId || 'Unknown',
@@ -54,20 +47,6 @@ export class FraudReview implements OnInit {
       },
       error: (err) => console.error(err)
     });
-  }
-
-  nextPage() {
-    if (this.currentPage() < this.totalPages() - 1) {
-      this.currentPage.update(p => p + 1);
-      this.loadPending();
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage() > 0) {
-      this.currentPage.update(p => p - 1);
-      this.loadPending();
-    }
   }
 
   approve(item: FraudItem) {
