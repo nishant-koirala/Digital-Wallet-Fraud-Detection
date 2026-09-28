@@ -29,3 +29,5 @@ public class TransactionController {
         return transferService.transfer(request, deviceId, httpRequest.getRemoteAddr());
     }
 }
+
+// transaction logging
