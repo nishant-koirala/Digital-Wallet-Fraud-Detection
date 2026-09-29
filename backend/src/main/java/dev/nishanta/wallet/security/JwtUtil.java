@@ -90,3 +90,5 @@ public class JwtUtil {
 }
 
 // JWT enhancements
+
+// security patch
