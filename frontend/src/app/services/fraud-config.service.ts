@@ -34,3 +34,5 @@ export class FraudConfigService {
 // cleanup
 
 // optimization
+
+// strict typing
