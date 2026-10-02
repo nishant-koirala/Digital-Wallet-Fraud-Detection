@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <div class="tabs-container" style="margin-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
+  <div class="tabs-container" style="margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0.5rem;">
     <button class="btn" [class.active-tab]="activeTab() === 'DASHBOARD'" (click)="setTab('DASHBOARD')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'DASHBOARD' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'DASHBOARD' ? 'var(--color-primary)' : 'var(--color-text-main)'">Dashboard Overview</button>
     <button class="btn" [class.active-tab]="activeTab() === 'TRANSACTIONS'" (click)="setTab('TRANSACTIONS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Transactions</button>
     <button class="btn" [class.active-tab]="activeTab() === 'USERS'" (click)="setTab('USERS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Users</button>
