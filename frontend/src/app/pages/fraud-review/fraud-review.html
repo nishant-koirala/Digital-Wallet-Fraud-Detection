@@ -1,53 +1,81 @@
-<div class="review-container">
-  <div class="header">
-    <h2>Admin: Fraud Review</h2>
+<div class="review-container" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+  <div class="header" style="margin-bottom: 2rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <lucide-icon [img]="ShieldAlert" style="color: var(--color-signal-red); width: 2rem; height: 2rem;"></lucide-icon>
+      <h2 style="margin: 0; font-size: 1.75rem;">Fraud Resolution Center</h2>
+    </div>
+    <p class="text-slate" style="margin-top: 0.5rem;">Review and resolve transactions flagged by the fraud detection engine.</p>
   </div>
   
-  <div class="filter-bar">
-    <span class="text-slate text-medium">Filter by Rule:</span>
-    <select [ngModel]="filterRule()" (ngModelChange)="filterRule.set($event)" class="rule-select">
-      <option value="ALL">All Rules</option>
-      <option value="Velocity (High)">Velocity (High)</option>
-      <option value="Amount Threshold">Amount Threshold</option>
-    </select>
-  </div>
+  <div class="solid-card" style="padding: 1.5rem;">
+    <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span class="text-slate text-medium">Filter by Rule:</span>
+        <select [ngModel]="filterRule()" (ngModelChange)="filterRule.set($event)" class="form-control" style="width: 250px;">
+          <option value="ALL">All Triggers</option>
+          <option value="VELOCITY">Velocity Anomalies</option>
+          <option value="AMOUNT_THRESHOLD">High Amount Threshold</option>
+          <option value="GEO_MISMATCH">Impossible Travel (Geo)</option>
+          <option value="LOCATION_ANOMALY">Location Anomaly</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="table-container" style="overflow-x: auto;">
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+            <th style="padding: 1rem; color: #64748b;">Txn ID</th>
+            <th style="padding: 1rem; color: #64748b;">Wallet</th>
+            <th style="padding: 1rem; color: #64748b;">Triggered Rule</th>
+            <th style="padding: 1rem; color: #64748b; text-align: right;">Amount</th>
+            <th style="padding: 1rem; color: #64748b; text-align: right;">Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredItems(); track item.id) {
+            <tr style="border-bottom: 1px solid var(--color-border); transition: background 0.2s;">
+              <td style="padding: 1rem;" class="monospace">{{ item.id | slice:0:8 }}...</td>
+              <td style="padding: 1rem;" class="text-medium">{{ item.userId }}</td>
+              <td style="padding: 1rem;">
+                <span class="chip" style="background: rgba(239, 68, 68, 0.1); color: var(--color-signal-red); border-color: rgba(239, 68, 68, 0.2);">
+                  <lucide-icon [img]="AlertTriangle" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: text-bottom;"></lucide-icon>
+                  {{ item.rule }}
+                </span>
+              </td>
+              <td style="padding: 1rem; text-align: right; font-weight: 600;">Rs. {{ item.amount | number:'1.2-2' }}</td>
+              <td style="padding: 1rem; text-align: right;">
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <button class="btn btn-success btn-sm" (click)="approve(item)" title="Allow Transaction">
+                    <lucide-icon [img]="Check" style="width: 1rem; height: 1rem; margin-right: 0.25rem;"></lucide-icon> Allow
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="reject(item)" title="Block Transaction">
+                    <lucide-icon [img]="X" style="width: 1rem; height: 1rem; margin-right: 0.25rem;"></lucide-icon> Block
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td colspan="5" class="text-center text-slate" style="padding: 4rem 0;">
+                <lucide-icon [img]="ShieldAlert" style="width: 3rem; height: 3rem; color: var(--color-border); margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;"></lucide-icon>
+                <div style="font-size: 1.1rem; color: var(--color-text-muted);">No pending fraud reviews. Systems are secure.</div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   
-  <table class="review-table">
-    <thead>
-      <tr>
-        <th class="text-slate">User</th>
-        <th class="text-slate">Rule Flagged</th>
-        <th class="text-slate amount-col">Amount</th>
-        <th class="text-slate action-col">Decision</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (item of filteredItems(); track item.id) {
-        <tr>
-          <td>{{ item.user }}<br><span class="meta text-slate">{{ item.userId }}</span></td>
-          <td>{{ item.rule }}</td>
-          <td class="amount-col">Rs. {{ item.amount | number:'1.2-2' }}</td>
-          <td class="action-col">
-            <button class="btn btn-success" (click)="approve(item)">Approve</button>
-            <button class="btn" (click)="reject(item)">Reject</button>
-          </td>
-        </tr>
-      }
-      @empty {
-        <tr>
-          <td colspan="4" class="empty-state text-slate">No pending reviews.</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-
-  @if (totalPages() > 1) {
-  <div class="pagination-controls">
-    <button class="btn" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
-    <span class="page-info text-slate">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
-    <button class="btn" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+    @if (totalPages() > 1) {
+    <div class="pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+      <span class="text-slate">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-outline" [disabled]="currentPage() === 0" (click)="prevPage()">Previous</button>
+        <button class="btn btn-outline" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">Next</button>
+      </div>
+    </div>
+    }
   </div>
-  }
 </div>
-
-

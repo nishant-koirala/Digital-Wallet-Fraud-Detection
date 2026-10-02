@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FraudService } from '../../services/fraud.service';
 import { ToastService } from '../../services/toast.service';
+import { LucideAngularModule, ShieldAlert, Check, X, AlertTriangle } from 'lucide-angular';
 
 interface FraudItem {
   id: string;
@@ -14,11 +15,15 @@ interface FraudItem {
 
 @Component({
   selector: 'app-fraud-review',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './fraud-review.html',
   styleUrl: './fraud-review.scss'
 })
 export class FraudReview implements OnInit {
+  readonly ShieldAlert = ShieldAlert;
+  readonly Check = Check;
+  readonly X = X;
+  readonly AlertTriangle = AlertTriangle;
   private fraudService = inject(FraudService);
   private toastService = inject(ToastService);
   filterRule = signal<string>('ALL');
