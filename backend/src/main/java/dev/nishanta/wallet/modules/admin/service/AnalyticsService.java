@@ -29,33 +29,20 @@ public class AnalyticsService {
     }
 
     public AnalyticsResponse getDashboardStats() {
-        // Simplified queries for demo purposes.
         long totalUsers = userRepository.count();
-        long flaggedCount = transactionRepository.findAll().stream()
-                .filter(t -> t.getStatus() == TransactionStatus.FLAGGED || t.getStatus() == TransactionStatus.FAILED)
-                .count();
-        long safeCount = transactionRepository.findAll().stream()
-                .filter(t -> t.getStatus() == TransactionStatus.COMPLETED)
-                .count();
+        long flaggedCount = transactionRepository.countFlaggedTransactions();
+        long safeCount = transactionRepository.countSafeTransactions();
         
-        BigDecimal totalVolume = transactionRepository.findAll().stream()
-                .filter(t -> t.getStatus() == TransactionStatus.COMPLETED)
-                .map(t -> t.getAmount())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalVolume = transactionRepository.findTotalVolume().orElse(BigDecimal.ZERO);
 
-        // Daily volume for the last 7 days
         Map<String, BigDecimal> volumeLast7Days = new LinkedHashMap<>();
         LocalDate today = LocalDate.now();
         for (int i = 6; i >= 0; i--) {
             LocalDate day = today.minusDays(i);
             LocalDateTime start = day.atStartOfDay();
-            LocalDateTime end = day.atTime(23, 59, 59);
+            LocalDateTime end = day.plusDays(1).atStartOfDay(); // Use strict before midnight
             
-            BigDecimal dayVol = transactionRepository.findAll().stream()
-                    .filter(t -> t.getStatus() == TransactionStatus.COMPLETED)
-                    .filter(t -> t.getCreatedAt().isAfter(start) && t.getCreatedAt().isBefore(end))
-                    .map(t -> t.getAmount())
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal dayVol = transactionRepository.findVolumeBetweenDates(start, end).orElse(BigDecimal.ZERO);
                     
             volumeLast7Days.put(day.getDayOfWeek().name().substring(0, 3), dayVol);
         }

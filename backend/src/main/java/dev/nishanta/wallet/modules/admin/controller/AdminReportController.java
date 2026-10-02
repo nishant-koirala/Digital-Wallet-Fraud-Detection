@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,22 +46,16 @@ public class AdminReportController {
     }
 
     @GetMapping("/transactions/csv")
-    public ResponseEntity<byte[]> downloadTransactionsCsv(@RequestParam(required = false) TransactionStatus status) {
-        byte[] csvBytes = adminReportService.generateTransactionsCsv(status);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=transactions_report.csv")
-                .contentType(MediaType.parseMediaType("text/csv"))
-                .body(csvBytes);
+    public void downloadTransactionsCsv(@RequestParam(required = false) TransactionStatus status, HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=transactions_report.csv");
+        adminReportService.generateTransactionsCsv(status, response.getWriter());
     }
 
     @GetMapping("/users/csv")
-    public ResponseEntity<byte[]> downloadUsersCsv(@RequestParam(required = false) Role role) {
-        byte[] csvBytes = adminReportService.generateUsersCsv(role);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=users_report.csv")
-                .contentType(MediaType.parseMediaType("text/csv"))
-                .body(csvBytes);
+    public void downloadUsersCsv(@RequestParam(required = false) Role role, HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=users_report.csv");
+        adminReportService.generateUsersCsv(role, response.getWriter());
     }
 }

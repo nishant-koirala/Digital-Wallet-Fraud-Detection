@@ -11,6 +11,7 @@ import dev.nishanta.wallet.modules.user.repository.UserRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,63 +67,61 @@ public class AdminReportService {
         ));
     }
 
-    public byte[] generateTransactionsCsv(TransactionStatus status) {
-        List<Transaction> transactions = (status != null) 
-            ? transactionRepository.findByStatus(status) 
-            : transactionRepository.findAll();
-        
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             PrintWriter pw = new PrintWriter(new OutputStreamWriter(out))) {
-             
+    public void generateTransactionsCsv(TransactionStatus status, PrintWriter pw) {
+        try {
             CSVPrinter printer = new CSVPrinter(pw, CSVFormat.DEFAULT.withHeader(
                 "Transaction ID", "Date", "From Wallet ID", "To Wallet ID", "Amount", "Currency", "Status", "Fraud Flag"
             ));
             
-            for (Transaction tx : transactions) {
-                printer.printRecord(
-                        tx.getId().toString(),
-                        tx.getCreatedAt() != null ? tx.getCreatedAt().toString() : "N/A",
-                        tx.getFromWallet() != null ? tx.getFromWallet().getId().toString() : "N/A",
-                        tx.getToWallet() != null ? tx.getToWallet().getId().toString() : "N/A",
-                        tx.getAmount().toString(),
-                        tx.getCurrency(),
-                        tx.getStatus().name(),
-                        tx.getStatus() == dev.nishanta.wallet.modules.transaction.domain.TransactionStatus.FLAGGED ? "YES" : "NO"
-                );
-            }
-            
-            printer.flush();
-            return out.toByteArray();
+            int page = 0;
+            int size = 1000;
+            Page<Transaction> txPage;
+            do {
+                txPage = (status != null) ? transactionRepository.findByStatus(status, PageRequest.of(page, size)) : transactionRepository.findAll(PageRequest.of(page, size));
+                for (Transaction tx : txPage.getContent()) {
+                    printer.printRecord(
+                            tx.getId().toString(),
+                            tx.getCreatedAt() != null ? tx.getCreatedAt().toString() : "N/A",
+                            tx.getFromWallet() != null ? tx.getFromWallet().getId().toString() : "N/A",
+                            tx.getToWallet() != null ? tx.getToWallet().getId().toString() : "N/A",
+                            tx.getAmount().toString(),
+                            tx.getCurrency(),
+                            tx.getStatus().name(),
+                            tx.getStatus() == dev.nishanta.wallet.modules.transaction.domain.TransactionStatus.FLAGGED ? "YES" : "NO"
+                    );
+                }
+                printer.flush();
+                page++;
+            } while (txPage.hasNext());
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate transactions CSV", e);
         }
     }
 
-    public byte[] generateUsersCsv(Role role) {
-        List<User> users = (role != null) 
-            ? userRepository.findByRole(role) 
-            : userRepository.findAll();
-        
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             PrintWriter pw = new PrintWriter(new OutputStreamWriter(out))) {
-             
+    public void generateUsersCsv(Role role, PrintWriter pw) {
+        try {
             CSVPrinter printer = new CSVPrinter(pw, CSVFormat.DEFAULT.withHeader(
                 "User ID", "Name", "Email", "Phone", "Role", "Registered At"
             ));
             
-            for (User user : users) {
-                printer.printRecord(
-                        user.getId().toString(),
-                        user.getName(),
-                        user.getEmail(),
-                        user.getPhoneNumber() != null ? user.getPhoneNumber() : "N/A",
-                        user.getRole().name(),
-                        user.getCreatedAt() != null ? user.getCreatedAt().toString() : "N/A"
-                );
-            }
-            
-            printer.flush();
-            return out.toByteArray();
+            int page = 0;
+            int size = 1000;
+            Page<User> userPage;
+            do {
+                userPage = (role != null) ? userRepository.findByRole(role, PageRequest.of(page, size)) : userRepository.findAll(PageRequest.of(page, size));
+                for (User user : userPage.getContent()) {
+                    printer.printRecord(
+                            user.getId().toString(),
+                            user.getName(),
+                            user.getEmail(),
+                            user.getPhoneNumber() != null ? user.getPhoneNumber() : "N/A",
+                            user.getRole().name(),
+                            user.getCreatedAt() != null ? user.getCreatedAt().toString() : "N/A"
+                    );
+                }
+                printer.flush();
+                page++;
+            } while (userPage.hasNext());
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate users CSV", e);
         }
