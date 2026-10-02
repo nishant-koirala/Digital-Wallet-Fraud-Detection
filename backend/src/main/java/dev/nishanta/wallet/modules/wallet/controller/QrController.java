@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping(ApiRoutes.API_V1 + "/qr")
+@RequestMapping(ApiRoutes.BASE_API + "/qr")
 @PreAuthorize("isAuthenticated()")
 public class QrController {
 

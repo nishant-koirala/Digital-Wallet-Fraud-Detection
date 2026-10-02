@@ -50,6 +50,8 @@ public class LedgerPostingServiceTest {
         when(transaction.getAmount()).thenReturn(new BigDecimal("500"));
         when(fromWallet.getBalance()).thenReturn(new BigDecimal("1000"));
         when(toWallet.getBalance()).thenReturn(new BigDecimal("200"));
+        when(fromWallet.getTotalTransactionVolume()).thenReturn(BigDecimal.ZERO);
+        when(fromWallet.getTransactionCount()).thenReturn(0L);
         
         when(transaction.getId()).thenReturn(UUID.randomUUID());
         when(toWallet.getId()).thenReturn(UUID.randomUUID());
