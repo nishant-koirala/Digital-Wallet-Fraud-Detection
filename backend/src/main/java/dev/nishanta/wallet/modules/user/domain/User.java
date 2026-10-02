@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import dev.nishanta.wallet.modules.kyc.domain.KycStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,10 +22,12 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String passwordHash;
 
     private String phoneNumber;
 
+    @JsonIgnore
     private String pinHash;
 
     @Enumerated(EnumType.STRING)
@@ -34,6 +37,7 @@ public class User {
     private KycStatus kycStatus = KycStatus.NOT_SUBMITTED;
 
     @Column(name = "fraud_risk_score")
+    @JsonIgnore
     private int fraudRiskScore = 0;
 
     private LocalDateTime createdAt;

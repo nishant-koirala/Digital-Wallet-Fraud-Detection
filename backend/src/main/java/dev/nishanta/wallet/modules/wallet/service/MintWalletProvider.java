@@ -22,9 +22,7 @@ public class MintWalletProvider {
     }
 
     public Wallet findOrCreateMintWallet() {
-        var existingUser = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(MINT_EMAIL))
-                .findFirst();
+        var existingUser = userRepository.findByEmail(MINT_EMAIL);
 
         User mintUser = existingUser.orElseGet(() -> {
             User newUser = new User("System Mint", MINT_EMAIL, "n/a", Role.ADMIN, "0000000000");
@@ -32,9 +30,7 @@ public class MintWalletProvider {
             return newUser;
         });
 
-        var existingWallet = walletRepository.findAll().stream()
-                .filter(w -> w.getUser().getId().equals(mintUser.getId()))
-                .findFirst();
+        var existingWallet = walletRepository.findByUserIdAndType(mintUser.getId(), WalletType.PERSONAL);
 
         return existingWallet.orElseGet(() -> {
             Wallet newWallet = new Wallet(mintUser, WalletType.PERSONAL, "NPR");

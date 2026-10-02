@@ -36,9 +36,7 @@ public class MerchantController {
 
     private User getUser(Authentication authentication) {
         String email = authentication.getName();
-        return userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
     }
 }
