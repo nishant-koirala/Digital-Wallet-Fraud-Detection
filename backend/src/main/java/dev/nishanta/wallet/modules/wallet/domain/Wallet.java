@@ -28,6 +28,12 @@ public class Wallet {
 
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(name = "total_transaction_volume")
+    private BigDecimal totalTransactionVolume = BigDecimal.ZERO;
+
+    @Column(name = "transaction_count")
+    private Long transactionCount = 0L;
+
     private LocalDateTime createdAt;
 
     protected Wallet() {
@@ -46,6 +52,10 @@ public class Wallet {
     public WalletType getType() { return type; }
     public String getCurrency() { return currency; }
     public BigDecimal getBalance() { return balance; }
+    public BigDecimal getTotalTransactionVolume() { return totalTransactionVolume; }
+    public void setTotalTransactionVolume(BigDecimal totalTransactionVolume) { this.totalTransactionVolume = totalTransactionVolume; }
+    public Long getTransactionCount() { return transactionCount; }
+    public void setTransactionCount(Long transactionCount) { this.transactionCount = transactionCount; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

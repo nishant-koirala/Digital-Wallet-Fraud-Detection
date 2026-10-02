@@ -49,6 +49,8 @@ public class LedgerPostingService {
         ledgerEntryRepository.save(credit);
 
         fromWallet.setBalance(fromWallet.getBalance().subtract(transaction.getAmount()));
+        fromWallet.setTotalTransactionVolume(fromWallet.getTotalTransactionVolume().add(transaction.getAmount()));
+        fromWallet.setTransactionCount(fromWallet.getTransactionCount() + 1);
         toWallet.setBalance(toWallet.getBalance().add(transaction.getAmount()));
         walletRepository.save(fromWallet);
         walletRepository.save(toWallet);

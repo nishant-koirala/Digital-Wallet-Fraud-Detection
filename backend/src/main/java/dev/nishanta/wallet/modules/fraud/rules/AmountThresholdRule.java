@@ -25,8 +25,7 @@ public class AmountThresholdRule implements FraudRule {
     @Override
     public FraudSeverity evaluate(Transaction transaction, dev.nishanta.wallet.modules.fraud.domain.FraudConfig config) {
         UUID walletId = transaction.getFromWallet().getId();
-        long historyCount = transactionRepository.countByFromWalletIdAndStatus(
-                walletId, TransactionStatus.COMPLETED);
+        long historyCount = transaction.getFromWallet().getTransactionCount();
 
 
 
@@ -40,8 +39,10 @@ public class AmountThresholdRule implements FraudRule {
             return FraudSeverity.NONE;
         }
 
-        BigDecimal average = transactionRepository.findAverageAmountByFromWalletId(walletId)
-                .orElse(BigDecimal.ZERO);
+        BigDecimal average = BigDecimal.ZERO;
+        if (historyCount > 0) {
+            average = transaction.getFromWallet().getTotalTransactionVolume().divide(new BigDecimal(historyCount), 2, java.math.RoundingMode.HALF_UP);
+        }
 
         BigDecimal minorThreshold = average.multiply(config.getAverageMultiplier());
         BigDecimal majorThreshold = average.multiply(config.getAverageMultiplier().add(new BigDecimal("2")));
