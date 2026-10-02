@@ -29,12 +29,12 @@ public class QrController {
     }
 
     @GetMapping("/generate")
-    public String generateQr(@RequestParam String walletId, @RequestParam(required = false) BigDecimal amount) {
+    public java.util.Map<String, String> generateQr(@RequestParam String walletId, @RequestParam(required = false) BigDecimal amount) {
         Wallet wallet = walletRepository.findById(java.util.UUID.fromString(walletId))
                 .orElseThrow(() -> new dev.nishanta.wallet.common.exception.BusinessRuleException("Wallet not found"));
         securityUtils.verifyWalletOwnership(wallet);
         
-        // Return as a JSON object
-        return "{\"qrPayload\": \"" + jwtUtil.generateQrToken(walletId, amount) + "\"}";
+        // Return as a standard JSON object mapping
+        return java.util.Map.of("qrPayload", jwtUtil.generateQrToken(walletId, amount));
     }
 }

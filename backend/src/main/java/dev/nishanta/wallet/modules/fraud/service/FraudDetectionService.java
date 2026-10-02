@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
+import org.springframework.transaction.support.TransactionTemplate;
 
 // Single responsibility: decide whether a transaction is suspicious and,
 // if so, record the flag and hold the transaction for review. Money only
@@ -26,15 +28,18 @@ public class FraudDetectionService {
     private final FraudFlagRepository fraudFlagRepository;
     private final TransactionRepository transactionRepository;
     private final List<FraudRule> fraudRules;
+    private final TransactionTemplate transactionTemplate;
 
     public FraudDetectionService(FraudConfigRepository fraudConfigRepository,
                                  FraudFlagRepository fraudFlagRepository,
                                  TransactionRepository transactionRepository,
-                                 List<FraudRule> fraudRules) {
+                                 List<FraudRule> fraudRules,
+                                 TransactionTemplate transactionTemplate) {
         this.fraudConfigRepository = fraudConfigRepository;
         this.fraudFlagRepository = fraudFlagRepository;
         this.transactionRepository = transactionRepository;
         this.fraudRules = fraudRules;
+        this.transactionTemplate = transactionTemplate;
     }
 
     private record FraudSeverityResult(String ruleName, FraudSeverity severity) {}
@@ -63,18 +68,22 @@ public class FraudDetectionService {
             }
         }
 
-        // Fire and forget asynchronous post-auth rules
+        // Fire and forget asynchronous post-auth rules within a distinct Hibernate Transaction
+        final UUID txId = transaction.getId();
         fraudRules.stream().filter(FraudRule::isAsync).forEach(rule -> {
             CompletableFuture.runAsync(() -> {
-                try {
-                    FraudSeverity severity = rule.evaluate(transaction, config);
-                    if (severity == FraudSeverity.MAJOR) {
-                        fraudFlagRepository.save(new FraudFlag(transaction, rule.ruleName() + "_ASYNC", 100));
-                        // In a real system, you might freeze the user's wallet here retroactively
+                transactionTemplate.executeWithoutResult(status -> {
+                    try {
+                        Transaction tx = transactionRepository.findById(txId).orElse(null);
+                        if (tx == null) return;
+                        FraudSeverity severity = rule.evaluate(tx, config);
+                        if (severity == FraudSeverity.MAJOR) {
+                            fraudFlagRepository.save(new FraudFlag(tx, rule.ruleName() + "_ASYNC", 100));
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Async fraud rule failed: " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    System.err.println("Async fraud rule failed: " + e.getMessage());
-                }
+                });
             });
         });
 
