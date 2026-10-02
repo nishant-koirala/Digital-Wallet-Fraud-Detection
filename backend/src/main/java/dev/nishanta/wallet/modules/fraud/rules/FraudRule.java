@@ -16,4 +16,9 @@ public interface FraudRule {
     // Matches the values your schema comment listed for rule_triggered:
     // VELOCITY, AMOUNT_THRESHOLD, GEO_MISMATCH
     String ruleName();
+
+    // Whether this rule should be executed asynchronously post-auth
+    default boolean isAsync() {
+        return false;
+    }
 }

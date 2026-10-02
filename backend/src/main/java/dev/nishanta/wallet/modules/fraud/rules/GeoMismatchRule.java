@@ -66,4 +66,9 @@ public class GeoMismatchRule implements FraudRule {
     public String ruleName() {
         return "GEO_MISMATCH";
     }
+
+    @Override
+    public boolean isAsync() {
+        return true;
+    }
 }
