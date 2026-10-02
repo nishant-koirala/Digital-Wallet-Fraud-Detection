@@ -23,6 +23,8 @@ export class FraudReview implements OnInit {
   private toastService = inject(ToastService);
   filterRule = signal<string>('ALL');
   items = signal<FraudItem[]>([]);
+  currentPage = signal<number>(0);
+  totalPages = signal<number>(1);
 
   filteredItems = computed(() => {
     if (this.filterRule() === 'ALL') return this.items();
@@ -34,7 +36,7 @@ export class FraudReview implements OnInit {
   }
 
   loadPending() {
-    this.fraudService.getPendingFlags(0, 1000).subscribe({
+    this.fraudService.getPendingFlags(this.currentPage(), 10).subscribe({
       next: (res) => {
         const mapped = res.content.map((f: any) => ({
           id: f.transactionId,
@@ -44,9 +46,24 @@ export class FraudReview implements OnInit {
           amount: f.amount || 0 
         }));
         this.items.set(mapped);
+        this.totalPages.set(res.totalPages || 1);
       },
       error: (err) => console.error(err)
     });
+  }
+
+  prevPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+      this.loadPending();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update(p => p + 1);
+      this.loadPending();
+    }
   }
 
   approve(item: FraudItem) {
