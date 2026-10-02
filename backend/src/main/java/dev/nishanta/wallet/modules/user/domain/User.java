@@ -33,6 +33,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private KycStatus kycStatus = KycStatus.NOT_SUBMITTED;
 
+    @Column(name = "fraud_risk_score")
+    private int fraudRiskScore = 0;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -63,7 +66,9 @@ public class User {
     public String getPhoneNumber() { return phoneNumber; }
     public String getPinHash() { return pinHash; }
     public KycStatus getKycStatus() { return kycStatus; }
+    public int getFraudRiskScore() { return fraudRiskScore; }
 
+    public void setFraudRiskScore(int fraudRiskScore) { this.fraudRiskScore = fraudRiskScore; }
     public void setKycStatus(KycStatus kycStatus) { this.kycStatus = kycStatus; }
 
     public void setPin(String pinHash) {

@@ -9,6 +9,7 @@ import dev.nishanta.wallet.modules.fraud.repository.FraudFlagRepository;
 import dev.nishanta.wallet.modules.fraud.rules.FraudRule;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
+import dev.nishanta.wallet.modules.user.domain.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,6 +61,19 @@ public class FraudDetectionService {
             transactionRepository.save(transaction);
             return FraudDetectionResult.FLAGGED;
         } else if (isMinor) {
+            User user = transaction.getFromWallet().getUser();
+            user.setFraudRiskScore(user.getFraudRiskScore() + 10);
+            
+            if (user.getFraudRiskScore() > 50) {
+                fraudFlagRepository.save(new FraudFlag(transaction, "MINOR_ESCALATION", user.getFraudRiskScore()));
+                transaction.markFlagged();
+                transactionRepository.save(transaction);
+                
+                // Reset score since the user is now held for major review
+                user.setFraudRiskScore(0);
+                
+                return FraudDetectionResult.FLAGGED;
+            }
             return FraudDetectionResult.MINOR_FRAUD;
         }
         
