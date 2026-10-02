@@ -53,6 +53,7 @@ export class Dashboard implements OnInit {
 
   showTransferModal = signal(false);
   transferToPhone = signal('');
+  qrPayload = signal('');
   transferAmount = signal<number | null>(null);
   transferOtp = signal('');
   transferPin = signal('');
@@ -72,7 +73,19 @@ export class Dashboard implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['transferTo']) {
         this.openTransferModal();
-        this.transferToPhone.set(params['transferTo']);
+        const to = params['transferTo'];
+        if (to.includes('.')) {
+          this.qrPayload.set(to);
+          // Parse JWT payload (base64url to base64) to prefill amount if dynamic
+          try {
+            const base64Url = to.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+            if (payload.amount) this.transferAmount.set(Number(payload.amount));
+          } catch (e) {}
+        } else {
+          this.transferToPhone.set(to);
+        }
       }
     });
   }
@@ -221,6 +234,7 @@ export class Dashboard implements OnInit {
   openTransferModal() {
     this.showTransferModal.set(true);
     this.transferToPhone.set('');
+    this.qrPayload.set('');
     this.transferAmount.set(null);
     this.transferOtp.set('');
     this.transferPin.set('');
@@ -235,7 +249,8 @@ export class Dashboard implements OnInit {
   submitTransfer() {
     const amount = this.transferAmount();
     const toPhone = this.transferToPhone();
-    if (!amount || amount <= 0 || !toPhone || this.isSubmitting()) return;
+    const qrPayload = this.qrPayload();
+    if (!amount || amount <= 0 || (!toPhone && !qrPayload) || this.isSubmitting()) return;
 
     this.isSubmitting.set(true);
     // Real location data would be grabbed via navigator.geolocation in a real app
@@ -245,7 +260,7 @@ export class Dashboard implements OnInit {
     const otp = this.transferOtp();
     const pin = this.transferPin();
 
-    this.transactionService.transfer(toPhone, amount, latitude, longitude, otp, pin).subscribe({
+    this.transactionService.transfer({ toPhoneNumber: toPhone || undefined, qrPayload: qrPayload || undefined, amount, latitude, longitude, otp, pin }).subscribe({
       next: (res: any) => {
         this.isSubmitting.set(false);
         this.closeTransferModal();

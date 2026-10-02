@@ -10,6 +10,7 @@ public record TransferRequest(
         UUID fromWalletId,
         UUID toWalletId,
         String toPhoneNumber,
+        String qrPayload,
         @NotNull
         @Positive
         BigDecimal amount,

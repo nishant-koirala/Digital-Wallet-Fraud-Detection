@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 // enforcement, fraud detection and ledger posting are each delegated to
 // their own service.
 import dev.nishanta.wallet.security.SecurityUtils;
+import dev.nishanta.wallet.security.JwtUtil;
 
 @Service
 public class TransferService {
@@ -44,6 +45,7 @@ public class TransferService {
     private final TransactionLimitValidator transactionLimitValidator;
     private final SecurityUtils securityUtils;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public TransferService(TransactionRepository transactionRepository,
                            WalletLockingService walletLockingService,
@@ -55,7 +57,8 @@ public class TransferService {
                            OtpService otpService,
                            TransactionLimitValidator transactionLimitValidator,
                            SecurityUtils securityUtils,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           JwtUtil jwtUtil) {
         this.transactionRepository = transactionRepository;
         this.walletLockingService = walletLockingService;
         this.fraudDetectionService = fraudDetectionService;
@@ -67,6 +70,7 @@ public class TransferService {
         this.transactionLimitValidator = transactionLimitValidator;
         this.securityUtils = securityUtils;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Transactional(noRollbackFor = OtpRequiredException.class)
@@ -74,16 +78,31 @@ public class TransferService {
         String idempotencyKey = request.idempotencyKey();
         UUID fromWalletId = request.fromWalletId();
         
+        BigDecimal amount = request.amount();
         UUID toWalletId = request.toWalletId();
+
+        if (request.qrPayload() != null && !request.qrPayload().trim().isEmpty()) {
+            try {
+                if (!"qr".equals(jwtUtil.extractType(request.qrPayload()))) {
+                    throw new BusinessRuleException("Invalid QR code type");
+                }
+                toWalletId = UUID.fromString(jwtUtil.extractUsername(request.qrPayload()));
+                String qrAmountStr = jwtUtil.extractQrAmount(request.qrPayload());
+                if (qrAmountStr != null) {
+                    amount = new BigDecimal(qrAmountStr);
+                }
+            } catch (Exception e) {
+                throw new BusinessRuleException("Invalid or expired QR code");
+            }
+        }
+
         if (toWalletId == null && request.toPhoneNumber() != null) {
             Wallet toWallet = walletRepository.findByUser_PhoneNumberAndType(request.toPhoneNumber(), WalletType.PERSONAL)
                  .orElseThrow(() -> new BusinessRuleException("No wallet found for phone number " + request.toPhoneNumber()));
             toWalletId = toWallet.getId();
         } else if (toWalletId == null) {
-            throw new BusinessRuleException("Either toWalletId or toPhoneNumber must be provided");
+            throw new BusinessRuleException("Either toWalletId, toPhoneNumber, or qrPayload must be provided");
         }
-
-        BigDecimal amount = request.amount();
 
         var existing = transactionRepository.findByIdempotencyKey(idempotencyKey);
         if (existing.isPresent()) {

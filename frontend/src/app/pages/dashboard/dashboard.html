@@ -138,10 +138,17 @@
 
 @if (showTransferModal()) {
   <app-modal title="Send Funds" width="400px" (close)="closeTransferModal()">
+    @if (!qrPayload()) {
     <div class="form-group">
       <label>Destination Phone Number</label>
       <input type="text" class="form-control" placeholder="e.g. 9841234567" [ngModel]="transferToPhone()" (ngModelChange)="transferToPhone.set($event)">
     </div>
+    } @else {
+    <div class="form-group">
+      <label>Destination</label>
+      <input type="text" class="form-control" value="Scanned via QR Code" disabled>
+    </div>
+    }
     <div class="form-group">
       <label>Amount</label>
       <input type="number" class="form-control" placeholder="Rs. 0.00" [ngModel]="transferAmount()" (ngModelChange)="transferAmount.set($event)" [disabled]="showOtpField()">

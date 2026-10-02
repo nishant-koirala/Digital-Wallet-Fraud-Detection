@@ -55,5 +55,11 @@ export class WalletService {
       responseType: 'blob'
     });
   }
-}
 
+  getQrPayload(amount?: number) {
+    const walletId = this.authService.walletId;
+    let url = `${environment.apiUrl}/qr/generate?walletId=${walletId}`;
+    if (amount) url += `&amount=${amount}`;
+    return this.http.get<any>(url);
+  }
+}

@@ -40,6 +40,15 @@ public class JwtUtil {
         return createToken(claims, username, 7 * 24 * 60 * 60 * 1000L); // 7 days
     }
 
+    public String generateQrToken(String walletId, java.math.BigDecimal amount) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "qr");
+        if (amount != null) {
+            claims.put("amount", amount.toString());
+        }
+        return createToken(claims, walletId, 365L * 24 * 60 * 60 * 1000L); // 1 year validity for static QRs
+    }
+
     private String createToken(Map<String, Object> claims, String subject, long exp) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -63,6 +72,10 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.get("walletId", String.class));
     }
     
+    public String extractQrAmount(String token) {
+        return extractClaim(token, claims -> claims.get("amount", String.class));
+    }
+
     public String extractType(String token) {
         return extractClaim(token, claims -> claims.get("type", String.class));
     }

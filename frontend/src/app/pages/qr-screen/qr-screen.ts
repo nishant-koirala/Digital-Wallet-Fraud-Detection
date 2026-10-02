@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { WalletService } from '../../services/wallet.service';
 import { QRCodeComponent } from 'angularx-qrcode';
 import jsQR from 'jsqr';
 
@@ -16,6 +17,7 @@ export class QrScreen implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private walletService = inject(WalletService);
 
   myWalletId = signal<string>('');
 
@@ -23,7 +25,10 @@ export class QrScreen implements OnInit {
     this.authService.currentUser$.subscribe({
       next: (user: any) => {
         if (user && user.walletId) {
-          this.myWalletId.set(user.walletId);
+          this.walletService.getQrPayload().subscribe({
+            next: (res) => this.myWalletId.set(res.qrPayload),
+            error: () => this.toastService.error('Failed to load QR code')
+          });
         }
       }
     });

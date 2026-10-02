@@ -22,19 +22,14 @@ export class TransactionService {
   private authService = inject(AuthService);
   private baseUrl = environment.apiUrl + '/transactions';
 
-  transfer(toPhoneNumber: string, amount: number, latitude?: number, longitude?: number, otp?: string, pin?: string): Observable<TransferResponse> {
+  transfer(data: { toPhoneNumber?: string, qrPayload?: string, amount: number, latitude?: number, longitude?: number, otp?: string, pin?: string }): Observable<TransferResponse> {
     const idempotencyKey = crypto.randomUUID();
     const fromWalletId = this.authService.walletId;
 
     return this.http.post<TransferResponse>(`${this.baseUrl}/transfer`, {
       idempotencyKey,
       fromWalletId,
-      toPhoneNumber,
-      amount,
-      latitude,
-      longitude,
-      otp,
-      pin
+      ...data
     });
   }
 
