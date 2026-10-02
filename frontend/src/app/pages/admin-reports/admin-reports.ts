@@ -1,23 +1,26 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminReportService, ReportTransaction, ReportUser } from '../../services/admin-report.service';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { AdminAnalytics } from '../admin-analytics/admin-analytics';
 import { ToastService } from '../../services/toast.service';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Download } from 'lucide-angular';
+import { LucideAngularModule, Download, Eye } from 'lucide-angular';
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ModalComponent, AdminAnalytics],
   templateUrl: './admin-reports.html',
   styleUrl: './admin-reports.scss'
 })
 export class AdminReports implements OnInit {
   readonly Download = Download;
+  readonly Eye = Eye;
   private reportService = inject(AdminReportService);
   private toastService = inject(ToastService);
 
-  activeTab = signal<'TRANSACTIONS' | 'USERS'>('TRANSACTIONS');
+  activeTab = signal<'DASHBOARD' | 'TRANSACTIONS' | 'USERS'>('DASHBOARD');
 
   // Transactions State
   transactions = signal<ReportTransaction[]>([]);
@@ -25,6 +28,7 @@ export class AdminReports implements OnInit {
   txPage = signal(0);
   txTotalPages = signal(0);
   isExportingTx = signal(false);
+  selectedTx = signal<ReportTransaction | null>(null);
 
   // Users State
   users = signal<ReportUser[]>([]);
@@ -32,13 +36,14 @@ export class AdminReports implements OnInit {
   userPage = signal(0);
   userTotalPages = signal(0);
   isExportingUsers = signal(false);
+  selectedUser = signal<ReportUser | null>(null);
 
   ngOnInit() {
     this.loadTransactions();
     this.loadUsers();
   }
 
-  setTab(tab: 'TRANSACTIONS' | 'USERS') {
+  setTab(tab: 'DASHBOARD' | 'TRANSACTIONS' | 'USERS') {
     this.activeTab.set(tab);
   }
 
@@ -128,5 +133,21 @@ export class AdminReports implements OnInit {
         this.isExportingUsers.set(false);
       }
     });
+  }
+
+  viewTx(tx: ReportTransaction) {
+    this.selectedTx.set(tx);
+  }
+
+  closeTx() {
+    this.selectedTx.set(null);
+  }
+
+  viewUser(user: ReportUser) {
+    this.selectedUser.set(user);
+  }
+
+  closeUser() {
+    this.selectedUser.set(null);
   }
 }

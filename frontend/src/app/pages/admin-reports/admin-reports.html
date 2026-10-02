@@ -7,11 +7,16 @@
   </div>
 
   <div class="tabs-container" style="margin-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
+    <button class="btn" [class.active-tab]="activeTab() === 'DASHBOARD'" (click)="setTab('DASHBOARD')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'DASHBOARD' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'DASHBOARD' ? 'var(--color-primary)' : 'var(--color-text-main)'">Dashboard Overview</button>
     <button class="btn" [class.active-tab]="activeTab() === 'TRANSACTIONS'" (click)="setTab('TRANSACTIONS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'TRANSACTIONS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Transactions</button>
     <button class="btn" [class.active-tab]="activeTab() === 'USERS'" (click)="setTab('USERS')" style="background: transparent; border: none; padding: 1rem 2rem; font-weight: 500; border-bottom: 2px solid transparent;" [style.border-bottom-color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'transparent'" [style.color]="activeTab() === 'USERS' ? 'var(--color-primary)' : 'var(--color-text-main)'">Users</button>
   </div>
 
   <div class="solid-card" style="padding: 1.5rem;">
+    @if (activeTab() === 'DASHBOARD') {
+      <app-admin-analytics></app-admin-analytics>
+    }
+
     <!-- Transactions Tab -->
     @if (activeTab() === 'TRANSACTIONS') {
       <div class="toolbar" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: center;">
@@ -38,6 +43,7 @@
               <th style="padding: 1rem; color: #64748b;">Date</th>
               <th style="padding: 1rem; color: #64748b;">Amount</th>
               <th style="padding: 1rem; color: #64748b;">Status</th>
+              <th style="padding: 1rem; color: #64748b;">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -52,10 +58,15 @@
                     <span class="chip flagged" style="margin-left: 0.5rem;">FRAUD</span>
                   }
                 </td>
+                <td style="padding: 1rem;">
+                  <button class="btn btn-sm btn-outline" (click)="viewTx(tx)">
+                    <lucide-icon [img]="Eye" style="width: 1rem; height: 1rem;"></lucide-icon>
+                  </button>
+                </td>
               </tr>
             }
             @empty {
-              <tr><td colspan="4" class="text-center text-slate" style="padding: 2rem;">No transactions found.</td></tr>
+              <tr><td colspan="5" class="text-center text-slate" style="padding: 2rem;">No transactions found.</td></tr>
             }
           </tbody>
         </table>
@@ -95,6 +106,7 @@
               <th style="padding: 1rem; color: #64748b;">Email</th>
               <th style="padding: 1rem; color: #64748b;">Role</th>
               <th style="padding: 1rem; color: #64748b;">KYC Status</th>
+              <th style="padding: 1rem; color: #64748b;">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -106,10 +118,15 @@
                 <td style="padding: 1rem;">
                   <span class="chip" [class]="user.kycStatus === 'APPROVED' ? 'completed' : 'pending'">{{ user.kycStatus }}</span>
                 </td>
+                <td style="padding: 1rem;">
+                  <button class="btn btn-sm btn-outline" (click)="viewUser(user)">
+                    <lucide-icon [img]="Eye" style="width: 1rem; height: 1rem;"></lucide-icon>
+                  </button>
+                </td>
               </tr>
             }
             @empty {
-              <tr><td colspan="4" class="text-center text-slate" style="padding: 2rem;">No users found.</td></tr>
+              <tr><td colspan="5" class="text-center text-slate" style="padding: 2rem;">No users found.</td></tr>
             }
           </tbody>
         </table>
@@ -125,3 +142,31 @@
     }
   </div>
 </div>
+
+@if (selectedTx()) {
+  <app-modal title="Transaction Details" (close)="closeTx()">
+    <div style="padding: 1rem;">
+      <p><strong>ID:</strong> {{ selectedTx()!.id }}</p>
+      <p><strong>Date:</strong> {{ selectedTx()!.createdAt | date:'medium' }}</p>
+      <p><strong>Amount:</strong> {{ selectedTx()!.currency }} {{ selectedTx()!.amount }}</p>
+      <p><strong>Status:</strong> {{ selectedTx()!.status }}</p>
+      <p><strong>From Wallet:</strong> {{ selectedTx()!.fromWalletId }}</p>
+      <p><strong>To Wallet:</strong> {{ selectedTx()!.toWalletId }}</p>
+      <p><strong>Fraudulent:</strong> {{ selectedTx()!.isFraudulent ? 'Yes' : 'No' }}</p>
+    </div>
+  </app-modal>
+}
+
+@if (selectedUser()) {
+  <app-modal title="User Details" (close)="closeUser()">
+    <div style="padding: 1rem;">
+      <p><strong>ID:</strong> {{ selectedUser()!.id }}</p>
+      <p><strong>Name:</strong> {{ selectedUser()!.name }}</p>
+      <p><strong>Email:</strong> {{ selectedUser()!.email }}</p>
+      <p><strong>Phone:</strong> {{ selectedUser()!.phoneNumber }}</p>
+      <p><strong>Role:</strong> {{ selectedUser()!.role }}</p>
+      <p><strong>KYC Status:</strong> {{ selectedUser()!.kycStatus }}</p>
+      <p><strong>Registered:</strong> {{ selectedUser()!.createdAt | date:'medium' }}</p>
+    </div>
+  </app-modal>
+}
