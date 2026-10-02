@@ -8,7 +8,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { ToastService } from '../../services/toast.service';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { LucideAngularModule, Send, Download, Upload, Receipt, QrCode, User, FileText, ShieldCheck } from 'lucide-angular';
+import { LucideAngularModule, Send, Download, Upload, Receipt, QrCode, User, FileText, ShieldCheck, Eye, EyeOff } from 'lucide-angular';
 
 interface Transaction {
   id: string;
@@ -16,6 +16,7 @@ interface Transaction {
   meta: string;
   amount: number;
   time: string;
+  isOutgoing: boolean;
 }
 
 @Component({
@@ -34,6 +35,8 @@ export class Dashboard implements OnInit {
   readonly User = User;
   readonly FileText = FileText;
   readonly ShieldCheck = ShieldCheck;
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private transactionService = inject(TransactionService);
@@ -43,6 +46,7 @@ export class Dashboard implements OnInit {
   private route = inject(ActivatedRoute);
   displayBalance = signal(0);
   targetBalance = 0;
+  showBalance = signal(true);
   
   showDepositModal = signal(false);
   depositAmount = signal<number | null>(null);
@@ -125,7 +129,8 @@ export class Dashboard implements OnInit {
             name: txName,
             meta: t.status,
             amount: displayAmount,
-            time: new Date(t.createdAt).toLocaleDateString()
+            time: new Date(t.createdAt).toLocaleDateString(),
+            isOutgoing: isOutgoing
           };
         });
         this.transactions.set(mapped);
@@ -157,6 +162,10 @@ export class Dashboard implements OnInit {
     }, stepTime);
     
     (this as any).balanceInterval = timer;
+  }
+
+  toggleBalance() {
+    this.showBalance.set(!this.showBalance());
   }
 
   openTransaction(t: Transaction) {
