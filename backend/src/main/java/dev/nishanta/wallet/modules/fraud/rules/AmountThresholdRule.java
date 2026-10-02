@@ -18,21 +18,17 @@ import java.util.UUID;
 public class AmountThresholdRule implements FraudRule {
 
     private final TransactionRepository transactionRepository;
-    private final dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository;
-
-    public AmountThresholdRule(TransactionRepository transactionRepository,
-                               dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository fraudConfigRepository) {
+    public AmountThresholdRule(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
-        this.fraudConfigRepository = fraudConfigRepository;
     }
 
     @Override
-    public FraudSeverity evaluate(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction, dev.nishanta.wallet.modules.fraud.domain.FraudConfig config) {
         UUID walletId = transaction.getFromWallet().getId();
         long historyCount = transactionRepository.countByFromWalletIdAndStatus(
                 walletId, TransactionStatus.COMPLETED);
 
-        dev.nishanta.wallet.modules.fraud.domain.FraudConfig config = fraudConfigRepository.findById(1).orElseGet(dev.nishanta.wallet.modules.fraud.domain.FraudConfig::createDefault);
+
 
         if (historyCount < config.getMinHistoryForBaseline()) {
             if (transaction.getAmount().compareTo(config.getColdStartThreshold().multiply(new BigDecimal("2"))) > 0) {

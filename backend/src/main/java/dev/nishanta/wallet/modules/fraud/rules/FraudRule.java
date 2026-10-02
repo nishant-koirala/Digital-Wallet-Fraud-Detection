@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.fraud.rules;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 
@@ -10,7 +11,7 @@ import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 // TransferService itself.
 public interface FraudRule {
 
-    FraudSeverity evaluate(Transaction transaction);
+    FraudSeverity evaluate(Transaction transaction, FraudConfig config);
 
     // Matches the values your schema comment listed for rule_triggered:
     // VELOCITY, AMOUNT_THRESHOLD, GEO_MISMATCH

@@ -5,7 +5,7 @@ import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import org.springframework.stereotype.Component;
 
 import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
-import dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository;
+
 import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 
 import java.time.LocalDateTime;
@@ -18,17 +18,12 @@ import java.util.UUID;
 public class VelocityRule implements FraudRule {
 
     private final TransactionRepository transactionRepository;
-    private final FraudConfigRepository fraudConfigRepository;
-
-    public VelocityRule(TransactionRepository transactionRepository, FraudConfigRepository fraudConfigRepository) {
+    public VelocityRule(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
-        this.fraudConfigRepository = fraudConfigRepository;
     }
 
     @Override
-    public FraudSeverity evaluate(Transaction transaction) {
-        FraudConfig config = fraudConfigRepository.findById(1)
-                .orElseGet(FraudConfig::createDefault);
+    public FraudSeverity evaluate(Transaction transaction, FraudConfig config) {
 
         UUID walletId = transaction.getFromWallet().getId();
         LocalDateTime now = LocalDateTime.now();

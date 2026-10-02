@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.fraud.rules;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import dev.nishanta.wallet.modules.fraud.domain.UserDevice;
 import dev.nishanta.wallet.modules.fraud.repository.UserDeviceRepository;
@@ -19,7 +20,7 @@ public class DeviceAnomalyRule implements FraudRule {
     }
 
     @Override
-    public FraudSeverity evaluate(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction, FraudConfig config) {
         String deviceId = transaction.getDeviceId();
         String ipAddress = transaction.getIpAddress();
         UUID userId = transaction.getFromWallet().getUser().getId();

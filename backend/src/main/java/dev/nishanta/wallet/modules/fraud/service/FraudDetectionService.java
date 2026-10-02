@@ -1,8 +1,10 @@
 package dev.nishanta.wallet.modules.fraud.service;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.fraud.domain.FraudFlag;
 import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
 import dev.nishanta.wallet.modules.fraud.domain.FraudDetectionResult;
+import dev.nishanta.wallet.modules.fraud.repository.FraudConfigRepository;
 import dev.nishanta.wallet.modules.fraud.repository.FraudFlagRepository;
 import dev.nishanta.wallet.modules.fraud.rules.FraudRule;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
@@ -18,26 +20,31 @@ import java.util.stream.Collectors;
 @Service
 public class FraudDetectionService {
 
+    private final FraudConfigRepository fraudConfigRepository;
     private final FraudFlagRepository fraudFlagRepository;
     private final TransactionRepository transactionRepository;
     private final List<FraudRule> fraudRules;
 
-    public FraudDetectionService(FraudFlagRepository fraudFlagRepository,
+    public FraudDetectionService(FraudConfigRepository fraudConfigRepository,
+                                 FraudFlagRepository fraudFlagRepository,
                                  TransactionRepository transactionRepository,
                                  List<FraudRule> fraudRules) {
+        this.fraudConfigRepository = fraudConfigRepository;
         this.fraudFlagRepository = fraudFlagRepository;
         this.transactionRepository = transactionRepository;
         this.fraudRules = fraudRules;
     }
 
     public FraudDetectionResult evaluateFraud(Transaction transaction) {
+        FraudConfig config = fraudConfigRepository.findById(1).orElseGet(FraudConfig::createDefault);
+
         boolean isMajor = false;
         boolean isMinor = false;
         java.util.List<String> majorRules = new java.util.ArrayList<>();
         java.util.List<String> minorRules = new java.util.ArrayList<>();
 
         for (FraudRule rule : fraudRules) {
-            FraudSeverity severity = rule.evaluate(transaction);
+            FraudSeverity severity = rule.evaluate(transaction, config);
             if (severity == FraudSeverity.MAJOR) {
                 isMajor = true;
                 majorRules.add(rule.ruleName());

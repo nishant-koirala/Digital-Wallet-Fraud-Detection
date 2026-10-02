@@ -1,5 +1,6 @@
 package dev.nishanta.wallet.modules.fraud.rules;
 
+import dev.nishanta.wallet.modules.fraud.domain.FraudConfig;
 import dev.nishanta.wallet.modules.transaction.domain.Transaction;
 import dev.nishanta.wallet.modules.transaction.repository.TransactionRepository;
 import dev.nishanta.wallet.modules.fraud.domain.FraudSeverity;
@@ -22,7 +23,7 @@ public class GeoMismatchRule implements FraudRule {
     }
 
     @Override
-    public FraudSeverity evaluate(Transaction transaction) {
+    public FraudSeverity evaluate(Transaction transaction, FraudConfig config) {
         // No location on THIS transaction — nothing to check. Per the
         // earlier decision: skip silently, don't penalize missing
         // permission.
