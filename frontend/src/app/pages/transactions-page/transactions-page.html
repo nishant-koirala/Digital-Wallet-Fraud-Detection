@@ -25,9 +25,14 @@
     <ul class="transaction-list">
       @for (t of filteredTransactions(); track t.id) {
         <li class="transaction-row" (click)="openTransaction(t)">
-          <div class="details">
-            <span class="name">{{ t.name }}</span>
-            <span class="meta">{{ t.meta }}</span>
+          <div class="tx-left" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="icon-circle" [class.outgoing]="t.isOutgoing">
+              <lucide-icon [img]="t.isOutgoing ? Upload : Download" style="width: 1.2rem; height: 1.2rem;"></lucide-icon>
+            </div>
+            <div class="details">
+              <span class="name">{{ t.name }}</span>
+              <span class="meta">{{ t.meta }}</span>
+            </div>
           </div>
           <div class="amount-status">
             <span class="amount" [class.positive]="t.amount > 0">

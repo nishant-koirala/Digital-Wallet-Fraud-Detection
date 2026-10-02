@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../services/wallet.service';
 import { AuthService } from '../../services/auth.service';
+import { LucideAngularModule, Download, Upload } from 'lucide-angular';
 
 interface Transaction {
   id: string;
@@ -10,16 +11,19 @@ interface Transaction {
   meta: string;
   amount: number;
   time: string;
+  isOutgoing: boolean;
 }
 
 @Component({
   selector: 'app-transactions-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './transactions-page.html',
   styleUrl: './transactions-page.scss'
 })
 export class TransactionsPage implements OnInit {
+  readonly Download = Download;
+  readonly Upload = Upload;
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
 
@@ -56,7 +60,8 @@ export class TransactionsPage implements OnInit {
             name: t.toWallet?.id ? 'Transfer' : 'Deposit/System',
             meta: t.status,
             amount: displayAmount,
-            time: new Date(t.createdAt).toLocaleDateString()
+            time: new Date(t.createdAt).toLocaleDateString(),
+            isOutgoing: isOutgoing
           };
         });
         this.transactions.set(mapped);
